@@ -1,0 +1,31 @@
+version: "3.3"
+networks:
+  container-link:
+    name: docker.internal
+services:
+  db:
+    image: postgres:14
+    container_name: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - container-link
+    volumes:
+      - db-vol:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: passw0rd
+      POSTGRES_USER: dhuser
+      POSTGRES_DB: dhlocal
+  gcs:
+    image: fsouza/fake-gcs-server
+    container_name: fake-gcs-server
+    ports:
+      - 4443:4443
+    networks:
+      - container-link
+    volumes:
+      - ./.data:/data/data-spaces-image
+      - ./.storage:/storage
+    command: -scheme http -public-host gcs:4443
+volumes:
+  db-vol:
