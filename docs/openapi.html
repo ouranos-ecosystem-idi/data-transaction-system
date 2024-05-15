@@ -21,15 +21,9 @@
   "openapi": "3.0.1",
   "info": {
     "title": "データ連携基盤 API",
-    "termsOfService": "http://swagger.io/terms/",
     "contact": {},
-    "version": "0.5.2.3"
+    "version": "0.5.2.4"
   },
-  "servers": [
-    {
-      "url": "https://example.com/"
-    }
-  ],
   "paths": {
     "/api/v1/authInfo?dataTarget=operator": {
       "get": {
@@ -1007,7 +1001,7 @@
     "/api/v1/datatransport?dataTarget=cfp&traceIds={uuid}": {
       "get": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#14CFP情報一覧取得",
         "description": "トレース識別子に紐づけられているCFP情報の一覧を取得します。\n\ntraceIdは複数のIdを指定することで、該当するCFP情報の一覧を取得できます。指定は最大50項目まで可能です。\n\n（複数の問い合わせ例）/api/v1/datatransport?dataTarget=cfp?traceId=d9a38406-cae2-4679-b052-15a75f5531f6,d9a38406-cae2-4679-b052-15a75f5531f7\n\n取得されるモデル：CfpModel\n\n- cfpType: 登録するCFPの種別を識別します。現在は下記の種別のいずれかが返却されます。それぞれの値と意味合いは下記の通りです。\n\n  - preProduction → 前処理自社由来排出量\n  - mainProduction → 製造自社由来排出量\n  - preComponent → 前処理部品由来排出量\n  - mainComponent → 製造部品由来排出量\n  - preProductionTotal → 前処理自社由来排出量（合計）\n  - mainProductionTotal → 主な製造自社由来排出量（合計）\n  - preComponentTotal → 前処理部品由来排出量（合計）\n  - mainComponentTotal → 主な製造部品由来排出量（合計）\n  - preProductionResponse → 前処理部品由来排出量（回答）\n  - mainProductionResponse → 主な製造部品由来排出量（回答）\n\n- 取得時のソート順：リクエストのtraceIdsの先頭から順番に返却\n\n### DQRの取得\n\n- dqrType:トレーサビリティ管理システムでは工程毎にDQRを設定します。dqrTypeとcfpTypeの関係は下記の通りになります。\n  - preProsessing → 前処理工程で排出されるCFP値のDQRを示します。対象となるcfpTypeはpreProductionとpreComponentになります\n  - mainProsessing → 製造工程で排出されるCFP値のDQRを示します。対象となるcfpTypeはmainProductionとmainComponentになります\n  - preProsessingTotal → 前処理工程の合計で排出されるCFP値のDQRを示します。対象となるcfpTypeはpreProductionTotalとpreComponentTotalになります\n  - mainProsessingTotal → 製造工程の合計で排出されるCFP値のDQRを示します。対象となるcfpTypeはmainProductionTotalとmainComponentTotalになります\n  - preProsessingResponse → 川上の前処理工程で排出されるCFP値のDQRを示します。対象となるcfpTypeはpreProductionResponseになります\n  - mainProsessingResponse → 川上の製造工程で排出されるCFP値のDQRを示します。対象となるcfpTypeはmainProductionResponseになります",
@@ -1486,10 +1480,10 @@
     "/api/v1/datatransport?dataTarget=cfp": {
       "put": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
-        "summary": "#15CFP情報登録",
-        "description": "トレース識別子に紐づけられている製品にCFP情報を新規作成および更新します。\n\n使用するモデル：CfpModel\n\n- cfpIdをnull値で指定した場合は新規作成の処理となります。Response BodyのCfpModelに発番されたcfpIdが埋め込まれます。\nすでに他のcfpTypeを登録している場合は、同じcfpIdを指定して更新処理を実施します。\n\n- ghgDeclaredUnit: 指定された任意の値をGHG量単位として登録します。\n\n- cfpType: 登録するCFPの種別を識別します。現在は下記の種別を選択することができます。それぞれの値と意味合いは下記の通りです。以下の種別以外が指定された場合は400エラーとなります。\n  - preProduction → 前処理自社由来排出量\n  - mainProduction → 製造自社由来排出量\n  - preComponent → 前処理部品由来排出量\n  - mainComponent → 製造部品由来排出量\n\n- トレーサビリティ管理システムへのcfp情報登録は上記全てのカテゴリーを一度に登録します。指定がないカテゴリーがある場合は400エラーとなります。\n\n- ghgDeclaredUnitにenumを設定します。enumの制限は下記です。\n  - kgCO2e/liter\n  - kgCO2e/kilogram\n  - kgCO2e/cubic-meter\n  - kgCO2e/kilowatt-hour\n  - kgCO2e/megajoule\n  - kgCO2e/ton-kilometer\n  - kgCO2e/square-meter\n  - kgCO2e/unit\n\n### CFPの設定\n本APIを使い、CFPを設定する場合は下記の注意点がございます。\n- cfpTypeは「preProduction、mainProduction、preComponent、mainComponentの4つを要素とする配列を登録してください。（どれか1つでも指定が足りない場合は400Errorになります）\n\n- 全ての要素で、cfpId, traceId, ghgDeclaredUnitには同じ値を指定してください。（同じでない場合は400Errorになります）\n\n- どれか1つの要素を更新する場合は、それ以外の要素には元々入っている値を指定してください。（0値等を指定すると、0で更新されます）\n\n- ghgEmissionに値を登録しない要素はにはghgEmissionに0を指定してください。\n\n- ghgEmissionの有効桁数は小数点第5位までのため、第6位を切り上げた状態で登録を実施してください\n\n### DQRの設定\n\n- dqrType:トレーサビリティ管理システムでは工程毎にDQRを設定します。dqrTypeを設定し、それぞれの考え方は下記になります\n  - preProsessing → 前処理工程で排出されるCFP値のDQRを示します。対象となるcfpTypeはpreProductionとpreComponentになります\n  - mainProsessing → 製造工程で排出されるCFP値のDQRを示します。対象となるcfpTypeはmainProductionとmainComponentになります\n\n- 同じtraceId・cfpIdで同じdqrTypeにはcfpTypeに該当する値が登録されていない場合でも同じdqrTypeの値を指定します\n\n- dqrValueの有効桁数は小数点第5位までのため、第6位を切り上げた状態で登録を実施してください",
+        "summary": "#15CFP情報更新",
+        "description": "トレース識別子に紐づけられている製品にCFP情報を新規作成および更新します。\n\n使用するモデル：CfpModel\n\n- cfpIdをnull値で指定した場合は新規作成の処理となります。Response BodyのCfpModelに発番されたcfpIdが埋め込まれます。\nすでに他のcfpTypeを登録している場合は、同じcfpIdを指定して更新処理を実施します。\n\n- ghgDeclaredUnit: 指定された任意の値をGHG量単位として登録します。\n\n- cfpType: 登録するCFPの種別を識別します。現在は下記の種別を選択することができます。それぞれの値と意味合いは下記の通りです。以下の種別以外が指定された場合は400エラーとなります。\n  - preProduction → 前処理自社由来排出量\n  - mainProduction → 製造自社由来排出量\n  - preComponent → 前処理部品由来排出量\n  - mainComponent → 製造部品由来排出量\n\n- トレーサビリティ管理システムへのCFP情報更新は上記全てのカテゴリーを一度に登録します。指定がないカテゴリーがある場合は400エラーとなります。\n\n- ghgDeclaredUnitにenumを設定します。enumの制限は下記です。\n  - kgCO2e/liter\n  - kgCO2e/kilogram\n  - kgCO2e/cubic-meter\n  - kgCO2e/kilowatt-hour\n  - kgCO2e/megajoule\n  - kgCO2e/ton-kilometer\n  - kgCO2e/square-meter\n  - kgCO2e/unit\n\n### CFPの設定\n本APIを使い、CFPを設定する場合は下記の注意点がございます。\n- cfpTypeは「preProduction、mainProduction、preComponent、mainComponentの4つを要素とする配列を登録してください。（どれか1つでも指定が足りない場合は400Errorになります）\n\n- 全ての要素で、cfpId, traceId, ghgDeclaredUnitには同じ値を指定してください。（同じでない場合は400Errorになります）\n\n- どれか1つの要素を更新する場合は、それ以外の要素には元々入っている値を指定してください。（0値等を指定すると、0で更新されます）\n\n- ghgEmissionに値を登録しない要素はにはghgEmissionに0を指定してください。\n\n- ghgEmissionの有効桁数は小数点第5位までのため、第6位を切り上げた状態で登録を実施してください\n\n### DQRの設定\n\n- dqrType:トレーサビリティ管理システムでは工程毎にDQRを設定します。dqrTypeを設定し、それぞれの考え方は下記になります\n  - preProsessing → 前処理工程で排出されるCFP値のDQRを示します。対象となるcfpTypeはpreProductionとpreComponentになります\n  - mainProsessing → 製造工程で排出されるCFP値のDQRを示します。対象となるcfpTypeはmainProductionとmainComponentになります\n\n- 同じtraceId・cfpIdで同じdqrTypeにはcfpTypeに該当する値が登録されていない場合でも同じdqrTypeの値を指定します\n\n- dqrValueの有効桁数は小数点第5位までのため、第6位を切り上げた状態で登録を実施してください",
         "parameters": [
           {
             "name": "dataTarget",
@@ -2079,7 +2073,7 @@
     "/api/v1/datatransport?dataTarget=cfpCertification&traceId={uuid}": {
       "get": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#18CFP証明書情報取得",
         "description": "トレース識別子に紐づけられているCFP証明書のファイルをダウンロードするために必要な情報を取得します。\n\n取得されるモデル：CfpCertificationModel",
@@ -2344,7 +2338,7 @@
     "/api/v1/datatransport?dataTarget=parts": {
       "get": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#8事業者部品一覧取得",
         "description": "事業者識別子（内部）に紐づけられている製品の一覧を取得します。\n\n取得されるモデル：PartsModel\n\n- 取得される製品一覧には子で作成した製品も含まれます。親のみを検索する場合はparentFlagをtrueにして検索をします。\n\n- #8 事業者部品一覧取得に追加するQueryパラメータ\n  - 下記のQueryパラメータが指定された場合は設定されたパラメータを全て満たすものを検索します。未設定のパラメータは検索条件には使用しません。\n    - traceId\n    - partsName\n    - plantId\n    - parentFlag\n\n- 取得時のソート順：部品項目の昇順",
@@ -2440,7 +2434,7 @@
             "description": "PartsModelの配列を取得",
             "headers": {
               "Link": {
-                "description": "\\<https://example.com/api/v1/datatransport?dataTarget=parts&limit=100&after=(uuid)\\>; rel=\"next",
+                "description": "\\<https://example.com/api/v1/datatransport?dataTarget=parts&limit=100&after=(uuid)\\>;",
                 "style": "simple",
                 "explode": false,
                 "schema": {
@@ -2667,7 +2661,7 @@
       },
       "put": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#5部品情報更新",
         "description": "事業者識別子（内部）、事業所識別子（内部）に紐づいた部品を登録または内容を更新します。\n\n使用するモデル：PartsModel\n\n- operatorIdは変更できません。更新時に指定するoperatorIdは、認証によって得られたoperatorIdと同じ値を指定する必要があります。異なる場合は403エラーとなります。\n\n- traceId,plantIdは変更できません。partsName,supportPartsName,plantIdの組み合わせでtraceIdが採番されるため変更できません。\n\n- traceIdをnull値で指定した場合は新規作成の処理となります。Response BodyのPartsModelに発番されたtraceIdが埋め込まれます。\n\n- traceIdの発番ルール：\noperatorId, plantId, partsName, supportPartsNameの組み合わせが一意になるようにtraceIdを発番します。\nこれらの内容のいずれかに変更がある場合は新規のtraceIdが発番されます。\n\n- 補助項目：\n補助項目の利用方法としては、各社で管理している部品番号は同一でありながら、CFP情報の区別が必要なケース（仕入先が異なる、工場が異なる、集計期間が異なる等）において、トレース識別子を区別するために利用することを想定しています。\n\n- 親部品作成時は活動量の指定は不要のためamountRequiredにはnullを指定します。\n\n- amountRequiredUnitは下記の値のみ登録が可能です。\n  - liter\n  - kilogram\n  - cubic-meter\n  - kilowatt-hour\n  - megajoule\n  - ton-kilometer\n  - square-meter\n  - unit\n\n### 本API利用上の注意点\n- 本APIは「親部品の新規作成」および「子部品を持たない親部品の部品情報更新」を対象としております。\n\n- その他の場合に本APIを利用しますと、意図しない挙動になってしまうためご注意ください。\n（例：子部品を持った親部品を本APIで更新した場合、子部品がない状態に更新されてしまう）",
@@ -2986,7 +2980,7 @@
     "/api/v1/datatransport?dataTarget=partsStructure&traceId={uuid}": {
       "get": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#9部品構成情報一覧取得",
         "description": "トレース識別子で指定した部品の部品構成情報を取得します。\n\n使用するモデル：PartsStructureModel\n\n- 親のPartsModelと子のPartsModelのリストで構成されます。仕入先と仕入元の部品関係を表すため、2階層の親子関係で表現されます。",
@@ -3246,7 +3240,7 @@
     "/api/v1/datatransport?dataTarget=partsStructure": {
       "put": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#6部品構成情報一覧更新",
         "description": "トレース識別子で指定した部品の部品構成情報を登録または更新します。\n\n使用するモデル：PartsStructureModel\n\n- 親のPartsModelと子のPartsModelのリストで構成されます。\n  仕入先と仕入元の部品関係を表すため、2階層の親子関係で表現されます。\n\n- 親部品が登録済みの場合は、既に発番されているtraceIdを指定してください。\n  親部品のtraceIdをnull値で指定した場合は親部品の新規作成の処理となります。\n  Response BodyのPartsStructureModelモデルに発番されたtraceIdが埋め込まれます。\n\n- traceIdの発番ルール：operatorId, plantId, partsName, supportPartsNameの組み合わせが一意になるようにtraceIdを発番します。\n\n- 子製品に設定するoperatorIdは自社の事業者識別子（内部）を、plantIdは自社の事業所識別子（内部）のうちのどれかを登録してください。\n\n- operatorIdは変更できません。指定するoperatorIdは、認証によって得られたoperatorIdと同じ値を指定する必要があります。異なる場合は403エラーとなります。\n\n- traceId,plantIdは変更できません。partsName,supportPartsName,plantIdの組み合わせでtraceIdが採番されるため変更できません。\n\n- 活動量と活動量単位：単位による活動量やCFP値の換算は実施しません。\n\n- 親部品には活動量は登録できないため、nullを指定します。\n\n- 活動量には親部品の単位量あたりに必要な子部品の活動量を登録してください。\n\n- amountRequiredUnitは下記の値のみ登録が可能です。\n  - liter\n  - kilogram\n  - cubic-meter\n  - kilowatt-hour\n  - megajoule\n  - ton-kilometer\n  - square-meter\n  - unit",
@@ -3581,7 +3575,7 @@
     "/api/v1/datatransport?dataTarget=status": {
       "get": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#11依頼・回答情報一覧取得",
         "description": "事業者識別子（内部）に紐づいている依頼・回答情報の一覧を取得します。\n\n取得されるモデル：StatusModel\n\n- requestStatus：取引の依頼種別で指定した範囲が扱うステータスを配列で全て返却します。\nトレーサビリティ管理システムでは下記が返却されます。\n\n  - cfpResponseStatus: CFPの回答状況を表します。ステータスの種類と意味合いは以下になります。\n\n    - NOT_COMPLETED: 依頼中\n    - COMPLETED: 回答完了\n    - REJECT: 差戻\n    - CANCEL: 取消\n\n  - tradeTreeStatus: 対象の取引関係情報が全て終端したかを表します。ステータスの種類と意味合いは以下になります。\n\n    - TERMINATED: 終端済み\n    - UNTERMINATED: 未終端\n\n- requestType：取引の依頼種別を指定します。現在は下記指定が可能です。\n\n  - CFP（固定値になります）\n\n- #11依頼・回答情報一覧取得に追加するQueryパラメータ\n  下記のQueryパラメータが指定された場合は一致するものを検索します。未設定の場合は検索条件には使用しません。\n  - statusTarget: 依頼情報（自社が依頼元）か回答情報（自社が依頼先）かを絞り込みます。指定できる値は下記になります。\n  （※こちらのQueryパラメータを指定することを強く推奨いたします。クエリパラメータを指定しない場合は、応答時間が長くなる可能性がございます）\n    - REQUEST: 依頼情報（自社が依頼元）のステータスを取得します\n    - RESPONSE: 回答情報（自社が依頼先）のステータスを取得します\n  \n  - traceId: 指定されたtraceIdに一致する結果のみ返却します。絞り込みは\"statusTarget=REQUEST\"を併用した場合のみ有効になります。\n\n  - statusId: 指定されたstatusIdに一致する結果のみ返却します。絞り込みは\"statusTarget=RESPONSE\"を併用した場合は検索時間が短いが、statusIdのみ指定した場合は応答時間が長くなる可能性がございます。\n  \"statusTarget=REQUEST\"と併用して利用することはできません。\n\n- 取得時のソート順：取引関係作成日時の降順",
@@ -3926,7 +3920,7 @@
       },
       "put": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#16依頼情報ステータスの変更（依頼取消・依頼差戻）",
         "description": "事業者識別子（内部）に紐づけられている依頼・回答情報のステータスを変更します。\n\nトレーサビリティ管理システムではrequestStatusフィールドのcfpResponseStatusが取消(CANCEL)か差戻(REJECT)の場合に取り消しと差戻の処理を実施します。\n\n取消(CANCEL)と差戻以外(REJECT)のステータスが指定された場合は400エラーになります。\n\n依頼差戻の場合のみ、replyMessageに差戻理由を記載し、保存することができます。依頼取消時にはreplyMessageはnullを指定してください。\n\n依頼取消と依頼差戻の使い分けは下記を想定しております\n- 依頼取消：川下（依頼元）が川上（依頼先）に出している依頼を取り消す時に利用する\n- 依頼差戻：川上（依頼先）が川下（依頼元）から受けている依頼を取り消す時に利用する\n\n使用するモデル：StatusModel",
@@ -4195,7 +4189,7 @@
     "/api/v1/datatransport?dataTarget=tradeRequest": {
       "get": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#10取引依頼情報一覧取得",
         "description": "事業者識別子（内部）に紐づけられている取引情報の一覧を取得します。\n\n取得されるモデル：TradeModel\n\n- #10取引依頼情報一覧取得に追加するQueryパラメータ\n  - 下記のQueryパラメータが指定された場合は一致するものを検索します。未設定の場合は検索条件には使用しません。\n    - traceIds: 指定されたtraceIdにdownstreamTraceIdが一致する結果のみを返却します（複数指定可能(最大50まで)、カンマ区切りで指定）。\n      またtraceIdsが指定されている場合はlimitのパラメータが指定されたとしても有効にはなりません。\n\n- 取得時のソート順：取引関係作成日時の降順",
@@ -4464,7 +4458,7 @@
       },
       "put": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#7取引関係依頼情報更新",
         "description": "トレース識別子で指定した部品の取引情報を登録または更新します。\n\n使用するモデル：TradeRequestModel（Trademodel & StatusModel）\n\n- downstreamOperatorIdは変更できません。指定するdownstreamOperatorIdは、認証によって得られたoperatorIdと同じ値を指定する必要があります。異なる場合は403エラーとなります。\n\n- Request Bodyに指定したupstreamOperatorIdが存在しない場合は404エラーとなります。\n\n- 新規作成時のTradeModelの内容は以下の通りとなります。\n\n  - downstreamOperatorId, upstreamOperatorId, downstreamTraceIdを入力し、tradeIdとupstreamTraceIdはnullを指定してください。\n  tradeIdはResponse BodyのTradeRequestModelに発番されたIDが代入されます。\n\n- 新規作成時のStatusModelの内容は以下の通りとなります。\n\n  - tradeId, statusIdはnullを指定してください。tradeId, statusIdはResponse BodyのTradeRequestModelに発番されたIDが代入されます。\n  - requestTypeは\"CFP\"を指定します。\n\n- requestStatusの値およびreplyMessageは変更できない情報になります。\n\n- 仕入先トレース識別子（upstreamTraceId）は仕入先のみが回答できる情報のため、納品先事業者からは更新できない情報になります。",
@@ -4764,7 +4758,7 @@
     "/api/v1/datatransport?dataTarget=tradeResponse": {
       "get": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#12取引関係回答情報一覧取得",
         "description": "事業者識別子（内部）に紐づいた、回答を依頼されている取引情報の一覧を取得します。\n取引情報に紐づいた依頼元の部品情報（downstreamTraceIdの部品情報）およびステータスの情報を取得します。\n\n川下の活動量は川上には非開示情報のため、nullを渡します。\n\n取得されるモデル：TradeResponseModel(TradeModel&PartsModel&StatusModel)\n\n取得時のソート順：取引関係作成日時の降順",
@@ -5045,7 +5039,7 @@
     "/api/v1/datatransport?dataTarget=tradeResponse&tradeId={uuid}&traceId={uuid}": {
       "put": {
         "tags": [
-          "データ流通プラットフォーム"
+          "データ流通システム"
         ],
         "summary": "#13取引関係回答情報更新",
         "description": "取引関係情報識別子で指定した部品の取引情報の依頼に仕入先トレース識別子を登録または更新します。\n\n使用するモデル：なし\n\nResponse BodyのTradeModelには、指定したtraceIdがupstreamTraceIdとして登録されます。",
@@ -6060,7 +6054,8 @@
           "accessToken": {
             "type": "string",
             "description": "アクセストークン",
-            "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjAzZDA3YmJjM2Q3NWM2OTQyNzUxMGY2MTc0ZWIyZjE2NTQ3ZDRhN2QiLCJ0eXAiOiJKV1QifQ.eyJvcGVyYXRvcl9pZCI6IjBmMWViYTkwLTgzOWYtNDA1OS1iOWNiLTcwY2JhZjQ5MDIzOSIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdWQiOiJkYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdXRoX3RpbWUiOjE2OTc3NjU3OTEsInVzZXJfaWQiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJzdWIiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJpYXQiOjE2OTc3NjU3OTEsImV4cCI6MTY5Nzc2OTM5MSwiZW1haWwiOiJ0ZXN0ZG90ZF90ZXN0QHNhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidGVzdGRvdGRfdGVzdEBzYW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.mAe7NTKTiKY-pGYZxvjBejIMpgfgBTz4ymGM2jMDpwBT2aRQCAcV0a2__n3ewgBl1kwR66OcsDq6CbXHu33zRiBGbYehy0aotTb0C81DIGnD__n0w8eYuoXhvp3z2ScOfOPBhCvoA9Eg1Yvk3rgpfQa8eFGCOp1-_RQuiaXo8IqRbg9xgCbo6xaxSvgeup-OHv0tR7IwDmauwCT-RCeU0WxHn6i2YKgUrULFIZSoF8WQuPL0HKEl4-jJbOP2TASTpLyshCDeECq4AaWercYf36A2DZ6udhJSO-lKwPtb5QjGJQbVKd_SINdoMvI2oHvuhzPz5MK4StMCumZ02AZ9sw"
+            "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjAzZDA3YmJjM2Q3NWM2OTQyNzUxMGY2MTc0ZWIyZjE2NTQ3ZDRhN2QiLCJ0eXAiOiJKV1QifQ.eyJvcGVyYXRvcl9pZCI6IjBmMWViYTkwLTgzOWYtNDA1OS1iOWNiLTcwY2JhZjQ5MDIzOSIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdWQiOiJkYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdXRoX3RpbWUiOjE2OTc3NjU3OTEsInVzZXJfaWQiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJzdWIiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJpYXQiOjE2OTc3NjU3OTEsImV4cCI6MTY5Nzc2OTM5MSwiZW1haWwiOiJ0ZXN0ZG90ZF90ZXN0QHNhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidGVzdGRvdGRfdGVzdEBzYW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.mAe7NTKTiKY-pGYZxvjBejIMpgfgBTz4ymGM2jMDpwBT2aRQCAcV0a2__n3ewgBl1kwR66OcsDq6CbXHu33zRiBGbYehy0aotTb0C81DIGnD__n0w8eYuoXhvp3z2ScOfOPBhCvoA9Eg1Yvk3rgpfQa8eFGCOp1-_RQuiaXo8IqRbg9xgCbo6xaxSvgeup-OHv0tR7IwDmauwCT-RCeU0WxHn6i2YKgUrULFIZSoF8WQuPL0HKEl4-jJbOP2TASTpLyshCDeECq4AaWercYf36A2DZ6udh
+JSO-lKwPtb5QjGJQbVKd_SINdoMvI2oHvuhzPz5MK4StMCumZ02AZ9sw"
           },
           "refreshToken": {
             "type": "string",
@@ -6085,7 +6080,8 @@
           "accessToken": {
             "type": "string",
             "description": "アクセストークン",
-            "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjAzZDA3YmJjM2Q3NWM2OTQyNzUxMGY2MTc0ZWIyZjE2NTQ3ZDRhN2QiLCJ0eXAiOiJKV1QifQ.eyJvcGVyYXRvcl9pZCI6IjBmMWViYTkwLTgzOWYtNDA1OS1iOWNiLTcwY2JhZjQ5MDIzOSIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdWQiOiJkYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdXRoX3RpbWUiOjE2OTc3NjU3OTEsInVzZXJfaWQiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJzdWIiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJpYXQiOjE2OTc3NjU3OTEsImV4cCI6MTY5Nzc2OTM5MSwiZW1haWwiOiJ0ZXN0ZG90ZF90ZXN0QHNhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidGVzdGRvdGRfdGVzdEBzYW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.mAe7NTKTiKY-pGYZxvjBejIMpgfgBTz4ymGM2jMDpwBT2aRQCAcV0a2__n3ewgBl1kwR66OcsDq6CbXHu33zRiBGbYehy0aotTb0C81DIGnD__n0w8eYuoXhvp3z2ScOfOPBhCvoA9Eg1Yvk3rgpfQa8eFGCOp1-_RQuiaXo8IqRbg9xgCbo6xaxSvgeup-OHv0tR7IwDmauwCT-RCeU0WxHn6i2YKgUrULFIZSoF8WQuPL0HKEl4-jJbOP2TASTpLyshCDeECq4AaWercYf36A2DZ6udhJSO-lKwPtb5QjGJQbVKd_SINdoMvI2oHvuhzPz5MK4StMCumZ02AZ9sw"
+            "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjAzZDA3YmJjM2Q3NWM2OTQyNzUxMGY2MTc0ZWIyZjE2NTQ3ZDRhN2QiLCJ0eXAiOiJKV1QifQ.eyJvcGVyYXRvcl9pZCI6IjBmMWViYTkwLTgzOWYtNDA1OS1iOWNiLTcwY2JhZjQ5MDIzOSIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdWQiOiJkYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdXRoX3RpbWUiOjE2OTc3NjU3OTEsInVzZXJfaWQiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJzdWIiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJpYXQiOjE2OTc3NjU3OTEsImV4cCI6MTY5Nzc2OTM5MSwiZW1haWwiOiJ0ZXN0ZG90ZF90ZXN0QHNhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidGVzdGRvdGRfdGVzdEBzYW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.mAe7NTKTiKY-pGYZxvjBejIMpgfgBTz4ymGM2jMDpwBT2aRQCAcV0a2__n3ewgBl1kwR66OcsDq6CbXHu33zRiBGbYehy0aotTb0C81DIGnD__n0w8eYuoXhvp3z2ScOfOPBhCvoA9Eg1Yvk3rgpfQa8eFGCOp1-_RQuiaXo8IqRbg9xgCbo6xaxSvgeup-OHv0tR7IwDmauwCT-RCeU0WxHn6i2YKgUrULFIZSoF8WQuPL0HKEl4-jJbOP2TASTpLyshCDeECq4AaWercYf36A2DZ6udh
+JSO-lKwPtb5QjGJQbVKd_SINdoMvI2oHvuhzPz5MK4StMCumZ02AZ9sw"
           }
         }
       },

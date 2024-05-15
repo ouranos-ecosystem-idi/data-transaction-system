@@ -1,478 +1,8 @@
 openapi: 3.0.1
 info:
   title: データ連携基盤 API
-  description: |
-    ## 変更履歴管理
-
-    ### v0.3.1 2023/11/13公開。（誤記の修正のため、公開済みのAPIへの変更はありません）
-
-    - minLenthの項目を追加しました。（追加モデル：OperatorModel, PlantModel, PartsModel, StatusModel）
-
-    - RequestBodyとの乖離が発生したため、readOnlyの記載を削除しました。変更不可の旨はDescriptionに記載しています。
-    （ドキュメント修正対象のモデル：OperatorModel, PlantModel, PartsModel, TradeModel, StatusModel, CfpModel）
-
-    - Linkのパラメータを修正しました。
-    （ドキュメント修正対象のAPI：#8事業者部品一覧取得, #10取引関係依頼情報一覧取得, #11依頼・回答情報一覧取得, #12取引関係回答情報一覧取得）
-
-    - 下記のAPIのエンドポイントに誤記、記入漏れがあったため修正しました。
-      - #14 CFP一覧取得、#13 取引関係回答情報更新
-
-    - #14CFP値一覧取得に誤ってlimit, afterの記述があったため削除しました。
-
-    ### v0.3.2 2023/11/16公開
-
-    - #2事業者情報取得のAPI仕様を変更しました。openOperatorIdを指定することで事業者情報の検索ができるようになります。（実装への反映はAPI公開④を予定）
-
-    - 事業者識別子（ローカル）に法人番号を、事業者属性にグローバル識別子を設定することを例示するため、OperatorModelのexampleとopenOperatorIdのminLengthを修正しました。
-    （ドキュメント修正対象のモデル：OperatorModel）
-
-    - #15CFP値登録のDescription内にCFP値登録の際の注記を追記しました。
-
-    - requestTypeの指定に「cfp」と固定の文字列を指定するように修正しました。
-    （ドキュメント修正対象のAPI：#11依頼・回答情報一覧取得）
-
-    - ドキュメント修正対象のAPIに取得の並び順を記載しました。
-    （ドキュメント修正対象のAPI：#8事業者部品一覧取得, #10取引関係依頼情報一覧取得, #12取引関係回答情報一覧取得, #14CFP値一覧取得）
-
-    ### v0.3.3 2023/11/24公開
-
-    - 異常ステータスのResponseBodyのexampleをすべて修正しました。Httpレスポンスに異常の詳細を記述したため、Descriptionからステータスコードの記述を削除しました。
-
-    - CfpModelに下記情報を追記しました。
-
-      - ghgEmisshionをnullableにしました。（CFP情報開示設定がされていない場合はnullで返却される場合があるため）
-
-      - cfpTypeのenumを追加しました。（取得時のcfpTypeが追加されたため）
-
-    - #14CFP値一覧取得のDescriptionにcfpTypeの記述を追記しました。また、Responseのexampleを修正いたしました。
-
-    - #16CFP値登録のDescriptionを修正しました。また、RequestBodyのexampleを修正しました。
-
-    - #5製品情報更新のDescriptionに補助項目に関する記述を追記しました。
-
-    - #3事業所情報更新のRequestBodyのexampleを修正しました。（新規作成時のModelを追加）
-
-    - #7取引関係依頼情報更新のexampleを修正しました。（新規作成時のModelを追加）
-
-    - 全体的に、descriptionの冗長な記述を修正しました。
-
-    ### v0.3.4 2023/11/30公開
-
-    - 各APIのexamplesを追加しました。
-
-    - 異常ステータスのexampleを変更しました。
-
-    - /auth/refreshからリフレッシュトークンの再発行ができないように修正しました。
-
-    - StatusModelのrequestTypeをenumで表現しました。
-
-    - #14CFP一覧取得のResponseにCFPの開示情報設定登録がされていない場合の返却値のexampleを追加しました.
-
-    - CfpModelのghgEmissionがnullで返却されるケースがあるため、nullableに変更しました。
-
-    ### v0.3.4.1 2023/11/30公開（v0.3.4公開後に修正した点）
-
-    - #16依頼情報ステータスの変更のAPIにResponseBodyを追加いたしました。
-
-    - #11依頼・回答情報一覧取得のResponseBodyがtradeIdのところ、traceIdと誤って記載していたため修正しました。
-
-    ## v0.4.0 2023/12/15 公開予定の仕様の先行公開
-
-    ### 仕様追加・変更内容
-
-    - OperatorModelのoperatorAttributeの型をobject型に変更します。（objectのフィールドは今後適宜追加・変更する可能性がございます）
-
-    - PlantModelのplantAttributeを追加します。（objectのフィールドは今後適宜追加・変更をする可能性がございます）
-
-    - responseStatusの型をobject型に変更します。（objectのフィールドは今後適宜追加・変更する可能性がございます）
-
-    - #12取引関係回答情報一覧取得のResponseBodyにStatusModelとPartsModelを取得するように変更いたします。（メッセージ内容と依頼元の部品情報を取得するため、one downの企業の部品情報は本APIのみ取得できることを認める）
-    ただし、本変更はトレサビ側への設計変更にもつながるため、実装はrot3以降になる見込み
-
-    - 事業者識別子（内部）から事業者情報を取得するAPIを追加致します。（事業者識別子（内部）は、回答情報を逆引きするときに必要になるため、追加致します。本件は最大100件まで1度に問い合わせることができます）
-
-    - 各種GetのAPIにQueryパラメータを追加いたします
-      - #8 事業者部品一覧取得に追加するQueryパラメータ
-        - traceId: 指定されたtraceIdに一致する結果のみを返却します
-        - partsName: 指定されたpartsNameに一致する結果のみを返却します
-        - plantId: 指定されたtraceIdに一致する結果のみを返却します
-        - parentFlag: trueの場合、親部品の製品のみの検索結果を返却します
-      - #10 取引関係依頼情報一覧取得に追加するQueryパラメータ
-        - traceID: 指定されたtraceIdにdownstreamTraceIdが一致する結果のみを返却します（複数選択可）
-      - #11 依頼・回答情報一覧取得に追加するQueryパラメータ
-        - statusId: 指定されたstatusIdに一致する結果のみ返却します
-
-    - #5〜#16のAPIにトレーサビリティ管理システムで異常が発生した場合の異常の返却値を各ステータスを追加します
-
-    - amountRequiredUnitにenumを設定します。enumの制限は下記です。（#5, #6のAPI仕様に追記します）
-      - liter
-      - kilogram
-      - cubic-meter
-      - kilowatt-hour
-      - megajoule
-      - ton-kilometer
-      - square-meter
-      - unit
-
-    - ghgDeclaredUnitにenumを設定します。enumの制限は下記です
-      - kgCO2e/liter
-      - kgCO2e/kilogram
-      - kgCO2e/cubic-meter
-      - kgCO2e/kilowatt-hour
-      - kgCO2e/megajoule
-      - kgCO2e/ton-kilometer
-      - kgCO2e/square-meter
-      - kgCO2e/unit
-
-    ### 留意点
-    - 本仕様公開後も仕様変更の可能性はございますが、変更頻度は下がるため、ご要望がありましたら12/15までに積極的にご依頼をお願いします。
-    - 証明書の取得・登録に関しては仕様が変更される可能性が高いです。
-    - 24年2月に開示されるJRCの細則に応じて、Modelの項目やAPIの仕様に追加・変更が加わる可能性があります。
-
-    ### v0.4.1（記載の文言を修正）
-    - 文言をガイドラインの文言に合わせるように修正しました。
-    - タイトルを「データ連携基盤 API」に変更しました。
-
-    ## v0.4.2 2023/12/15 公開仕様
-    公開後のフィードバックおよびトレーサビリティ管理システムの仕様変更を受け、現バージョン(v0.3.4.1)からの仕様変更点を公開致します。
-    本バージョン（v0.4.2）が今後開発するバージョンの仕様書となります。
-    ステージング環境への適用時期は別途展開させていただきます。
-
-    また、12/15公開以降は変更履歴のDocumentはBoxNoteに移行する予定です。
-
-    ### 表記変更
-    - 本ファイルのパスパラメータの表記から任意パラメータの表記を記述しないように変更します
-
-    ### 仕様変更（API）
-
-    - 各種GetのAPIにQueryパラメータを追加いたします（v0.4.0から変更なし）
-      - #8 事業者部品一覧取得に追加するQueryパラメータ
-        - traceId: 指定されたtraceIdに一致する結果のみを返却します
-        - partsName: 指定されたpartsNameに一致する結果のみを返却します
-        - plantId: 指定されたplantIdに一致する結果のみを返却します
-        - parentFlag: trueの場合、親部品の製品のみの検索結果を返却します
-      - #10 取引関係依頼情報一覧取得に追加するQueryパラメータ
-        - traceIds: 指定されたtraceIdにdownstreamTraceIdが一致する結果のみを返却します（複数選択可）
-      - #11 依頼・回答情報一覧取得に追加するQueryパラメータ
-        - statusId: 指定されたstatusIdに一致する結果のみ返却します
-
-    - #5〜#16のAPIにトレーサビリティ管理システムで異常が発生した場合の異常の返却値を各ステータスを追加します（v0.4.0から変更なし）
-
-    - 同じ変数で複数のQueryパラメータのパラメータ名と指定方法を変更致します
-      - 変更前）&traceId={uuid1}&traceId={uuid2}
-      - 変更後）&traceIds={uuid1},{uuid2}
-      - 本変更で影響を受けるAPI: #14CFP情報一覧取得
-
-    - v0.4.0で想定していたCFP値および活動量の単位のenum制限はかけない様に仕様の変更部分を取り消します
-      - 理由：単位の扱いの幅が広く、単位の取り回しの運用・ルールが決まってからの適用を予定しております
-
-    - Get処理で指定のできるlimitの指定できる上限値を1000件にします
-
-    - #5部品情報更新, #6部品構成情報一覧更新のAPIで親部品の活動量(amountRequired)にはnullを指定する様に変更します
-
-    - #12取引関係情報一覧取得のResponseBodyにStatusModelとPartsModelを取得するように変更いたします（v0.4.0から変更なし）
-      - 理由：メッセージ内容と依頼元の部品情報を取得するため、one downの企業の部品情報は本APIのみ取得できることを認めるためです。一方で取得できる内容は限定します。必要な範囲以外の返り値は全てnullになります。null指定される項目は変更の可能性がございます。
-
-    - #14CFP情報一覧取得のAPIで、川上のCFP回答情報の取得時および川上がCFP情報の公開を拒否している場合のcfpIdの返り値をuuidのゼロ値からnullに変更します
-
-    - #15CFP情報登録のAPIのRequestBodyを変更いたします。登録できるcfpTypeを一度に全て受け付ける仕様に変更します。
-
-    - #16依頼情報ステータスの変更APIのQueryパラメータとRequestBodyを変更します
-      - 理由：dataTargetの指定が他の指定と異なっていたため変更いたします。また、依頼差戻時に理由を入力するためRequestBodyにStatusModelを使ってMessageを受け取れる様に変更いたします。
-
-    - #17事業者情報一覧取得のAPIを追加致します。v0.4.0で定義していたQueryパラメータの指定の方法が変更になっております
-      - 理由：事業者識別子（内部）は、回答情報を逆引きするときに必要になるため、追加致します。本件は最大100件まで1度に問い合わせることができます
-
-    ### 仕様変更（Model）
-
-    値が入ることを想定していない、あるいはトレーサビリティ管理システムから値の返却値がない場合に明示的にnullを指定するように設計を見直します。
-
-    各Modelの変更点は下記になります。
-
-    - OperatorModel
-      - operatorAttributeの型をstring型からobject型に変更します
-        - operatorAttributeのObjectのフィールドとしてglobalOperatorIdのフィールドを追加します（詳細はModelをご確認ください）
-
-    - PlantModel
-      - plantAttributeのフィールドをobject型で追加致します
-        - plantAttributeのObjectのフィールドとしてglobalPlantIdのフィールドを追加します（詳細はModelをご確認ください）
-        - 補足：具体的な値は今後検討致します
-
-    - PartsModel
-      - supportPartsNameのフィールドをnullableに致します（トレーサビリティシステムの実装が任意フィールドのため）
-      - amountRequiredのフィールドの最大・最小値を定義します。また、親の場合は値を指定しないため、nullableに変更致します
-      - amountRequiedUnitのフィールドをnullableに致します（トレーサビリティシステムの返却値がnullになる場合があるため）。また空文字が登録できる様minLengthを0に変更します。enumの制限は致しません。
-
-    - StatusModel
-      - requestStatusの方をarray型からobject型に変更致します
-      - requestStatusのObjectフィールドとしてcfpResponseStatusとtradeTreeStatusを追加します
-      - cfpResponseStatusにenumの制限を指定します。取りうるステータスは下記に変更になります（トレーサビリティ管理システムのステータスが変更になったため）
-        - NOT_COMPLETED: 依頼中
-        - COMPLETED: 回答完了
-        - REJECT: 差戻
-        - CANCEL: 取消
-      - tradeTreeStatusにenumの制限を指定します。取りうるステータスは下記に変更になります（トレーサビリティ管理システムのステータスが変更になったため）
-        - TERMINATED: 終端済み
-        - UNTERMINATED: 未終端
-      - messageフィールドのMaxLenを256から100に変更いたします。（トレーサビリティ管理システムの仕様に準ずるため）
-      - replyMessageフィールドを追加致します。（差戻理由を登録・取得するためのフィールドになります）
-      - requestTypeのenumを修正致します（トレーサビリティ管理システム側が受け入れられる値にするため、大文字に変更致します）
-        - enum: [CFP]
-
-    - TradeModel
-      - tradeDateフィールドを削除いたします（トレーサビリティ管理システムに保存するフィールドがなく、値を保持できないため）
-
-    - CfpModel
-      - ghgEmissionフィールドに最大値、最小値の表記を追加いたします。
-
-    ### 今後仕様変更の可能性があるAPI
-    - #14CFP情報一覧取得、#15CFP情報登録
-        - 理由：DQR対応のため、CfpModelおよびAPIのRequestとResponseが変更になります。またCFP証明書の実装に関しても仕様変更が見込まれるため。
-
-    ### 今後ステージング環境の擬似トレーサビリティ管理システム環境では実現しない実装
-    下記項目はトレーサビリティ管理システムに実装後に確認できる内容となるため、擬似実装では確認できない実装となります
-
-    - トレーサビリティ管理システムと一致するGetの取得順の実装
-      - 理由：トレーサビリティ管理システムと接続後に擬似実装と乖離が発生する可能性が高いため、実装は致しません
-
-    - afterを指定した再問い合わせの実装
-      - 理由：Linkに指定しているuuidはダミーのため、afterによる再検索の処理は実装致しません
-
-    - ステータスの変更およびCFP値の自動計算ロジックの実装
-      - 理由：正確な変更タイミングおよび計算結果はトレーサビリティ管理システムに接続後に確認いただける内容となります
-
-    ## v0.4.3 2023/12/28 公開仕様
-    12/15公開のv0.4.2の仕様書の誤記部分及び、単位のEnumに関する仕様変更をいたします。
-    0.4.2に本公開仕様を追加したバージョンを、1/12にステージング環境にデプロイ予定です。
-
-    ### 仕様変更
-    - amountRequiredUnitにenumを設定します。enumの制限は下記です。（#5, #6のAPI仕様に追記します）
-      - liter
-      - kilogram
-      - cubic-meter
-      - kilowatt-hour
-      - megajoule
-      - ton-kilometer
-      - square-meter
-      - unit
-
-    - ghgDeclaredUnitにenumを設定します。enumの制限は下記です。(#15のAPI仕様に追記します)
-      - kgCO2e/liter
-      - kgCO2e/kilogram
-      - kgCO2e/cubic-meter
-      - kgCO2e/kilowatt-hour
-      - kgCO2e/megajoule
-      - kgCO2e/ton-kilometer
-      - kgCO2e/square-meter
-      - kgCO2e/unit
-
-    ### 追記内容
-    - GetのAPIにトレーサビリティ管理システム接続後に想定されるソート順を記載いたしました。本実装が確認できるのはトレーサビリティ管理システムに接続後からになります。
-
-    - #5, #6, #15のDescriptionを修正しました
-
-    ### 誤記修正
-    - #14CFP情報一覧取得のパスの誤記を修正しました
-
-    - v0.4.2の変更履歴の誤記を修正しました（cfpCategory→cfpType）
-
-    - #15CFP情報登録のRequestBodyのSchemaが配列でなかった誤記を修正しました。
-
-    - 401と403の異常コードのExampleを修正しました
-
-    ## v0.4.3.1 2023/1/12 公開仕様
-    ### 仕様修正
-    - #8事業者部品一覧取得時のamountRequiredは常にnullが入る仕様に変更になります。
-    （活動量は親との紐付きで決まるため、部品単体の取得をした場合には活動量は取得はできないため、nullを常に返却する仕様に変更）
-
-    - #12取引関係回答情報一覧取得のpartsModelにて、prantIdおよびsupportPartsNameの2項目が返却されるように修正いたしました
-
-    ### 誤記修正
-
-    - #16依頼情報ステータス変更のスキーマ定義がTradeRequestModelと誤って設定されていた点をStatusModelと正しい内容になるように修正しました。
-
-    - 12/28公開のv0.4.3の仕様書に異常系のExampleの記載を追記致しました。また、異常系のdetailの表記が誤っていたため修正致しました。
-
-    ## v0.5.0 2023/12/28 先行公開仕様（2/19 デプロイ予定のAPI仕様の先行公開）
-    DQR対応及び、CFP証明書の対応を実装したバージョンを2/19にデプロイ予定を予定しております。
-
-    その際に適用されるデータ流通基盤の仕様を先行公開致します。
-
-    ### 仕様変更（API）
-    - #14CFP情報取得APIのDescriptionにDQRの登録方法についての条件を記載いたします。CFP取得時のModel・仕様が変更になります。追加する変更点は下記になります。
-      - CFP値の非公開時及び、DQR値の非公開時の返却値に関する記述を追記します
-      - CFP証明書の取得に関する記述を削除します
-
-    - #15CFP情報登録APIのDescriptionにDQRの登録方法についての条件を記載いたします。CFP登録時のModel・仕様が変更になります。追加する変更点は下記になります。
-      - cfpTypteとdqrTypeの一致に関する記述を追加します
-
-    - #18CFP証明書情報取得APIを新規APIとして追加いたします。CFP証明書をトレーサビリティ管理システムからダウンロードする際に必要な情報をtraceIdを指定して取得します。
-
-    ### 仕様変更（Model）
-    - CfpModel
-      - dqrTypeのフィールドを追加します。（どの工程に対応するDQRかを識別するために設定）
-
-      - dqrTypeのEnum制限は下記です
-        - preProcessing
-        - mainProcessing
-        - preProcessingTotal
-        - mainProcessingTotal
-        - preProcessingResponse
-        - mainProcessingResponse
-
-      - dqrValueのフィールドを追加します。（実際のDQRの値のフィールド）
-        - dqrValueのフィールドはObject型で、"TeR", "GeR", "TiR"の登録フィールドを持ちます
-
-      - cfpCertificateListのフィールドが削除されます。（証明書のモデルを別定義、仕様が変更になったため）
-
-      - ghgEmissionに値があるにも関わらず、dqrType及びdqrValueを設定しない場合はエラーになります。ghgEmissionの値を登録するときは必ずDQRの値もセットで登録してください
-
-    - CfpCertificationModel
-
-      トレーサビリティ管理システムを直接呼び出し、CFP証明書を取得するのに必要な情報をCFP値取得時に返却するためのModelを作成します。
-
-      CFP証明書登録に関するAPIの詳細はトレーサビリティ管理システムが公開しているAPI仕様書をご参考ください。
-
-    ## v0.5.0.1 2024/1/16 v0.5.0修正内容
-    - 1/12公開のv0.4.3.1の変更点を取り入れました。
-
-    - #11依頼・回答情報取得一覧取得のExampleが配列になっていなかったため、修正しました。
-
-    - #14CFP情報一覧取得で、DQRのExampleが一部表記が誤っていたため、修正いたしました。
-
-    - #15CFP情報登録のDescriptionにCFP設定の条件がわかるように記載内容を追記しました。
-
-    - #16依頼情報ステータスの変更のParametersのDescriptionの更新が漏れていたため、修正しました。
-
-    ## v0.5.1 2024/2/2 v0.5.1修正内容
-
-    ### 仕様変更（2/5デプロイされるStaging環境には反映済み）
-    - #14CFP情報一覧取得APIにおいて、Queryパラメータに指定できるtraceIdsの上限数を100から50に変更します
-
-      (トレーサビリティ管理システム側で一度に取得することができる最大値が50までの仕様のため)
-
-    ### ValidationErrorのパターンを追加
-    - DQRの追加に伴い、#15CFP情報登録APIにValidationErrorのメッセージを追加致しました
-
-    ### 誤記修正
-    - 異常ケースの記載に関する下記部分の誤記を修正しました
-      - #16のAPIで、400の異常ケースに誤って記述されていた異常ケースの記載を削除しました
-      - #1,3,4,5,6,7,14,15,16,17のAPIでmessage内容に誤記があった箇所を修正しました
-      - #2のAPIで400ErrorのSummaryが変更されていない箇所があったため、修正しました
-      - ユーザ認証システムの400Errorのmessage内容に誤記があった箇所を修正しました
-
-    ## v0.5.2 2024/2/16 v0.5.2修正内容（2024/3/4にSandbox環境へリリース予定）
-
-    ### 仕様変更
-    - limitの上限値を1000から100に修正します。（#8事業者部品一覧取得, #10取引依頼情報一覧取得, #11依頼・回答情報一覧取得, #12取引関係回答情報一覧取得のクエリパラメータが修正されます）
-
-    - #10取引依頼情報一覧取得APIのtraceIdsの複数指定の上限を50に修正します
-
-    - #11依頼・回答情報一覧取得APIにクエリパラメータ（statusTarget）を追加します。指定できる値は下記です。こちらのQueryパラメータは指定することを強く推奨いたします。
-    （クエリパラメータを指定しない場合は、応答時間が長くなる可能性がございます）
-      - REQUEST: 依頼情報（自社が依頼元）のステータスを取得します
-      - RESPONSE: 回答情報（自社が依頼先）のステータスを取得します
-
-    - #11依頼・回答情報一覧取得APIにtraceIdを追加します。traceIdによる絞り込みは"statusTarget=REQUEST"を指定した時のみ有効になります
-
-    - #11依頼・回答情報一覧取得APIのstatusIdによる絞り込みは"statusTarget=RESPONSE"を指定した時のみ有効になります
-
-    - OperatorModelのopenOperatorIdのバリデーション条件を変更します
-      - maxLength 256→20に変更
-      - minLength 0→1に変更
-
-    - PlantModelのopenPlantIdのバリデーション条件を変更します
-      - maxLength 256→26に変更
-      - minLength 0→1に変更
-
-    - #1事業者情報更新および#3事業所情報更新のDescriptionに制約条件の記載を追記しました。
-
-    ### 記載の修正
-    - #8事業者部品一覧取得のparentFlagのdefault値が誤っていたため、削除しました。
-      クエリパラメータにparentFlagを指定しない場合は事業者の親・子両方の部品が返却される旨をクエリパラメータのDescriptionに追記しました。
-
-    - #18CFP証明書情報取得APIにおいて、指定したトレース識別子が回答依頼している自社部品の場合で川上がCFP証明書の開示を拒否している場合の
-      cfpCertificationFileInfoの値の記載が誤っていたため、修正しました。
-      - 上記の修正に伴い、CfpCertificationModelのcfpCertificationFileInfoフィールドをnullableに変更しました。
-
-    - afterのクエリパラメータの説明文を修正しました。原則afterはLINKで返却されるクエリパラメータの組み合わせで利用されることを想定しており、after単体で利用することは想定していない旨を追記しました。
-
-    ### 誤記修正
-    - PlantModelのopenPlantIdのExampleを修正しました。（13桁+6桁の数値に変更）
-
-    - #12のDescriptionの誤記を修正しました。（川下の活動量と生産拠点は... → 川下の活動量は...）
-
-    - #14のDescriptionから（今後変更の可能性がある）の一文を削除しました。
-
-    ## v0.5.2(修正) 2024/2/22 v0.5.2修正内容（2024/3/4にSandbox環境へリリース予定）
-
-    ### 記載の修正
-    - #15CFP情報登録APIのDescriptionに小数点第6桁は切り上げた状態で値を登録いただく旨を追記しました。
-
-    - #11依頼・回答情報一覧取得APIのstatusIdのクエリパラメータ利用に関する文章を一部修正しました。
-
-    - #1事業者情報更新APIの下記部分を修正しました。
-      - globalOperatorIdに関する記述
-      - 異常メッセージの修正
-
-    - #3事業所情報更新APIの異常メッセージを修正しました。
-
-    ## v0.5.2.1 2024/2/22 v0.5.2修正内容（2024/3/4にSandbox環境へリリース予定）
-
-    ### 記載の修正
-    - #11のstatusIdの内容を追記しました。
-
-    - string($uuid)の型において、最大文字数36で記載を統一しました。
-
-    - enumの制限があるフィールドには最大・最小文字数の記載を削除しました。
-
-    - descriptionが未記入のフィールドにdescriptionを記入しました。
-
-    - openPlantIdの条件にpatternを追加し、最小桁数を6桁に修正しました。
-
-    - データ流通システムのタグ名を変更しました。
-
-    - #1, #3の詳細にグローバル識別子の登録に関する内容を追記しました。
-
-    ### 誤記の修正
-      - #11のtraceIdのDescriptionに誤記があったため、修正いたしました。
-
-      - cfpCertificateListに関する説明書きが残っている部分を削除しました。
-
-      - 全体の誤字を修正しました。
-
-      - openPlantIdのExampleを修正しました。
-
-    ## v0.5.2.2 2024/3/22 記載内容の修正
-
-    ### 記載の修正
-    - #5のAPI利用の際の注釈を追記しました
-
-    ### 誤記の修正
-      - PartsModelのpartsNameがnullableになっていたため、修正しました。
-      （実装上はバリデーションチェックがかけられており、登録はできない仕様になっているためアプリケーションへの影響はありません）
-
-      - /auth/loginの401ErrorにToken関連のエラーが含まれていたため、削除しました。
-
-    ## v0.5.2.3 2024/3/29 記載内容の修正
-
-    ### 記載の修正
-    - 500, 503のExampleの表示を修正しました。
-
-    - PartsStructureModelのchildrenPartsModelの配列上限に50を追記しました。
-
-    ### 誤記の修正
-    - PlantModelのglobalPlantIdにnullableを設定しました。
-
-    - OperatorModelのglobalOperatorIdにnullableを設定しました。
-
-    - #14CFP情報一覧取得で指定したトレース識別子が回答依頼している自社部品の場合で川上がCFP情報開示を拒否している場合のghgDeclaredUnitの例が誤っていた点を修正しました。
-
-  termsOfService: http://swagger.io/terms/
   contact: {}
-  version: 0.5.2.3
-servers:
-- url: https://example.com/
+  version: 0.5.2.4
 paths:
   /api/v1/authInfo?dataTarget=operator:
     get:
@@ -1178,7 +708,7 @@ paths:
   /api/v1/datatransport?dataTarget=cfp&traceIds={uuid}:
     get:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#14CFP情報一覧取得'
       description: |-
         トレース識別子に紐づけられているCFP情報の一覧を取得します。
@@ -1553,8 +1083,8 @@ paths:
   /api/v1/datatransport?dataTarget=cfp:
     put:
       tags:
-      - データ流通プラットフォーム
-      summary: '#15CFP情報登録'
+      - データ流通システム
+      summary: '#15CFP情報更新'
       description: |-
         トレース識別子に紐づけられている製品にCFP情報を新規作成および更新します。
 
@@ -1571,7 +1101,7 @@ paths:
           - preComponent → 前処理部品由来排出量
           - mainComponent → 製造部品由来排出量
 
-        - トレーサビリティ管理システムへのcfp情報登録は上記全てのカテゴリーを一度に登録します。指定がないカテゴリーがある場合は400エラーとなります。
+        - トレーサビリティ管理システムへのCFP情報更新は上記全てのカテゴリーを一度に登録します。指定がないカテゴリーがある場合は400エラーとなります。
 
         - ghgDeclaredUnitにenumを設定します。enumの制限は下記です。
           - kgCO2e/liter
@@ -2028,7 +1558,7 @@ paths:
   /api/v1/datatransport?dataTarget=cfpCertification&traceId={uuid}:
     get:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#18CFP証明書情報取得'
       description: |-
         トレース識別子に紐づけられているCFP証明書のファイルをダウンロードするために必要な情報を取得します。
@@ -2205,7 +1735,7 @@ paths:
   /api/v1/datatransport?dataTarget=parts:
     get:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#8事業者部品一覧取得'
       description: |-
         事業者識別子（内部）に紐づけられている製品の一覧を取得します。
@@ -2294,7 +1824,6 @@ paths:
           headers:
             Link:
               description: \<https://example.com/api/v1/datatransport?dataTarget=parts&limit=100&after=(uuid)\>;
-                rel="next
               style: simple
               explode: false
               schema:
@@ -2444,7 +1973,7 @@ paths:
       - Authorization: []
     put:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#5部品情報更新'
       description: |-
         事業者識別子（内部）、事業所識別子（内部）に紐づいた部品を登録または内容を更新します。
@@ -2703,7 +2232,7 @@ paths:
   /api/v1/datatransport?dataTarget=partsStructure&traceId={uuid}:
     get:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#9部品構成情報一覧取得'
       description: |-
         トレース識別子で指定した部品の部品構成情報を取得します。
@@ -2886,7 +2415,7 @@ paths:
   /api/v1/datatransport?dataTarget=partsStructure:
     put:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#6部品構成情報一覧更新'
       description: |-
         トレース識別子で指定した部品の部品構成情報を登録または更新します。
@@ -3155,7 +2684,7 @@ paths:
   /api/v1/datatransport?dataTarget=status:
     get:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#11依頼・回答情報一覧取得'
       description: |-
         事業者識別子（内部）に紐づいている依頼・回答情報の一覧を取得します。
@@ -3431,7 +2960,7 @@ paths:
       - Authorization: []
     put:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#16依頼情報ステータスの変更（依頼取消・依頼差戻）'
       description: |-
         事業者識別子（内部）に紐づけられている依頼・回答情報のステータスを変更します。
@@ -3628,7 +3157,7 @@ paths:
   /api/v1/datatransport?dataTarget=tradeRequest:
     get:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#10取引依頼情報一覧取得'
       description: |-
         事業者識別子（内部）に紐づけられている取引情報の一覧を取得します。
@@ -3822,7 +3351,7 @@ paths:
       - Authorization: []
     put:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#7取引関係依頼情報更新'
       description: |-
         トレース識別子で指定した部品の取引情報を登録または更新します。
@@ -4050,7 +3579,7 @@ paths:
   /api/v1/datatransport?dataTarget=tradeResponse:
     get:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#12取引関係回答情報一覧取得'
       description: |-
         事業者識別子（内部）に紐づいた、回答を依頼されている取引情報の一覧を取得します。
@@ -4251,7 +3780,7 @@ paths:
   /api/v1/datatransport?dataTarget=tradeResponse&tradeId={uuid}&traceId={uuid}:
     put:
       tags:
-      - データ流通プラットフォーム
+      - データ流通システム
       summary: '#13取引関係回答情報更新'
       description: |-
         取引関係情報識別子で指定した部品の取引情報の依頼に仕入先トレース識別子を登録または更新します。
@@ -4956,7 +4485,8 @@ components:
         accessToken:
           type: string
           description: アクセストークン
-          example: eyJhbGciOiJSUzI1NiIsImtpZCI6IjAzZDA3YmJjM2Q3NWM2OTQyNzUxMGY2MTc0ZWIyZjE2NTQ3ZDRhN2QiLCJ0eXAiOiJKV1QifQ.eyJvcGVyYXRvcl9pZCI6IjBmMWViYTkwLTgzOWYtNDA1OS1iOWNiLTcwY2JhZjQ5MDIzOSIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdWQiOiJkYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdXRoX3RpbWUiOjE2OTc3NjU3OTEsInVzZXJfaWQiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJzdWIiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJpYXQiOjE2OTc3NjU3OTEsImV4cCI6MTY5Nzc2OTM5MSwiZW1haWwiOiJ0ZXN0ZG90ZF90ZXN0QHNhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidGVzdGRvdGRfdGVzdEBzYW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.mAe7NTKTiKY-pGYZxvjBejIMpgfgBTz4ymGM2jMDpwBT2aRQCAcV0a2__n3ewgBl1kwR66OcsDq6CbXHu33zRiBGbYehy0aotTb0C81DIGnD__n0w8eYuoXhvp3z2ScOfOPBhCvoA9Eg1Yvk3rgpfQa8eFGCOp1-_RQuiaXo8IqRbg9xgCbo6xaxSvgeup-OHv0tR7IwDmauwCT-RCeU0WxHn6i2YKgUrULFIZSoF8WQuPL0HKEl4-jJbOP2TASTpLyshCDeECq4AaWercYf36A2DZ6udhJSO-lKwPtb5QjGJQbVKd_SINdoMvI2oHvuhzPz5MK4StMCumZ02AZ9sw
+          example: eyJhbGciOiJSUzI1NiIsImtpZCI6IjAzZDA3YmJjM2Q3NWM2OTQyNzUxMGY2MTc0ZWIyZjE2NTQ3ZDRhN2QiLCJ0eXAiOiJKV1QifQ.eyJvcGVyYXRvcl9pZCI6IjBmMWViYTkwLTgzOWYtNDA1OS1iOWNiLTcwY2JhZjQ5MDIzOSIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdWQiOiJkYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdXRoX3RpbWUiOjE2OTc3NjU3OTEsInVzZXJfaWQiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJzdWIiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJpYXQiOjE2OTc3NjU3OTEsImV4cCI6MTY5Nzc2OTM5MSwiZW1haWwiOiJ0ZXN0ZG90ZF90ZXN0QHNhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidGVzdGRvdGRfdGVzdEBzYW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.mAe7NTKTiKY-pGYZxvjBejIMpgfgBTz4ymGM2jMDpwBT2aRQCAcV0a2__n3ewgBl1kwR66OcsDq6CbXHu33zRiBGbYehy0aotTb0C81DIGnD__n0w8eYuoXhvp3z2ScOfOPBhCvoA9Eg1Yvk3rgpfQa8eFGCOp1-_RQuiaXo8IqRbg9xgCbo6xaxSvgeup-OHv0tR7IwDmauwCT-RCeU0WxHn6i2YKgUrULFIZSoF8WQuPL0HKEl4-jJbOP2TASTpLyshCDeECq4AaWercYf36A2DZ6udhJ
+SO-lKwPtb5QjGJQbVKd_SINdoMvI2oHvuhzPz5MK4StMCumZ02AZ9sw
         refreshToken:
           type: string
           description: リフレッシュトークン
@@ -4974,7 +4504,8 @@ components:
         accessToken:
           type: string
           description: アクセストークン
-          example: eyJhbGciOiJSUzI1NiIsImtpZCI6IjAzZDA3YmJjM2Q3NWM2OTQyNzUxMGY2MTc0ZWIyZjE2NTQ3ZDRhN2QiLCJ0eXAiOiJKV1QifQ.eyJvcGVyYXRvcl9pZCI6IjBmMWViYTkwLTgzOWYtNDA1OS1iOWNiLTcwY2JhZjQ5MDIzOSIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdWQiOiJkYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdXRoX3RpbWUiOjE2OTc3NjU3OTEsInVzZXJfaWQiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJzdWIiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJpYXQiOjE2OTc3NjU3OTEsImV4cCI6MTY5Nzc2OTM5MSwiZW1haWwiOiJ0ZXN0ZG90ZF90ZXN0QHNhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidGVzdGRvdGRfdGVzdEBzYW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.mAe7NTKTiKY-pGYZxvjBejIMpgfgBTz4ymGM2jMDpwBT2aRQCAcV0a2__n3ewgBl1kwR66OcsDq6CbXHu33zRiBGbYehy0aotTb0C81DIGnD__n0w8eYuoXhvp3z2ScOfOPBhCvoA9Eg1Yvk3rgpfQa8eFGCOp1-_RQuiaXo8IqRbg9xgCbo6xaxSvgeup-OHv0tR7IwDmauwCT-RCeU0WxHn6i2YKgUrULFIZSoF8WQuPL0HKEl4-jJbOP2TASTpLyshCDeECq4AaWercYf36A2DZ6udhJSO-lKwPtb5QjGJQbVKd_SINdoMvI2oHvuhzPz5MK4StMCumZ02AZ9sw
+          example: eyJhbGciOiJSUzI1NiIsImtpZCI6IjAzZDA3YmJjM2Q3NWM2OTQyNzUxMGY2MTc0ZWIyZjE2NTQ3ZDRhN2QiLCJ0eXAiOiJKV1QifQ.eyJvcGVyYXRvcl9pZCI6IjBmMWViYTkwLTgzOWYtNDA1OS1iOWNiLTcwY2JhZjQ5MDIzOSIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9kYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdWQiOiJkYXRhLXNwYWNlcy1kZXYtajh3bHB1N2oiLCJhdXRoX3RpbWUiOjE2OTc3NjU3OTEsInVzZXJfaWQiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJzdWIiOiI4NmMzNDE2Yy00MDA0LTRjNGUtYTNlNy00MGJiNjY5YTZmNWIiLCJpYXQiOjE2OTc3NjU3OTEsImV4cCI6MTY5Nzc2OTM5MSwiZW1haWwiOiJ0ZXN0ZG90ZF90ZXN0QHNhbXBsZS5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidGVzdGRvdGRfdGVzdEBzYW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.mAe7NTKTiKY-pGYZxvjBejIMpgfgBTz4ymGM2jMDpwBT2aRQCAcV0a2__n3ewgBl1kwR66OcsDq6CbXHu33zRiBGbYehy0aotTb0C81DIGnD__n0w8eYuoXhvp3z2ScOfOPBhCvoA9Eg1Yvk3rgpfQa8eFGCOp1-_RQuiaXo8IqRbg9xgCbo6xaxSvgeup-OHv0tR7IwDmauwCT-RCeU0WxHn6i2YKgUrULFIZSoF8WQuPL0HKEl4-jJbOP2TASTpLyshCDeECq4AaWercYf36A2DZ6udhJ
+SO-lKwPtb5QjGJQbVKd_SINdoMvI2oHvuhzPz5MK4StMCumZ02AZ9sw
     common.HTTP400Error:
       type: object
       properties:
