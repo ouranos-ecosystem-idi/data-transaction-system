@@ -19,7 +19,7 @@
 *システム化ガイドラインβ版 37頁参照*
 
 - コネクタ：データのPut/Getのような軽量なデータ交換のI/Fを提供する
-- トランスフォーム：他システムとの連携に必要なデータ交換等をする
+- トランスフォーム：他システムとの連携に必要なデータ変換を行う
 - アダプタ：他システムへのアクセスを提供する
 
 ## ビジネスアーキテクチャ
@@ -28,7 +28,7 @@
 ![ビジネスアーキテクチャ](/docs/assets/images/BusinessArchitecture.png)
 *システム化ガイドラインβ版 18頁参照*
 
-サプライチェーンのトレーサビリティ確保を実現するデータ流通システムは、トレース識別子（製品・部品に対してトレースを取るために割り当てる、
+蓄電池トレーサビリティ管理システムは、トレース識別子（製品・部品に対してトレースを取るために割り当てる、
 各者内でユニークに特定可能な識別子）をインデックスとして、トレース識別子同士を紐付けることで、「製品と調達部品の構成関係」及び
 「事業者間の取引関係」を記録して、サプライチェーンの追跡を可能にする。
 
@@ -64,9 +64,9 @@
 ### 動作確認済み実行環境
 |Name                                        |Version |Notes|
 |:-------------------------------------------|:-------|:----|
-|golang                                      |1.22||
-|[golangci-lint](https://golangci-lint.run/welcome/install/)|1.56.2||
-|[mockery](https://vektra.github.io/mockery/)|v2.42.3||
+|golang                                      |1.19||
+|[golangci-lint](https://golangci-lint.run/welcome/install/)|1.50.1||
+|[mockery](https://vektra.github.io/mockery/)|v2.27.1||
 |[goreturns](https://github.com/sqs/goreturns)|-|go install|
 |[golang-migrate](https://github.com/golang-migrate/migrate)|-||
 |make                                        |GNU make 3.81||
