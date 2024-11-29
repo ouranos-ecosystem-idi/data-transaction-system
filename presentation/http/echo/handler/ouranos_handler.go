@@ -6,6 +6,7 @@ type (
 	OuranosHandler interface {
 		GetOuranos(c echo.Context) error
 		PutOuranos(c echo.Context) error
+		DeleteOuranos(c echo.Context) error
 	}
 
 	ouranosHandler struct {

@@ -88,10 +88,10 @@ prefixにはエラーが発生したシステム名が記入されます。現�
 
 |Name                                        |Version |Notes|
 |:-------------------------------------------|:-------|:----|
-|golang                                      |1.19||
-|golangci-lint                               |1.50.1||
+|golang                                      |1.22||
+|golangci-lint                               |1.56.2||
 |goreturns                                   ||go install|
-|[mockery](https://vektra.github.io/mockery/)|v2.27.1||
+|[mockery](https://vektra.github.io/mockery/)|v2.42.3||
 |make                                        |GNU make 3.81||
 |docker                                      |-||
 |docker-compose                              |-||

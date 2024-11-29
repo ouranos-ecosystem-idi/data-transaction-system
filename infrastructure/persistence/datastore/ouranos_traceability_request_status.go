@@ -114,41 +114,28 @@ func (r *ouranosRepository) GetStatusByTradeID(tradeID string) (traceability.Sta
 // Summary: This function updates the status to "cancel".
 // input: statusID(string) ID of the status
 // input: operatorID(string) ID of the operator
-// output: (traceability.StatusEntityModel) StatusEntityModel object
 // output: (error) error object
-func (r *ouranosRepository) PutStatusCancel(statusID string, operatorID string) (traceability.StatusEntityModel, error) {
+func (r *ouranosRepository) PutStatusCancel(statusID string, operatorID string) error {
 	var status traceability.StatusEntityModel
 	if err := r.db.Table("request_status").Where("status_id = ?", statusID).First(&status).Error; err != nil {
 		logger.Set(nil).Errorf(err.Error())
-		return traceability.StatusEntityModel{}, err
+		return err
 	}
 
 	var trade traceability.TradeEntityModel
 	if err := r.db.Table("trades").Where("trade_id = ?", status.TradeID).Where("downstream_operator_id = ?", operatorID).First(&trade).Error; err != nil {
 		logger.Set(nil).Errorf(err.Error())
 
-		return traceability.StatusEntityModel{}, err
+		return err
 	}
 
-	now := time.Now()
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Table("request_status").Where("status_id = ?", statusID).Updates(
-			traceability.StatusEntityModel{
-				CfpResponseStatus: traceability.CfpResponseStatusCancel.ToString(),
-				TradeTreeStatus:   traceability.TradeTreeStatusUnterminated.ToString(),
-				UpdatedAt:         now,
-			}).
-			Error; err != nil {
+		if err := tx.Table("request_status").Where("status_id = ?", statusID).Delete(nil).Error; err != nil {
 			logger.Set(nil).Errorf(err.Error())
 			return err
 		}
 
-		if err := tx.Table("trades").Where("trade_id = ?", status.TradeID).Where("downstream_operator_id = ?", operatorID).Updates(
-			traceability.TradeEntityModel{
-				UpstreamOperatorID: nil,
-				UpstreamTraceID:    nil,
-			}).
-			Error; err != nil {
+		if err := tx.Table("trades").Where("trade_id = ?", status.TradeID).Where("downstream_operator_id = ?", operatorID).Delete(nil).Error; err != nil {
 			logger.Set(nil).Errorf(err.Error())
 			return err
 		}
@@ -157,16 +144,10 @@ func (r *ouranosRepository) PutStatusCancel(statusID string, operatorID string) 
 	})
 	if err != nil {
 		logger.Set(nil).Errorf(err.Error())
-		return traceability.StatusEntityModel{}, err
+		return err
 	}
 
-	var statusResult traceability.StatusEntityModel
-	if err := r.db.Table("request_status").Where("status_id = ?", statusID).First(&statusResult).Error; err != nil {
-		logger.Set(nil).Errorf(err.Error())
-		return traceability.StatusEntityModel{}, err
-	}
-
-	return statusResult, nil
+	return nil
 }
 
 // PutStatusReject

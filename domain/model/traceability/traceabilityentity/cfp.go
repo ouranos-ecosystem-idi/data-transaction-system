@@ -1,8 +1,6 @@
 package traceabilityentity
 
 import (
-	"fmt"
-
 	"data-spaces-backend/domain/common"
 	"data-spaces-backend/domain/model/traceability"
 	"data-spaces-backend/extension/logger"
@@ -46,6 +44,7 @@ type GetCfpResponseCfp struct {
 	EmissionsUnitName               string  `json:"emissionsUnitName"`
 	CfpComment                      string  `json:"cfpComment"`
 	Dqr                             Dqr     `json:"dqr"`
+	ParentFlag                      bool    `json:"parentFlag"`
 }
 
 // GetCfpResponseTotalCfp
@@ -117,7 +116,7 @@ func createCfpModel(cfpID, traceID uuid.UUID, ghgEmission *float64, ghgDeclaredU
 // input: parts(GetPartsResponse) GetPartsResponse object
 // output: (traceability.CfpModels) CfpModels object
 // output: (error) error object
-func (r GetCfpResponses) ToModels(parts GetPartsResponse) (traceability.CfpModels, error) {
+func (r GetCfpResponses) ToModels() (traceability.CfpModels, error) {
 
 	ms := []traceability.CfpModel{}
 
@@ -157,15 +156,8 @@ func (r GetCfpResponses) ToModels(parts GetPartsResponse) (traceability.CfpModel
 			traceability.CfpTypeMainComponentTotal.ToString():  {cfp.TotalCfp.TotalDqr.MainProductionTeR, cfp.TotalCfp.TotalDqr.MainProductionGeR, cfp.TotalCfp.TotalDqr.MainProductionTiR},
 		}
 
-		part := parts.FindByTraceID(traceID)
-		if part == nil {
-			err := fmt.Errorf(common.TraceIDNotFoundError(traceID.String()))
-			logger.Set(nil).Errorf(err.Error())
-
-			return nil, err
-		}
 		for cfpType, emission := range kv {
-			if !part.ParentFlag && traceability.CfpType(cfpType).IsTotal() {
+			if !cfp.Cfp.ParentFlag && traceability.CfpType(cfpType).IsTotal() {
 				continue
 			}
 			representativenessValues := kvRepresentativeness[cfpType]

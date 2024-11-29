@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"data-spaces-backend/domain/common"
@@ -101,7 +100,7 @@ func (u *tradeUsecase) GetTradeResponse(c echo.Context, getTradeResponseInput tr
 
 			return nil, nil, err
 		}
-		statusModel, err := status.ToModel()
+		statusModel, err := status.ToModel(traceability.PathTradeResponse)
 		if err != nil {
 			logger.Set(c).Errorf(err.Error())
 
@@ -134,10 +133,13 @@ func (u *tradeUsecase) GetTradeResponse(c echo.Context, getTradeResponseInput tr
 // PutTradeRequest
 // Summary: This is function which put trade request with TradeRequestModel.
 // input: c(echo.Context) echo context
-// input: tradeRequestModel(traceability.TradeRequestModel) TradeRequestModel object
+// input: putTradeRequestInput(traceability.PutTradeRequestInput) PutTradeRequestInput object
 // output: (traceability.TradeRequestModel) TradeRequestModel object
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *tradeUsecase) PutTradeRequest(c echo.Context, tradeRequestModel traceability.TradeRequestModel) (traceability.TradeRequestModel, error) {
+func (u *tradeUsecase) PutTradeRequest(c echo.Context, putTradeRequestInput traceability.PutTradeRequestInput) (traceability.TradeRequestModel, common.ResponseHeaders, error) {
+	tradeRequestModel := putTradeRequestInput.ToModel()
+
 	// If TradeID is Null, generate a new ID
 	if tradeRequestModel.TradeModel.TradeID == nil || *tradeRequestModel.TradeModel.TradeID == uuid.Nil {
 		tradeID, _ := uuid.NewRandom()
@@ -148,8 +150,6 @@ func (u *tradeUsecase) PutTradeRequest(c echo.Context, tradeRequestModel traceab
 		tradeRequestModel.StatusModel.StatusID = statusID
 		tradeRequestModel.StatusModel.TradeID = tradeID
 	}
-
-	fmt.Printf("Put Usecase TradeBody: %+v\n", tradeRequestModel)
 
 	now := time.Now()
 	// Convert to timestamp compliant with "ISO8601" compliant string and "UTC" for TradeDate
@@ -172,15 +172,21 @@ func (u *tradeUsecase) PutTradeRequest(c echo.Context, tradeRequestModel traceab
 
 	tradeRequestModel.StatusModel.RequestType = traceability.RequestTypeCFP.ToString()
 	statusEntityModel := traceability.StatusEntityModel{
-		StatusID:          tradeRequestModel.StatusModel.StatusID,
-		TradeID:           *tradeRequestModel.TradeModel.TradeID,
-		CfpResponseStatus: traceability.CfpResponseStatusPending.ToString(),
-		TradeTreeStatus:   traceability.TradeTreeStatusUnterminated.ToString(),
-		Message:           tradeRequestModel.StatusModel.Message,
-		RequestType:       tradeRequestModel.StatusModel.RequestType,
-		CreatedUserId:     "sample",
-		UpdatedAt:         now,
-		UpdatedUserId:     "sample",
+		StatusID:                 tradeRequestModel.StatusModel.StatusID,
+		TradeID:                  *tradeRequestModel.TradeModel.TradeID,
+		CfpResponseStatus:        traceability.CfpResponseStatusPending.ToString(),
+		TradeTreeStatus:          traceability.TradeTreeStatusUnterminated.ToString(),
+		Message:                  tradeRequestModel.StatusModel.Message,
+		RequestType:              tradeRequestModel.StatusModel.RequestType,
+		ResponseDueDate:          *tradeRequestModel.StatusModel.ResponseDueDate,
+		CompletedCount:           common.IntPtr(0),
+		CompletedCountModifiedAt: &now,
+		// set fixed value due to complexity of calculateion process
+		TradesCount:           common.IntPtr(1),
+		TradesCountModifiedAt: &now,
+		CreatedUserId:         "sample",
+		UpdatedAt:             now,
+		UpdatedUserId:         "sample",
 	}
 
 	tradeRequestEntityModel := traceability.TradeRequestEntityModel{
@@ -188,20 +194,18 @@ func (u *tradeUsecase) PutTradeRequest(c echo.Context, tradeRequestModel traceab
 		StatusEntityModel: statusEntityModel,
 	}
 
-	fmt.Printf("Put Usecase tradeRequestEntityModel: %+v\n", tradeRequestEntityModel)
-
 	res, err := u.OuranosRepository.PutTradeRequest(tradeRequestEntityModel)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return tradeRequestModel, err
+		return tradeRequestModel, common.ResponseHeaders{}, err
 	}
 
-	statusModel, err := res.ToModel()
+	resTradeRequestModel, err := res.ToModel(traceability.PathTradeRequest)
 	if err != nil {
-		return tradeRequestModel, err
+		return tradeRequestModel, common.ResponseHeaders{}, err
 	}
-	return statusModel, nil
+	return resTradeRequestModel, common.ResponseHeaders{}, nil
 }
 
 // PutTradeResponse
@@ -209,13 +213,14 @@ func (u *tradeUsecase) PutTradeRequest(c echo.Context, tradeRequestModel traceab
 // input: c(echo.Context) echo context
 // input: putTradeResponseInput(traceability.PutTradeResponseInput) PutTradeResponseInput object
 // output: (traceability.TradeModel) TradeModel object
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *tradeUsecase) PutTradeResponse(c echo.Context, putTradeResponseInput traceability.PutTradeResponseInput) (traceability.TradeModel, error) {
+func (u *tradeUsecase) PutTradeResponse(c echo.Context, putTradeResponseInput traceability.PutTradeResponseInput) (traceability.TradeModel, common.ResponseHeaders, error) {
 	CfpResponseStatus := traceability.CfpResponseStatusComplete
 	TradeTreeStatus := traceability.TradeTreeStatusTerminated
 	requestStatusValue := traceability.RequestStatus{
-		CfpResponseStatus: CfpResponseStatus,
-		TradeTreeStatus:   TradeTreeStatus,
+		CfpResponseStatus: &CfpResponseStatus,
+		TradeTreeStatus:   &TradeTreeStatus,
 	}
 
 	_, err := u.OuranosRepository.GetCFPInformation(putTradeResponseInput.TraceID.String())
@@ -224,21 +229,22 @@ func (u *tradeUsecase) PutTradeResponse(c echo.Context, putTradeResponseInput tr
 			trade, err := u.OuranosRepository.GetTrade(putTradeResponseInput.TradeID.String())
 			if err != nil {
 				logger.Set(nil).Error(err.Error())
-				return traceability.TradeModel{}, err
+				return traceability.TradeModel{}, common.ResponseHeaders{}, err
 			}
 			_, err = u.OuranosRepository.GetCFPInformation(trade.DownstreamTraceID.String())
 			if err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
-					requestStatusValue.CfpResponseStatus = traceability.CfpResponseStatusPending
+					s := traceability.CfpResponseStatusPending
+					requestStatusValue.CfpResponseStatus = &s
 				} else {
 					logger.Set(nil).Error(err.Error())
-					return traceability.TradeModel{}, err
+					return traceability.TradeModel{}, common.ResponseHeaders{}, err
 				}
 			}
 		} else {
 			logger.Set(nil).Error(err.Error())
 
-			return traceability.TradeModel{}, err
+			return traceability.TradeModel{}, common.ResponseHeaders{}, err
 		}
 	}
 
@@ -246,20 +252,19 @@ func (u *tradeUsecase) PutTradeResponse(c echo.Context, putTradeResponseInput tr
 	if err != nil {
 		logger.Set(nil).Error(err.Error())
 
-		return traceability.TradeModel{}, err
+		return traceability.TradeModel{}, common.ResponseHeaders{}, err
 	}
 	if tradePart.TerminatedFlag {
-		requestStatusValue.TradeTreeStatus = traceability.TradeTreeStatusUnterminated
+		t := traceability.TradeTreeStatusUnterminated
+		requestStatusValue.TradeTreeStatus = &t
 	}
-
-	fmt.Printf("requestStatusValue: %+v\n", requestStatusValue)
 
 	trade, err := u.OuranosRepository.PutTradeResponse(putTradeResponseInput, requestStatusValue)
 	if err != nil {
 		logger.Set(nil).Error(err.Error())
 
-		return traceability.TradeModel{}, err
+		return traceability.TradeModel{}, common.ResponseHeaders{}, err
 	}
 
-	return trade.ToModel(), nil
+	return trade.ToModel(), common.ResponseHeaders{}, nil
 }

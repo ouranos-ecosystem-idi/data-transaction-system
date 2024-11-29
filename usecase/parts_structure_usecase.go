@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"data-spaces-backend/domain/common"
 	"data-spaces-backend/domain/model/traceability"
 
 	"github.com/labstack/echo/v4"
@@ -11,6 +12,6 @@ import (
 //
 //go:generate mockery --name IPartsStructureUsecase --output ../test/mock --case underscore
 type IPartsStructureUsecase interface {
-	GetPartsStructure(c echo.Context, getPartsStructureModel traceability.GetPartsStructureModel) (traceability.PartsStructureModel, error)
-	PutPartsStructure(c echo.Context, partsStructureModel traceability.PartsStructureModel) (traceability.PartsStructureModel, error)
+	GetPartsStructure(c echo.Context, getPartsStructureModel traceability.GetPartsStructureInput) (traceability.PartsStructureModel, error)
+	PutPartsStructure(c echo.Context, putpartsStructureInput traceability.PutPartsStructureInput) (traceability.PartsStructureModel, common.ResponseHeaders, error)
 }

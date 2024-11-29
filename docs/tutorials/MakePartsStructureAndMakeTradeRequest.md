@@ -1,5 +1,5 @@
 # 部品登録
-A社が部品登録する例を示します。
+A社が部品登録する例を示します。  
 識別子およびアクセストークンは適宜置き換えが必要ですのでご注意下さい。
 
 ## 1. 事業所の登録
@@ -36,8 +36,8 @@ curl --location --request PUT 'http://localhost:8081/api/v1/authInfo?dataTarget=
 ```
 
 ## 2. 親部品情報の作成
-Action (A社): 下記の```curl```コマンドを実行し、A社の部品Aを登録します。
-登録する製品の情報は下記です。
+Action (A社): 下記の```curl```コマンドを実行し、A社の部品Aを登録します。  
+登録する製品の情報は下記です。  
 - 部品項目:部品A
 - 補助項目:modelA
 - 事業所識別子（内部）:{事業所Aで登録した識別子}
@@ -79,7 +79,7 @@ curl --location --request PUT 'http://localhost:8080/api/v1/datatransport?dataTa
 ## 3. 部品構成情報の登録
 Action (A社): 下記のcurlコマンドを実行し、作成した自社の部品に対して子部品を登録します。
 
-登録する子部品の製品の情報は下記です。
+登録する子部品の製品の情報は下記です。  
 - 部品項目:部品A1
 - 補助項目:modelA-1
 - 事業所識別子（内部）:{事業所Aで登録した識別子}
@@ -142,7 +142,7 @@ curl --location --request PUT 'http://localhost:8080/api/v1/datatransport?dataTa
 }
 ```
 
-登録された部品構成情報が返却されます。
+登録された部品構成情報が返却されます。  
 製品登録が成功すると子部品に対してトレース識別子が付番されます。
 
 # CFP結果提出の依頼
@@ -186,7 +186,8 @@ curl --location --request PUT 'http://localhost:8080/api/v1/datatransport?dataTa
     "requestStatus": {},
     "requestType": "CFP",
     "statusId": null,
-    "tradeId": null
+    "tradeId": null,
+    "responseDueDate": "2024-12-31"
   },
   "tradeModel": {
     "downstreamOperatorId": "b39e6248-c888-56ca-d9d0-89de1b1adc8e",
@@ -211,15 +212,18 @@ curl --location --request PUT 'http://localhost:8080/api/v1/datatransport?dataTa
         "statusId": "92e42cc2-7768-4bc8-b956-356a40a7a506",
         "tradeId": "f475cb75-b3b8-4427-9e8d-376377f1c795",
         "requestStatus": {
-            "cfpResponseStatus": "NOT_COMPLETED",
-            "tradeTreeStatus": "UNTERMINATED"
+            "completedCount": null,
+            "completedCountModifiedAt": null,
+            "tradesCount": null,
+            "tradesCountModifiedAt": null
         },
         "message": "来月中にご回答をお願いします。",
         "replyMessage": null,
-        "requestType": "CFP"
+        "requestType": "CFP",
+        "responseDueDate":"2024-12-31"
     }
 }
 ```
 
-製品登録が成功すると取引関係情報識別子が付番されます。
+製品登録が成功すると取引関係情報識別子が付番されます。  
 ※ これらはダミー実装のため、本番の返却値とは一部値が異なる可能性がございます。

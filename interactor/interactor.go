@@ -72,6 +72,7 @@ func NewInteractor(
 type appHandler struct {
 	handler.AuthHandler
 	handler.OuranosHandler
+	handler.HealthCheckHandler
 }
 
 // NewAppHandler
@@ -131,6 +132,7 @@ func (i *interactor) NewAppHandler() handler.AppHandler {
 		tradeHandler = handler.NewTradeHandler(tradeUsecase, i.host)
 		statusHandler = handler.NewStatusHandler(statusUsecase, i.host)
 	}
+	healthCheckHandler := handler.NewHealthCheckHandler()
 
 	// handler DI
 	authHandler := handler.NewAuthHandler(
@@ -147,8 +149,9 @@ func (i *interactor) NewAppHandler() handler.AppHandler {
 
 	// appHandler DI
 	appHandler := &appHandler{
-		AuthHandler:    authHandler,
-		OuranosHandler: ouranosHandler,
+		AuthHandler:        authHandler,
+		OuranosHandler:     ouranosHandler,
+		HealthCheckHandler: healthCheckHandler,
 	}
 	return appHandler
 }

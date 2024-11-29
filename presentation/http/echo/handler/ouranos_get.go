@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"data-spaces-backend/domain/common"
@@ -18,7 +17,6 @@ func (h *ouranosHandler) GetOuranos(c echo.Context) error {
 	operatorID := c.Get("operatorID").(string)
 
 	dataTarget := c.QueryParam("dataTarget")
-	fmt.Printf("dataTarget: %v\n", dataTarget)
 
 	switch dataTarget {
 	case "partsStructure":

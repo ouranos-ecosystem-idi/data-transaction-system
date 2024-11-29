@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"testing"
 
+	"data-spaces-backend/domain/common"
 	"data-spaces-backend/domain/model/authentication"
 	f "data-spaces-backend/test/fixtures"
 	mocks "data-spaces-backend/test/mock"
@@ -106,10 +107,10 @@ func TestProjectAuth_VerifyToken(tt *testing.T) {
 				Token: "token",
 			},
 			receive: authentication.VeriryTokenResponse{
-				OperatorID: &f.OperatorId,
+				OperatorID: common.StringPtr("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 			},
 			expect: output.VerifyToken{
-				OperatorID: &f.OperatorId,
+				OperatorID: common.StringPtr("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 			},
 		},
 	}

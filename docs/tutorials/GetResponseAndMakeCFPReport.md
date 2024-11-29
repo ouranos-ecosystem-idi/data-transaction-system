@@ -1,5 +1,5 @@
 # 回答情報の取得
-A社がB社の回答情報を取得する例を示します。
+A社がB社の回答情報を取得する例を示します。  
 識別子およびアクセストークンは適宜置き換えが必要ですのでご注意下さい。
 
 ## 1. 回答依頼情報の取得
@@ -42,11 +42,16 @@ curl --location --request GET 'http://localhost:8080/api/v1/datatransport?dataTa
         "tradeId": "f475cb75-b3b8-4427-9e8d-376377f1c795",
         "requestStatus": {
             "cfpResponseStatus": "COMPLETED",
-            "tradeTreeStatus": "TERMINATED"
+            "tradeTreeStatus": "TERMINATED",
+            "completedCount": 1,
+            "completedCountModifiedAt": "2024-11-15T06:33:10Z",
+            "tradesCount": 1,
+            "tradesCountModifiedAt": "2024-11-15T04:49:44Z"
         },
         "message": "来月中にご回答をお願いします。",
         "replyMessage": null,
-        "requestType": "CFP"
+        "requestType": "CFP",
+        "responseDueDate": "2024-12-31"
     }
 ]
 ```
@@ -58,7 +63,7 @@ curl --location --request GET 'http://localhost:8080/api/v1/datatransport?dataTa
 
 Action (A社): 下記の```curl```コマンドを実行し、A社の製品にCFP情報を登録する
 
-前提条件として、完成品のCFP情報の算出はアプリケーションで実施されます。
+前提条件として、完成品のCFP情報の算出はアプリケーションで実施されます。  
 登録する完成品のCFP情報は下記です。
 - 前処理自社由来排出量：3.0(kgCO2e/kilogram)
 - 製造自社由来排出量：20.0(kgCO2e/kilogram)
@@ -205,77 +210,12 @@ curl --location --request GET 'http://localhost:8080/api/v1/datatransport?dataTa
 ```json
 [
     {
-        "cfpId": "ec52116d-78bb-427b-82ee-033bb7a89b5d",
-        "traceId": "40b77952-2c89-49be-8ce9-7c64a15e0ae7",
-        "ghgEmission": 3,
-        "ghgDeclaredUnit": "kgCO2e/kilogram",
-        "cfpType": "preProduction",
-        "dqrType": "preProcessing",
-        "dqrValue": {
-            "TeR": 1,
-            "GeR": 2,
-            "TiR": 3
-        }
-    },
-    {
-        "cfpId": "ec52116d-78bb-427b-82ee-033bb7a89b5d",
-        "traceId": "40b77952-2c89-49be-8ce9-7c64a15e0ae7",
-        "ghgEmission": 0,
-        "ghgDeclaredUnit": "kgCO2e/kilogram",
-        "cfpType": "preComponent",
-        "dqrType": "preProcessing",
-        "dqrValue": {
-            "TeR": 1,
-            "GeR": 2,
-            "TiR": 3
-        }
-    },
-    {
-        "cfpId": "ec52116d-78bb-427b-82ee-033bb7a89b5d",
-        "traceId": "40b77952-2c89-49be-8ce9-7c64a15e0ae7",
-        "ghgEmission": 20,
-        "ghgDeclaredUnit": "kgCO2e/kilogram",
-        "cfpType": "mainProduction",
-        "dqrType": "mainProcessing",
-        "dqrValue": {
-            "TeR": 2,
-            "GeR": 3,
-            "TiR": 4
-        }
-    },
-    {
-        "cfpId": "ec52116d-78bb-427b-82ee-033bb7a89b5d",
-        "traceId": "40b77952-2c89-49be-8ce9-7c64a15e0ae7",
-        "ghgEmission": 0,
-        "ghgDeclaredUnit": "kgCO2e/kilogram",
-        "cfpType": "mainComponent",
-        "dqrType": "mainProcessing",
-        "dqrValue": {
-            "TeR": 2,
-            "GeR": 3,
-            "TiR": 4
-        }
-    },
-    {
-        "cfpId": "ec52116d-78bb-427b-82ee-033bb7a89b5d",
-        "traceId": "40b77952-2c89-49be-8ce9-7c64a15e0ae7",
-        "ghgEmission": 3,
-        "ghgDeclaredUnit": "kgCO2e/kilogram",
-        "cfpType": "preProductionTotal",
-        "dqrType": "preProcessingTotal",
-        "dqrValue": {
-            "TeR": 2.1,
-            "GeR": 0,
-            "TiR": null
-        }
-    },
-    {
-        "cfpId": "ec52116d-78bb-427b-82ee-033bb7a89b5d",
+        "cfpId": null,
         "traceId": "40b77952-2c89-49be-8ce9-7c64a15e0ae7",
         "ghgEmission": 1.5,
         "ghgDeclaredUnit": "kgCO2e/kilogram",
-        "cfpType": "preComponentTotal",
-        "dqrType": "preProcessingTotal",
+        "cfpType": "preProductionResponse",
+        "dqrType": "preProcessingResponse",
         "dqrValue": {
             "TeR": 2.1,
             "GeR": 0,
@@ -283,25 +223,12 @@ curl --location --request GET 'http://localhost:8080/api/v1/datatransport?dataTa
         }
     },
     {
-        "cfpId": "ec52116d-78bb-427b-82ee-033bb7a89b5d",
-        "traceId": "40b77952-2c89-49be-8ce9-7c64a15e0ae7",
-        "ghgEmission": 20,
-        "ghgDeclaredUnit": "kgCO2e/kilogram",
-        "cfpType": "mainProductionTotal",
-        "dqrType": "mainProcessingTotal",
-        "dqrValue": {
-            "TeR": 2.1,
-            "GeR": 0,
-            "TiR": null
-        }
-    },
-    {
-        "cfpId": "ec52116d-78bb-427b-82ee-033bb7a89b5d",
+        "cfpId": null,
         "traceId": "40b77952-2c89-49be-8ce9-7c64a15e0ae7",
         "ghgEmission": 10,
         "ghgDeclaredUnit": "kgCO2e/kilogram",
-        "cfpType": "mainComponentTotal",
-        "dqrType": "mainProcessingTotal",
+        "cfpType": "mainProductionResponse",
+        "dqrType": "mainProcessingResponse",
         "dqrValue": {
             "TeR": 2.1,
             "GeR": 0,

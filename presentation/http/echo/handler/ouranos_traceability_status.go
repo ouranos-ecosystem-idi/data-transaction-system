@@ -16,7 +16,7 @@ import (
 // IStatusHandler
 // Summary: This is interface which defines StatusHandler.
 //
-//go:generate mockery --name IStatusHandler --output ../test/mock --case underscore
+//go:generate mockery --name IStatusHandler --output ../../../../test/mock --case underscore
 type IStatusHandler interface {
 	// #11 GetStatusList.
 	GetStatus(c echo.Context) error
@@ -46,7 +46,7 @@ func NewStatusHandler(u usecase.IStatusUsecase, host string) IStatusHandler {
 // output: (error) error object
 func (h *statusHandler) GetStatus(c echo.Context) error {
 	var defaultLimit int = 100
-	var input traceability.GetStatusModel
+	var input traceability.GetStatusInput
 
 	dataTarget := c.QueryParam("dataTarget")
 	method := c.Request().Method
@@ -144,6 +144,8 @@ func (h *statusHandler) GetStatus(c echo.Context) error {
 	if afterRes != nil {
 		c.Response().Header().Set("Link", common.CreateAfterLink(h.host, dataTarget, *afterRes, input))
 	}
+
+	common.SetResponseHeader(c, common.ResponseHeaders{})
 	return c.JSON(http.StatusOK, response)
 }
 
@@ -171,11 +173,10 @@ func (h *statusHandler) PutStatus(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
 	}
 
-	statusModel, _ := input.ToModel()
-	cfpRequestStatus := statusModel.RequestStatus.CfpResponseStatus
-
-	if cfpRequestStatus == traceability.CfpResponseStatusCancel {
-		err := h.statusUsecase.PutStatusCancel(c, statusModel)
+	var headers common.ResponseHeaders
+	var err error
+	if input.IsCfpRequestStatusCancel() {
+		headers, err = h.statusUsecase.PutStatusCancel(c, input)
 		if err != nil {
 			var customErr *common.CustomError
 			if errors.As(err, &customErr) {
@@ -193,8 +194,8 @@ func (h *statusHandler) PutStatus(c echo.Context) error {
 		}
 	}
 
-	if cfpRequestStatus == traceability.CfpResponseStatusReject {
-		err := h.statusUsecase.PutStatusReject(c, statusModel)
+	if input.IsCfpRequestStatusReject() {
+		headers, err = h.statusUsecase.PutStatusReject(c, input)
 		if err != nil {
 			var customErr *common.CustomError
 			if errors.As(err, &customErr) {
@@ -211,5 +212,7 @@ func (h *statusHandler) PutStatus(c echo.Context) error {
 			return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusInternalServerError, common.HTTPErrorSourceDataspace, common.Err500Unexpected, operatorID, dataTarget, method))
 		}
 	}
+
+	common.SetResponseHeader(c, headers)
 	return c.JSON(http.StatusCreated, common.EmptyBody{})
 }

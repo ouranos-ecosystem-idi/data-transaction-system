@@ -47,12 +47,16 @@ type PartsStructureEntity struct {
 // Summary: This is structure which defines list of partsStructure model.
 type PartsStructureEntities []*PartsStructureEntity
 
-// GetPartsStructureModel
+// PartsStructureEntities
+// Summary: This is structure which defines list of partsStructure model.
+type PartsStructureEntityModels []PartsStructureEntityModel
+
+// GetPartsStructureInput
 // Summary: This is structure which defines partsStructure model.
 // Service: Dataspace
 // Router: [GET] /api/v1/datatransport?dataTarget=PartsStructure
 // Usage: input
-type GetPartsStructureModel struct {
+type GetPartsStructureInput struct {
 	TraceID    uuid.UUID `json:"traceId" gorm:"type:uuid"`
 	OperatorID string    `json:"operatorId" gorm:"type:string;not null"`
 }
@@ -68,9 +72,9 @@ type PutPartsStructureInput struct {
 }
 
 // validate
-// Summary: This is the function to validate GetPartsStructureModel.
+// Summary: This is the function to validate GetPartsStructureInput.
 // output: (error) Error object
-func (m GetPartsStructureModel) Validate() error {
+func (m GetPartsStructureInput) Validate() error {
 	if err := m.validate(); err != nil {
 		logger.Set(nil).Warn(err.Error())
 		return err
@@ -80,9 +84,9 @@ func (m GetPartsStructureModel) Validate() error {
 }
 
 // validate
-// Summary: This is the function to validate GetPartsStructureModel.
+// Summary: This is the function to validate GetPartsStructureInput.
 // output: (error) Error object
-func (m GetPartsStructureModel) validate() error {
+func (m GetPartsStructureInput) validate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(
 			&m.TraceID,
@@ -142,6 +146,13 @@ func (i PutPartsStructureInput) validate() error {
 	}
 
 	return nil
+}
+
+// HasChild
+// Summary: This is the function to check child parts.
+// output: (bool) true if child parts exist
+func (i PutPartsStructureInput) HasChild() bool {
+	return i.ChildrenPartsInput != nil && len(*i.ChildrenPartsInput) > 0
 }
 
 // validate

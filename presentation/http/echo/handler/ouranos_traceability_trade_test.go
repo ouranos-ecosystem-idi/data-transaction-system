@@ -125,7 +125,7 @@ func TestProjectHandler_GetTradeRequest_Normal(tt *testing.T) {
 		tt.Run(
 			test.name,
 			func(t *testing.T) {
-				// t.Parallel()
+				t.Parallel()
 
 				q := make(url.Values)
 				q.Set("dataTarget", dataTarget)
@@ -189,6 +189,10 @@ func TestProjectHandler_GetTradeRequest_Normal(tt *testing.T) {
 					assert.Equal(t, test.expectStatus, rec.Code)
 					tradeUsecase.AssertExpectations(t)
 				}
+
+				// レスポンスヘッダにX-Trackが含まれているかチェック
+				_, ok := rec.Header()["X-Track"]
+				assert.True(t, ok, "Header should have 'X-Track' key")
 			},
 		)
 	}
@@ -218,6 +222,7 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 		modifyContexts    func(c echo.Context)
 		receive           error
 		expectError       string
+		expectStatus      int
 	}{
 		{
 			name: "1-1. 400: バリデーションエラー：limitの値が不正の場合",
@@ -227,7 +232,8 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-2. 400: バリデーションエラー：limitが101以上の場合",
@@ -237,7 +243,8 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-3. 400: バリデーションエラー：afterの値が不正の場合",
@@ -247,7 +254,8 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, after: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, after: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-4. 400: バリデーションエラー：traceIdsの値が不正の場合",
@@ -257,7 +265,8 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, traceIds: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, traceIds: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-5. 400: バリデーションエラー：limitが0の場合",
@@ -267,7 +276,8 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-6. 400: バリデーションエラー：traceIdsが51件以上の場合",
@@ -282,7 +292,8 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, traceIds: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, traceIds: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-7. 400: バリデーションエラー：operatorIdがUUID形式ではない場合",
@@ -292,7 +303,8 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", "invalid")
 			},
-			expectError: "code=400, message={[auth] BadRequest Invalid or expired token",
+			expectError:  "code=400, message={[auth] BadRequest Invalid or expired token",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-8. 500: システムエラー：取得処理エラー",
@@ -302,8 +314,9 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			receive:     common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-9. 500: システムエラー：取得処理エラー",
@@ -313,8 +326,26 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			receive:     fmt.Errorf("Internal Server Error"),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      fmt.Errorf("Internal Server Error"),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
+		},
+		{
+			name: "1-10. 400: バリデーションエラー：traceIdsにUUIDとそうでない値が混在する場合",
+			modifyQueryParams: func(q url.Values) {
+				traceIDs := make([]uuid.UUID, 10)
+				for i := range traceIDs {
+					traceIDs[i] = uuid.New()
+				}
+				traceIDsStr := common.JoinUUIDs(traceIDs, ",")
+				traceIDsStr = traceIDsStr + f.InvalidUUID
+				q.Set("traceIds", traceIDsStr)
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, traceIds: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 	}
 
@@ -342,7 +373,9 @@ func TestProjectHandler_GetTradeRequest(tt *testing.T) {
 				tradeHandler := handler.NewTradeHandler(tradeUsecase, "")
 
 				err := tradeHandler.GetTradeRequest(c)
+				e.HTTPErrorHandler(err, c)
 				if assert.Error(t, err) {
+					assert.Equal(t, test.expectStatus, rec.Code)
 					assert.ErrorContains(t, err, test.expectError)
 				}
 			},
@@ -363,21 +396,25 @@ func TestProjectHandler_PutTradeRequest_Normal(tt *testing.T) {
 
 	tests := []struct {
 		name         string
-		modifyInput  func(i *traceability.PutTradeRequestInput)
+		inputFunc    func() traceability.PutTradeRequestInput
 		expectStatus int
 	}{
 		{
 			name: "2-1. 201: 正常系(新規作成)",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
-				i.Trade = f.PutTradeRequestInput.Trade
+			inputFunc: func() traceability.PutTradeRequestInput {
+				input := f.NewPutTradeRequestInput()
+				input.Trade.TradeID = nil
+				input.Status.StatusID = nil
+				input.Status.TradeID = nil
+				return input
 			},
 			expectStatus: http.StatusCreated,
 		},
 		{
 			name: "2-2. 201: 正常系(更新)",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
-				i.Trade = f.PutTradeRequestInput.Trade
-				i.Status = f.PutTradeRequestInput.Status
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				return i
 			},
 			expectStatus: http.StatusCreated,
 		},
@@ -390,8 +427,7 @@ func TestProjectHandler_PutTradeRequest_Normal(tt *testing.T) {
 			func(t *testing.T) {
 				t.Parallel()
 
-				input := f.PutTradeRequestInput
-				test.modifyInput(&input)
+				input := test.inputFunc()
 				tradeRequestModel := input.ToModel()
 
 				inputJSON, _ := json.Marshal(input)
@@ -408,13 +444,17 @@ func TestProjectHandler_PutTradeRequest_Normal(tt *testing.T) {
 
 				tradeUsecase := new(mocks.ITradeUsecase)
 				tradeHandler := handler.NewTradeHandler(tradeUsecase, "")
-				tradeUsecase.On("PutTradeRequest", c, tradeRequestModel).Return(tradeRequestModel, nil)
+				tradeUsecase.On("PutTradeRequest", c, input).Return(tradeRequestModel, common.ResponseHeaders{}, nil)
 
 				err := tradeHandler.PutTradeRequest(c)
 				if assert.NoError(t, err) {
 					assert.Equal(t, test.expectStatus, rec.Code)
 					tradeUsecase.AssertExpectations(t)
 				}
+
+				// レスポンスヘッダにX-Trackが含まれているかチェック
+				_, ok := rec.Header()["X-Track"]
+				assert.True(t, ok, "Header should have 'X-Track' key")
 			},
 		)
 	}
@@ -443,6 +483,12 @@ func TestProjectHandler_PutTradeRequest_Normal(tt *testing.T) {
 // [x] 1-17. 400: バリデーションエラー：operatorIdがUUID形式ではない場合
 // [x] 1-18. 500: システムエラー：更新処理エラー
 // [x] 1-19. 500: システムエラー：更新処理エラー
+// [x] 1-20. 400: バリデーションエラー：tradeModelの1-3と1-5が同時に発生する場合
+// [x] 1-21. 400: バリデーションエラー：statusModelの1-8と1-9が同時に発生する場合
+// [x] 1-22. 400: バリデーションエラー：tradeModelの1-3と1-5とstatusModelの1-8と1-9が同時に発生する場合
+// [x] 1-23. 400: バリデーションエラー：1-3と1-13が同時に発生する場合
+// [x] 1-24. 400: バリデーションエラー：1-3と1-14が同時に発生する場合
+// [x] 1-25. 400: バリデーションエラー：1-13と1-14が同時に発生する場合
 func TestProjectHandler_PutTradeRequest(tt *testing.T) {
 	var method = "PUT"
 	var endPoint = "/api/v1/datatransport"
@@ -450,209 +496,380 @@ func TestProjectHandler_PutTradeRequest(tt *testing.T) {
 
 	tests := []struct {
 		name           string
-		modifyInput    func(i *traceability.PutTradeRequestInput)
+		inputFunc      func() traceability.PutTradeRequestInput
 		modifyContexts func(c echo.Context)
 		receive        error
 		expectError    string
+		expectStatus   int
 	}{
 		{
 			name: "1-1. 400: バリデーションエラー：tradeModelのtradeIdがUUID形式以外の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.TradeID = common.StringPtr(f.InvalidUUID)
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, tradeId: invalid UUID.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-2. 400: バリデーションエラー：tradeModelのdownstreamOperatorIdが未指定の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.DownstreamOperatorID = ""
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, downstreamOperatorId: cannot be blank.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, downstreamOperatorId: cannot be blank.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-3. 400: バリデーションエラー：tradeModelのdownstreamOperatorIdがUUID形式以外の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.DownstreamOperatorID = f.InvalidUUID
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, downstreamOperatorId: invalid UUID.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, downstreamOperatorId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-4. 400: バリデーションエラー：tradeModelのupstreamOperatorIdが未指定の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.UpstreamOperatorID = ""
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, upstreamOperatorId: cannot be blank.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, upstreamOperatorId: cannot be blank.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-5. 400: バリデーションエラー：tradeModelのupstreamOperatorIdがUUID形式以外の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.UpstreamOperatorID = f.InvalidUUID
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, upstreamOperatorId: invalid UUID.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, upstreamOperatorId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-6. 400: バリデーションエラー：tradeModelのdownstreamTraceIdが未指定の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.DownstreamTraceID = ""
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, downstreamTraceId: cannot be blank.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, downstreamTraceId: cannot be blank.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-7. 400: バリデーションエラー：tradeModelのdownstreamTraceIdがUUID形式以外の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.DownstreamTraceID = f.InvalidUUID
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, downstreamTraceId: invalid UUID.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, downstreamTraceId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-8. 400: バリデーションエラー：statusModelのstatusIdがUUID形式以外の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Status.StatusID = common.StringPtr(f.InvalidUUID)
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, statusId: invalid UUID.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, statusId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-9. 400: バリデーションエラー：statusModelのtradeIdがUUID形式以外の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Status.TradeID = common.StringPtr(f.InvalidUUID)
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, tradeId: invalid UUID.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-10. 400: バリデーションエラー：statusModelのrequestTypeが未指定の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Status.RequestType = ""
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, requestType: cannot be blank.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, requestType: cannot be blank.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-11. 400: バリデーションエラー：statusModelのrequestTypeが指定された値以外の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Status.RequestType = "not request type"
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, requestType: cannot be allowed 'not request type'.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, requestType: cannot be allowed 'not request type'.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
-			name: "1-12. 400: バリデーションエラー：statusModelのmessageが101文字以上の場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
-				i.Status.Message = "Jv0ceJYX9Pa9zQTtlYPQLqLyUUhhNZ5EQCL2JDj9jLfrrgFK8MzV7zkaPvVj1wVtq5ESQGAbXrOhElxsVJzBjSxMBhwOa7hJwBrEc"
+			name: "1-12. 400: バリデーションエラー：statusModelのmessageが1001文字以上の場合",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				i.Status.Message = common.StringPtr(f.CraeteRamdomString(1001))
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, message: the length must be no more than 100.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, message: the length must be no more than 1000.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-13. 400: バリデーションエラー：tradeModelのtradeIdとstatusModelのtradeIdが一致しない場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.TradeID = common.StringPtr(f.TradeIDUUID1)
 				i.Status.TradeID = common.StringPtr(f.TradeIDUUID2)
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, tradeModel.tradeId and statusModel.tradeId must be equal",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeModel.tradeId and statusModel.tradeId must be equal",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-14. 400: バリデーションエラー：tradeModelのtradeIdが設定されているかつstatusModelのtradeIdとstatusModelのstatusIdが設定されていない場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.TradeID = common.StringPtr(f.TradeIDUUID1)
 				i.Status.TradeID = nil
 				i.Status.StatusID = nil
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, tradeModel.tradeId, statusModel.statusId, and statusModel.tradeId must all have values or all be null",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeModel.tradeId, statusModel.statusId, and statusModel.tradeId must all have values or all be null",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-15. 400: バリデーションエラー：statusModelのtradeIdが設定されているかつtradeModelのtradeIdとstatusModelのstatusIdが設定されていない場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.TradeID = nil
 				i.Status.TradeID = common.StringPtr(f.TradeIDUUID1)
 				i.Status.StatusID = nil
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, tradeModel.tradeId, statusModel.statusId, and statusModel.tradeId must all have values or all be null",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeModel.tradeId, statusModel.statusId, and statusModel.tradeId must all have values or all be null",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-16. 400: バリデーションエラー：statusModelのstatusIdが設定されているかつtradeModelのtradeIdとstatusModelのtradeIdが設定されていない場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
 				i.Trade.TradeID = nil
 				i.Status.TradeID = nil
 				i.Status.StatusID = common.StringPtr(f.TradeIDUUID1)
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, tradeModel.tradeId, statusModel.statusId, and statusModel.tradeId must all have values or all be null",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeModel.tradeId, statusModel.statusId, and statusModel.tradeId must all have values or all be null",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-17. 400: バリデーションエラー：operatorIDがjwtのoperatorIdと一致しない場合",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
-				i.Trade = f.PutTradeRequestInput.Trade
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", "e03cc699-7234-31ed-86be-cc18c92208e6")
 			},
-			expectError: "code=403, message={[dataspace] AccessDenied You do not have the necessary privileges",
+			expectError:  "code=403, message={[dataspace] AccessDenied You do not have the necessary privileges",
+			expectStatus: http.StatusForbidden,
 		},
 		{
 			name: "1-18. 500: システムエラー：更新処理エラー",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
-				i.Trade = f.PutTradeRequestInput.Trade
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			receive:     common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-19. 500: システムエラー：更新処理エラー",
-			modifyInput: func(i *traceability.PutTradeRequestInput) {
-				i.Trade = f.PutTradeRequestInput.Trade
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				return i
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			receive:     fmt.Errorf("Internal Server Error"),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      fmt.Errorf("Internal Server Error"),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
+		},
+		{
+			name: "1-20. 400: バリデーションエラー：tradeModelの1-3と1-5が同時に発生する場合",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				i.Trade.DownstreamOperatorID = f.InvalidUUID
+				i.Trade.UpstreamOperatorID = f.InvalidUUID
+				return i
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, downstreamOperatorId: invalid UUID; upstreamOperatorId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-21. 400: バリデーションエラー：statusModelの1-8と1-9が同時に発生する場合",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				i.Status.StatusID = common.StringPtr(f.InvalidUUID)
+				i.Status.TradeID = common.StringPtr(f.InvalidUUID)
+				return i
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, statusId: invalid UUID; tradeId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-22. 400: バリデーションエラー：tradeModelの1-3と1-5とstatusModelの1-8と1-9が同時に発生する場合",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				i.Trade.DownstreamOperatorID = f.InvalidUUID
+				i.Trade.UpstreamOperatorID = f.InvalidUUID
+				i.Status.StatusID = common.StringPtr(f.InvalidUUID)
+				i.Status.TradeID = common.StringPtr(f.InvalidUUID)
+				return i
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, downstreamOperatorId: invalid UUID; upstreamOperatorId: invalid UUID.; statusId: invalid UUID; tradeId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-23. 400: バリデーションエラー：tradeModelの1-3と1-13が同時に発生する場合",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				i.Trade.DownstreamOperatorID = f.InvalidUUID
+				i.Trade.TradeID = common.StringPtr(f.TraceID)
+				i.Status.TradeID = common.StringPtr(f.TraceID2)
+				return i
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, downstreamOperatorId: invalid UUID.; tradeModel.tradeId and statusModel.tradeId must be equal.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-24. 400: バリデーションエラー：tradeModelの1-3と1-14が同時に発生する場合",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				i.Trade.DownstreamOperatorID = f.InvalidUUID
+				i.Trade.TradeID = common.StringPtr(f.TradeIDUUID1)
+				i.Status.TradeID = nil
+				i.Status.StatusID = nil
+				return i
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, downstreamOperatorId: invalid UUID.; tradeModel.tradeId, statusModel.statusId, and statusModel.tradeId must all have values or all be null",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-26. 400: バリデーションエラー：statusModelのresponseDueDateが未指定の場合",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				i.Status.ResponseDueDate = ""
+				return i
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, responseDueDate: cannot be blank.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-27. 400: バリデーションエラー：statusModelのresponseDueDateが不正な日付の場合",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				i.Status.ResponseDueDate = "2024-02-30"
+				return i
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, responseDueDate: must be a valid date.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-25. 400: バリデーションエラー：tradeModelの1-13と1-14が同時に発生する場合",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				i := f.NewPutTradeRequestInput()
+				i.Trade.TradeID = common.StringPtr(f.TradeIDUUID1)
+				i.Status.TradeID = common.StringPtr(f.TraceID2)
+				i.Status.StatusID = nil
+				return i
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeModel.tradeId, statusModel.statusId, and statusModel.tradeId must all have values or all be null; tradeModel.tradeId and statusModel.tradeId must be equal.",
+			expectStatus: http.StatusBadRequest,
 		},
 	}
 
@@ -663,8 +880,7 @@ func TestProjectHandler_PutTradeRequest(tt *testing.T) {
 			func(t *testing.T) {
 				t.Parallel()
 
-				input := f.PutTradeRequestInput
-				test.modifyInput(&input)
+				input := test.inputFunc()
 				tradeRequestModel := input.ToModel()
 
 				inputJSON, _ := json.Marshal(input)
@@ -680,10 +896,12 @@ func TestProjectHandler_PutTradeRequest(tt *testing.T) {
 				test.modifyContexts(c)
 				tradeUsecase := new(mocks.ITradeUsecase)
 				tradeHandler := handler.NewTradeHandler(tradeUsecase, "")
-				tradeUsecase.On("PutTradeRequest", c, tradeRequestModel).Return(tradeRequestModel, test.receive)
+				tradeUsecase.On("PutTradeRequest", c, input).Return(tradeRequestModel, common.ResponseHeaders{}, test.receive)
 
 				err := tradeHandler.PutTradeRequest(c)
+				e.HTTPErrorHandler(err, c)
 				if assert.Error(t, err) {
+					assert.Equal(t, test.expectStatus, rec.Code)
 					assert.ErrorContains(t, err, test.expectError)
 				}
 			},
@@ -807,6 +1025,10 @@ func TestProjectHandler_GetTradeResponse_Normal(tt *testing.T) {
 					assert.Equal(t, test.expectStatus, rec.Code)
 					tradeUsecase.AssertExpectations(t)
 				}
+
+				// レスポンスヘッダにX-Trackが含まれているかチェック
+				_, ok := rec.Header()["X-Track"]
+				assert.True(t, ok, "Header should have 'X-Track' key")
 			},
 		)
 	}
@@ -834,6 +1056,7 @@ func TestProjectHandler_GetTradeResponse(tt *testing.T) {
 		modifyContexts    func(c echo.Context)
 		receive           error
 		expectError       string
+		expectStatus      int
 	}{
 		{
 			name: "1-1. 400: バリデーションエラー：limitの値が不正の場合",
@@ -843,7 +1066,8 @@ func TestProjectHandler_GetTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-2. 400: バリデーションエラー：limitが101以上の場合",
@@ -853,7 +1077,8 @@ func TestProjectHandler_GetTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-3. 400: バリデーションエラー：limitの値が0の場合",
@@ -863,7 +1088,8 @@ func TestProjectHandler_GetTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-4. 400: バリデーションエラー：afterの値が不正の場合",
@@ -873,7 +1099,8 @@ func TestProjectHandler_GetTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, after: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, after: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-5. 400: バリデーションエラー：operatorIdがUUID形式ではない場合",
@@ -883,7 +1110,8 @@ func TestProjectHandler_GetTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", "invalid")
 			},
-			expectError: "code=400, message={[auth] BadRequest Invalid or expired token",
+			expectError:  "code=400, message={[auth] BadRequest Invalid or expired token",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-6. 500: システムエラー：取得処理エラー",
@@ -893,8 +1121,9 @@ func TestProjectHandler_GetTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			receive:     common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-7. 500: システムエラー：取得処理エラー",
@@ -904,8 +1133,9 @@ func TestProjectHandler_GetTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			receive:     fmt.Errorf("Internal Server Error"),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      fmt.Errorf("Internal Server Error"),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 	}
 
@@ -933,8 +1163,10 @@ func TestProjectHandler_GetTradeResponse(tt *testing.T) {
 				tradeUsecase.On("GetTradeResponse", mock.Anything, mock.Anything).Return([]traceability.TradeResponseModel{}, common.StringPtr(""), test.receive)
 
 				err := tradeHandler.GetTradeResponse(c)
+				e.HTTPErrorHandler(err, c)
 				if assert.Error(t, err) {
 					fmt.Println(err)
+					assert.Equal(t, test.expectStatus, rec.Code)
 					assert.ErrorContains(t, err, test.expectError)
 				}
 			},
@@ -990,13 +1222,17 @@ func TestProjectHandler_PutTradeResponse_Normal(tt *testing.T) {
 
 				tradeUsecase := new(mocks.ITradeUsecase)
 				tradeHandler := handler.NewTradeHandler(tradeUsecase, "")
-				tradeUsecase.On("PutTradeResponse", c, input).Return(tradeModel, nil)
+				tradeUsecase.On("PutTradeResponse", c, input).Return(tradeModel, common.ResponseHeaders{}, nil)
 
 				err := tradeHandler.PutTradeResponse(c)
 				if assert.NoError(t, err) {
 					assert.Equal(t, test.expectStatus, rec.Code)
 					tradeUsecase.AssertExpectations(t)
 				}
+
+				// レスポンスヘッダにX-Trackが含まれているかチェック
+				_, ok := rec.Header()["X-Track"]
+				assert.True(t, ok, "Header should have 'X-Track' key")
 			},
 		)
 	}
@@ -1014,6 +1250,8 @@ func TestProjectHandler_PutTradeResponse_Normal(tt *testing.T) {
 // [x] 1-5. 400: バリデーションエラー：operatorIdがUUID形式ではない場合
 // [x] 1-6. 500: システムエラー：更新処理エラー
 // [x] 1-7. 500: システムエラー：更新処理エラー
+// [x] 1-8. 400: バリデーションエラー：traceIdに値が設定されていない場合(after=)
+// [x] 1-9. 400: バリデーションエラー：tradeIdに値が設定されていない場合(after=)
 func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 	var method = "PUT"
 	var endPoint = "/api/v1/datatransport"
@@ -1025,6 +1263,7 @@ func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 		modifyContexts    func(c echo.Context)
 		receive           error
 		expectError       string
+		expectStatus      int
 	}{
 		{
 			name: "1-1. 400: バリデーションエラー：traceIdが未指定の場合",
@@ -1035,7 +1274,8 @@ func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-2. 400: バリデーションエラー：traceIdがUUID形式以外の場合",
@@ -1047,7 +1287,8 @@ func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-3. 400: バリデーションエラー：tradeIdが未指定の場合",
@@ -1058,7 +1299,8 @@ func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, tradeId: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, tradeId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-4. 400: バリデーションエラー：tradeIdがUUID形式以外の場合",
@@ -1070,7 +1312,8 @@ func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, tradeId: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, tradeId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-5. 400: バリデーションエラー：operatorIdがUUID形式ではない場合",
@@ -1080,7 +1323,8 @@ func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", "invalid")
 			},
-			expectError: "code=400, message={[auth] BadRequest Invalid or expired token",
+			expectError:  "code=400, message={[auth] BadRequest Invalid or expired token",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-6. 500: システムエラー：更新処理エラー",
@@ -1092,8 +1336,9 @@ func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			receive:     common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-7. 500: システムエラー：更新処理エラー",
@@ -1105,8 +1350,35 @@ func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorID)
 			},
-			receive:     fmt.Errorf("Internal Server Error"),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      fmt.Errorf("Internal Server Error"),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
+		},
+		{
+			name: "1-8. 400: バリデーションエラー：traceIdに値が設定されていない場合(after=)",
+			modifyQueryParams: func(q url.Values) {
+				q.Set("dataTarget", dataTarget)
+				q.Set("traceId", "")
+				q.Set("tradeId", f.TradeID)
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-9. 400: バリデーションエラー：tradeIdに値が設定されていない場合(after=)",
+			modifyQueryParams: func(q url.Values) {
+				q.Set("dataTarget", dataTarget)
+				q.Set("traceId", f.TraceID)
+				q.Set("tradeId", "")
+			},
+			modifyContexts: func(c echo.Context) {
+				c.Set("operatorID", f.OperatorID)
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, tradeId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 	}
 
@@ -1129,11 +1401,13 @@ func TestProjectHandler_PutTradeResponse(tt *testing.T) {
 				test.modifyContexts(c)
 
 				tradeUsecase := new(mocks.ITradeUsecase)
-				tradeUsecase.On("PutTradeResponse", mock.Anything, mock.Anything).Return(traceability.TradeModel{}, test.receive)
+				tradeUsecase.On("PutTradeResponse", mock.Anything, mock.Anything).Return(traceability.TradeModel{}, common.ResponseHeaders{}, test.receive)
 				tradeHandler := handler.NewTradeHandler(tradeUsecase, "")
 
 				err := tradeHandler.PutTradeResponse(c)
+				e.HTTPErrorHandler(err, c)
 				if assert.Error(t, err) {
+					assert.Equal(t, test.expectStatus, rec.Code)
 					assert.ErrorContains(t, err, test.expectError)
 				}
 			},

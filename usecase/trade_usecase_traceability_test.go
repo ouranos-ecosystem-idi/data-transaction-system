@@ -26,9 +26,13 @@ import (
 // Target: trade_usecase_traceability_impl.go
 // TestPattern:
 // [x] 1-1. 200: 全項目応答
-// [x] 1-2. 200: 回答済(必須項目のみ)
-// [x] 1-3. 200: 未回答(必須項目のみ)
-// [x] 1-4. 200: 検索結果なし
+// [x] 1-2. 200: 全項目応答(トレサビレスポンスにnullを含む)
+// [x] 1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)
+// [x] 1-4. 200: 回答済(必須項目のみ)
+// [x] 1-5. 200: 回答済(必須項目のみ)(キーなし)
+// [x] 1-6. 200: 未回答(必須項目のみ)
+// [x] 1-7. 200: 未回答(必須項目のみ)(キーなし)
+// [x] 1-8. 200: 検索結果なし
 func TestProjectUsecaseTraceability_GetTradeRequest(tt *testing.T) {
 
 	var method = "GET"
@@ -38,30 +42,30 @@ func TestProjectUsecaseTraceability_GetTradeRequest(tt *testing.T) {
 	dsExpectedResAll := `[
 		{
 			"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
-			"upstreamOperatorId": "b1234567-1234-1234-1234-123456789012",
+			"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 			"upstreamTraceId": "38bdd8a5-76a7-a53d-de12-725707b04a1b",
-			"downstreamOperatorId": "e03cc699-7234-31ed-86be-cc18c92208e5"
+			"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
 		}
 	]`
 
 	dsExpectedResAnsweredRequireOnly := `[
 		{
 			"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
-			"upstreamOperatorId": "b1234567-1234-1234-1234-123456789012",
+			"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 			"upstreamTraceId": "38bdd8a5-76a7-a53d-de12-725707b04a1b",
-			"downstreamOperatorId": "e03cc699-7234-31ed-86be-cc18c92208e5"
+			"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
 		}
 	]`
 
 	dsExpectedResAnsweringRequireOnly := `[
 		{
 			"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
-			"upstreamOperatorId": "b1234567-1234-1234-1234-123456789012",
+			"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 			"upstreamTraceId": null,
-			"downstreamOperatorId": "e03cc699-7234-31ed-86be-cc18c92208e5"
+			"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
 		}
 	]`
 
@@ -82,22 +86,50 @@ func TestProjectUsecaseTraceability_GetTradeRequest(tt *testing.T) {
 			expectAfter: common.StringPtr("026ad6a0-a689-4b8c-8a14-7304b817096d"),
 		},
 		{
-			name:        "1-2. 200: 回答済(必須項目のみ)",
+			name:        "1-2. 200: 全項目応答(トレサビレスポンスにnullを含む)",
+			input:       f.NewGetTradeRequestInput(),
+			receive:     f.GetTradeRequests_AllItem_WithNull(),
+			expectData:  dsExpectedResAll,
+			expectAfter: common.StringPtr("026ad6a0-a689-4b8c-8a14-7304b817096d"),
+		},
+		{
+			name:        "1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)",
+			input:       f.NewGetTradeRequestInput(),
+			receive:     f.GetTradeRequests_AllItem_WithUndefined(),
+			expectData:  dsExpectedResAll,
+			expectAfter: common.StringPtr("026ad6a0-a689-4b8c-8a14-7304b817096d"),
+		},
+		{
+			name:        "1-4. 200: 回答済(必須項目のみ)",
 			input:       f.NewGetTradeRequestInput(),
 			receive:     f.GetTradeRequests_RequireItemOnlyAnswered(),
 			expectData:  dsExpectedResAnsweredRequireOnly,
 			expectAfter: nil,
 		},
 		{
-			name:        "1-3. 200: 未回答(必須項目のみ)",
+			name:        "1-5. 200: 回答済(必須項目のみ)(キーなし)",
+			input:       f.NewGetTradeRequestInput(),
+			receive:     f.GetTradeRequests_RequireItemOnlyAnsweredWithUndefined(),
+			expectData:  dsExpectedResAnsweredRequireOnly,
+			expectAfter: nil,
+		},
+		{
+			name:        "1-6. 200: 未回答(必須項目のみ)",
 			input:       f.NewGetTradeRequestInput(),
 			receive:     f.GetTradeRequests_RequireItemOnlyAnswering(),
 			expectData:  dsExpectedResAnsweringRequireOnly,
 			expectAfter: nil,
 		},
+		{
+			name:        "1-7. 200: 未回答(必須項目のみ)(キーなし)",
+			input:       f.NewGetTradeRequestInput(),
+			receive:     f.GetTradeRequests_RequireItemOnlyAnsweringWithUndefined(),
+			expectData:  dsExpectedResAnsweringRequireOnly,
+			expectAfter: nil,
+		},
 
 		{
-			name:        "1-4. 200: 検索結果なし",
+			name:        "1-8. 200: 検索結果なし",
 			input:       f.NewGetTradeRequestInput(),
 			receive:     f.GetTradeRequests_NoData(),
 			expectData:  dsExpectedResNoData,
@@ -179,7 +211,7 @@ func TestProjectUsecaseTraceability_GetTradeRequest_Abnormal(tt *testing.T) {
 			name:    "2-1. 400: ページングエラー",
 			input:   f.NewGetTradeRequestInput(),
 			receive: f.Error_PagingError(),
-			expect:  expectedPagingError,
+			expect:  &expectedPagingError,
 		},
 	}
 
@@ -212,10 +244,7 @@ func TestProjectUsecaseTraceability_GetTradeRequest_Abnormal(tt *testing.T) {
 					// 順番が実行ごとに異なるため、順不同で中身を比較
 					assert.Nil(t, actualRes)
 					assert.Nil(t, actualAfter)
-					assert.Equal(t, test.expect.(common.CustomError).Code, err.(*common.CustomError).Code)
-					assert.Equal(t, test.expect.(common.CustomError).Message, err.(*common.CustomError).Message)
-					assert.Equal(t, test.expect.(common.CustomError).MessageDetail, err.(*common.CustomError).MessageDetail)
-					assert.Equal(t, test.expect.(common.CustomError).Source, err.(*common.CustomError).Source)
+					assert.Equal(t, test.expect, err)
 				}
 			},
 		)
@@ -227,8 +256,11 @@ func TestProjectUsecaseTraceability_GetTradeRequest_Abnormal(tt *testing.T) {
 // Target: trade_usecase_traceability_impl.go
 // TestPattern:
 // [x] 1-1. 200: 全項目応答
-// [x] 1-2. 200: 必須項目のみ
-// [x] 1-3. 200: 検索結果なし
+// [x] 1-2. 200: 全項目応答(トレサビレスポンスにnullを含む)
+// [x] 1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)
+// [x] 1-4. 200: 必須項目のみ
+// [x] 1-5. 200: 必須項目のみ(キーなし)
+// [x] 1-6. 200: 検索結果なし
 func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 
 	var method = "GET"
@@ -242,25 +274,67 @@ func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 				"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
 				"requestStatus": {
 					"cfpResponseStatus": "COMPLETED",
-					"tradeTreeStatus": "UNTERMINATED"
+					"tradeTreeStatus": "UNTERMINATED",
+					"completedCount": 0,
+					"completedCountModifiedAt": "2024-05-23T11:22:33Z",
+					"tradesCount": 0,
+					"tradesCountModifiedAt": "2024-05-24T22:33:44Z"
 				},
 				"message": "A01のCFP値を回答ください",
 				"replyMessage": "A01のCFP値を回答しました",
-				"requestType": "CFP"
+				"requestType": "CFP",
+				"responseDueDate": "2024-12-31"
 			},
 			"tradeModel": {
 				"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
-				"upstreamOperatorId": "e03cc699-7234-31ed-86be-cc18c92208e5",
+				"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 				"upstreamTraceId": "38bdd8a5-76a7-a53d-de12-725707b04a1b",
-				"downstreamOperatorId": "b1234567-1234-1234-1234-123456789012"
+				"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
 			},
 			"partsModel": {
 				"traceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 				"partsName": "B01",
 				"supportPartsName": "B0100",
-				"plantId": "b1234567-1234-1234-1234-123456789012",
-				"operatorId": "b1234567-1234-1234-1234-123456789012",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+				"amountRequiredUnit": "kilogram",
+				"terminatedFlag": false
+			}
+		}
+	]`
+
+	dsExpectedResAllWithNull := `[
+		{
+			"statusModel": {
+				"statusId": "5185a435-c039-4196-bb34-0ee0c2395478",
+				"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
+				"requestStatus": {
+					"cfpResponseStatus": "COMPLETED",
+					"tradeTreeStatus": "UNTERMINATED",
+					"completedCount": null,
+					"completedCountModifiedAt": null,
+					"tradesCount": null,
+					"tradesCountModifiedAt": null
+				},
+				"message": "A01のCFP値を回答ください",
+				"replyMessage": "A01のCFP値を回答しました",
+				"requestType": "CFP",
+				"responseDueDate": null
+			},
+			"tradeModel": {
+				"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
+				"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+				"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
+				"upstreamTraceId": "38bdd8a5-76a7-a53d-de12-725707b04a1b",
+				"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
+			},
+			"partsModel": {
+				"traceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
+				"partsName": "B01",
+				"supportPartsName": "B0100",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
 				"terminatedFlag": false
 			}
@@ -274,27 +348,32 @@ func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 				"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
 				"requestStatus": {
 					"cfpResponseStatus": "COMPLETED",
-					"tradeTreeStatus": "UNTERMINATED"
+					"tradeTreeStatus": "UNTERMINATED",
+					"completedCount": 0,
+					"completedCountModifiedAt": "2024-05-23T11:22:33Z",
+					"tradesCount": 0,
+					"tradesCountModifiedAt": "2024-05-24T22:33:44Z"
 				},
 				"message": "",
-				"replyMessage": "",
-				"requestType": "CFP"
+				"replyMessage": null,
+				"requestType": "CFP",
+				"responseDueDate": "2024-12-31"
 			},
 			"tradeModel": {
 				"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
-				"upstreamOperatorId": "e03cc699-7234-31ed-86be-cc18c92208e5",
+				"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 				"upstreamTraceId": null,
-				"downstreamOperatorId": "b1234567-1234-1234-1234-123456789012"
+				"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
 			},
 			"partsModel": {
 				"traceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 				"partsName": "B01",
 				"supportPartsName": "",
-				"plantId": "b1234567-1234-1234-1234-123456789012",
-				"operatorId": "b1234567-1234-1234-1234-123456789012",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
-				"terminatedFlag": false
+				"terminatedFlag": false	
 			}
 		}
 	]`
@@ -316,15 +395,35 @@ func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 			expectAfter: common.StringPtr("026ad6a0-a689-4b8c-8a14-7304b817096d"),
 		},
 		{
-			name:        "1-2. 200: 必須項目のみ",
+			name:        "1-2. 200: 全項目応答(トレサビレスポンスにnullを含む)",
+			input:       f.NewGetTradeResponseInput(),
+			receive:     f.GetTradeRequestsReceived_AllItem_WithNull(),
+			expectData:  dsExpectedResAllWithNull,
+			expectAfter: common.StringPtr("026ad6a0-a689-4b8c-8a14-7304b817096d"),
+		},
+		{
+			name:        "1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)",
+			input:       f.NewGetTradeResponseInput(),
+			receive:     f.GetTradeRequestsReceived_AllItem_WithUndefined(),
+			expectData:  dsExpectedResAllWithNull,
+			expectAfter: common.StringPtr("026ad6a0-a689-4b8c-8a14-7304b817096d"),
+		},
+		{
+			name:        "1-4. 200: 必須項目のみ",
 			input:       f.NewGetTradeResponseInput(),
 			receive:     f.GetTradeRequestsReceived_RequireItemOnly(),
 			expectData:  dsExpectedResRequireOnly,
 			expectAfter: nil,
 		},
-
 		{
-			name:        "1-3. 200: 検索結果なし",
+			name:        "1-5. 200: 必須項目のみ(キーなし)",
+			input:       f.NewGetTradeResponseInput(),
+			receive:     f.GetTradeRequestsReceived_RequireItemOnlyWithUndefined(),
+			expectData:  dsExpectedResRequireOnly,
+			expectAfter: nil,
+		},
+		{
+			name:        "1-6. 200: 検索結果なし",
 			input:       f.NewGetTradeResponseInput(),
 			receive:     f.GetTradeRequestsReceived_NoData(),
 			expectData:  dsExpectedResNoData,
@@ -406,7 +505,7 @@ func TestProjectUsecaseTraceability_GetTradeResponse_Abnormal(tt *testing.T) {
 			name:    "2-1. 400: ページングエラー",
 			input:   f.NewGetTradeResponseInput(),
 			receive: f.Error_PagingError(),
-			expect:  expectedPagingError,
+			expect:  &expectedPagingError,
 		},
 	}
 
@@ -439,10 +538,7 @@ func TestProjectUsecaseTraceability_GetTradeResponse_Abnormal(tt *testing.T) {
 					// 順番が実行ごとに異なるため、順不同で中身を比較
 					assert.Nil(t, actualRes)
 					assert.Nil(t, actualAfter)
-					assert.Equal(t, test.expect.(common.CustomError).Code, err.(*common.CustomError).Code)
-					assert.Equal(t, test.expect.(common.CustomError).Message, err.(*common.CustomError).Message)
-					assert.Equal(t, test.expect.(common.CustomError).MessageDetail, err.(*common.CustomError).MessageDetail)
-					assert.Equal(t, test.expect.(common.CustomError).Source, err.(*common.CustomError).Source)
+					assert.Equal(t, test.expect, err)
 				}
 			},
 		)
@@ -460,7 +556,7 @@ func TestProjectUsecaseTraceability_PutTradeRequest(tt *testing.T) {
 	var endPoint = "/api/v1/datatransport"
 	var dataTarget = "tradeRequest"
 
-	res := f.NewPutTradeRequestModel(false)
+	res := f.NewPutTradeRequestModel()
 	tradeID := uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092")
 	res.StatusModel.StatusID = uuid.MustParse("5185a435-c039-4196-bb34-0ee0c2395478")
 	res.StatusModel.TradeID = tradeID
@@ -468,13 +564,13 @@ func TestProjectUsecaseTraceability_PutTradeRequest(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.TradeRequestModel
+		input   traceability.PutTradeRequestInput
 		receive string
 		expect  traceability.TradeRequestModel
 	}{
 		{
 			name:    "1-1. 200: 全項目応答",
-			input:   f.NewPutTradeRequestModel(false),
+			input:   f.NewPutTradeRequestInput(),
 			receive: f.PutTradeRequests(),
 			expect:  res,
 		},
@@ -505,24 +601,15 @@ func TestProjectUsecaseTraceability_PutTradeRequest(tt *testing.T) {
 				}
 
 				traceabilityRepositoryMock := new(mocks.TraceabilityRepository)
-				traceabilityRepositoryMock.On("PostTradeRequests", mock.Anything, mock.Anything).Return(putTradeRequestsResponse, nil)
+				traceabilityRepositoryMock.On("PostTradeRequests", mock.Anything, mock.Anything).Return(putTradeRequestsResponse, common.ResponseHeaders{}, nil)
 
 				tradeUsecase := usecase.NewTradeTraceabilityUsecase(traceabilityRepositoryMock)
-				actualRes, err := tradeUsecase.PutTradeRequest(c, test.input)
+				actualRes, _, err := tradeUsecase.PutTradeRequest(c, test.input)
 				if assert.NoError(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					assert.Equal(t, test.expect.StatusModel.StatusID, actualRes.StatusModel.StatusID, f.AssertMessage)
-					assert.Equal(t, test.expect.StatusModel.TradeID, actualRes.StatusModel.TradeID, f.AssertMessage)
-					assert.Equal(t, test.expect.StatusModel.RequestStatus, actualRes.StatusModel.RequestStatus, f.AssertMessage)
-					assert.Equal(t, test.expect.StatusModel.Message, actualRes.StatusModel.Message, f.AssertMessage)
-					assert.Equal(t, test.expect.StatusModel.ReplyMessage, actualRes.StatusModel.ReplyMessage, f.AssertMessage)
-					assert.Equal(t, test.expect.StatusModel.RequestType, actualRes.StatusModel.RequestType, f.AssertMessage)
-					assert.Equal(t, test.expect.TradeModel.TradeID, actualRes.TradeModel.TradeID, f.AssertMessage)
-					assert.Equal(t, test.expect.TradeModel.DownstreamOperatorID, actualRes.TradeModel.DownstreamOperatorID, f.AssertMessage)
-					assert.Equal(t, test.expect.TradeModel.DownstreamTraceID, actualRes.TradeModel.DownstreamTraceID, f.AssertMessage)
-					assert.Equal(t, test.expect.TradeModel.UpstreamOperatorID, actualRes.TradeModel.UpstreamOperatorID, f.AssertMessage)
-					assert.Equal(t, test.expect.TradeModel.UpstreamTraceID, actualRes.TradeModel.UpstreamTraceID, f.AssertMessage)
+					assert.Equal(t, test.expect.StatusModel, actualRes.StatusModel, f.AssertMessage)
+					assert.Equal(t, test.expect.TradeModel, actualRes.TradeModel, f.AssertMessage)
 				}
 			},
 		)
@@ -549,15 +636,15 @@ func TestProjectUsecaseTraceability_PutTradeRequest_Abnormal(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.TradeRequestModel
+		input   traceability.PutTradeRequestInput
 		receive string
 		expect  error
 	}{
 		{
 			name:    "2-1. 400: トレース識別子存在エラー",
-			input:   f.NewPutTradeRequestModel(false),
+			input:   f.NewPutTradeRequestInput(),
 			receive: f.Error_TraceIdNotFound(),
-			expect:  expectedExistError,
+			expect:  &expectedExistError,
 		},
 	}
 
@@ -581,17 +668,14 @@ func TestProjectUsecaseTraceability_PutTradeRequest_Abnormal(tt *testing.T) {
 
 				traceabilityRepositoryMock := new(mocks.TraceabilityRepository)
 				getTradeResponse := common.ToTracebilityAPIError(test.receive).ToCustomError(400)
-				traceabilityRepositoryMock.On("PostTradeRequests", mock.Anything, mock.Anything).Return(traceabilityentity.PostTradeRequestsResponses{}, getTradeResponse)
+				traceabilityRepositoryMock.On("PostTradeRequests", mock.Anything, mock.Anything).Return(traceabilityentity.PostTradeRequestsResponses{}, common.ResponseHeaders{}, getTradeResponse)
 
 				tradeUsecase := usecase.NewTradeTraceabilityUsecase(traceabilityRepositoryMock)
-				_, err := tradeUsecase.PutTradeRequest(c, test.input)
+				_, _, err := tradeUsecase.PutTradeRequest(c, test.input)
 				if assert.Error(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					assert.Equal(t, test.expect.(common.CustomError).Code, err.(*common.CustomError).Code)
-					assert.Equal(t, test.expect.(common.CustomError).Message, err.(*common.CustomError).Message)
-					assert.Equal(t, test.expect.(common.CustomError).MessageDetail, err.(*common.CustomError).MessageDetail)
-					assert.Equal(t, test.expect.(common.CustomError).Source, err.(*common.CustomError).Source)
+					assert.Equal(t, test.expect, err)
 				}
 			},
 		)
@@ -603,6 +687,8 @@ func TestProjectUsecaseTraceability_PutTradeRequest_Abnormal(tt *testing.T) {
 // Target: trade_usecase_traceability_impl.go
 // TestPattern:
 // [x] 1-1. 200: 全項目応答
+// [x] 1-2. 200: 全項目応答(トレサビレスポンスにnullを含む)
+// [x] 1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)
 func TestProjectUsecaseTraceability_PutTradeResponse(tt *testing.T) {
 
 	var method = "PUT"
@@ -614,15 +700,39 @@ func TestProjectUsecaseTraceability_PutTradeResponse(tt *testing.T) {
 	tests := []struct {
 		name         string
 		input        traceability.PutTradeResponseInput
+		inputFunc    func() traceability.PutTradeResponseInput
 		receiveTrRes string
 		receiveTrRec string
 		expect       traceability.TradeModel
 	}{
 		{
-			name:         "1-1. 200: 全項目応答",
-			input:        f.PutTradeResponseInput,
+			name:  "1-1. 200: 全項目応答",
+			input: f.NewPutTradeResponseInput(),
+			inputFunc: func() traceability.PutTradeResponseInput {
+				return f.NewPutTradeResponseInput()
+			},
 			receiveTrRes: f.PostTrades(),
 			receiveTrRec: f.GetTradeRequestsReceived_AllItem(),
+			expect:       res,
+		},
+		{
+			name:  "1-2. 200: 全項目応答(トレサビレスポンスにnullを含む)",
+			input: f.NewPutTradeResponseInput(),
+			inputFunc: func() traceability.PutTradeResponseInput {
+				return f.NewPutTradeResponseInput()
+			},
+			receiveTrRes: f.PostTrades(),
+			receiveTrRec: f.GetTradeRequestsReceived_AllItem_WithNull(),
+			expect:       res,
+		},
+		{
+			name:  "1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)",
+			input: f.NewPutTradeResponseInput(),
+			inputFunc: func() traceability.PutTradeResponseInput {
+				return f.NewPutTradeResponseInput()
+			},
+			receiveTrRes: f.PostTrades(),
+			receiveTrRec: f.GetTradeRequestsReceived_AllItem_WithUndefined(),
 			expect:       res,
 		},
 	}
@@ -656,19 +766,15 @@ func TestProjectUsecaseTraceability_PutTradeResponse(tt *testing.T) {
 				}
 
 				traceabilityRepositoryMock := new(mocks.TraceabilityRepository)
-				traceabilityRepositoryMock.On("PostTrades", mock.Anything, mock.Anything).Return(postTradesResponse, nil)
+				traceabilityRepositoryMock.On("PostTrades", mock.Anything, mock.Anything).Return(postTradesResponse, common.ResponseHeaders{}, nil)
 				traceabilityRepositoryMock.On("GetTradeRequestsReceived", mock.Anything, mock.Anything).Return(getTradesResponse, nil)
 
 				tradeUsecase := usecase.NewTradeTraceabilityUsecase(traceabilityRepositoryMock)
-				actualRes, err := tradeUsecase.PutTradeResponse(c, test.input)
+				actualRes, _, err := tradeUsecase.PutTradeResponse(c, test.input)
 				if assert.NoError(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					assert.Equal(t, test.expect.TradeID, actualRes.TradeID, f.AssertMessage)
-					assert.Equal(t, test.expect.DownstreamOperatorID, actualRes.DownstreamOperatorID, f.AssertMessage)
-					assert.Equal(t, test.expect.DownstreamTraceID, actualRes.DownstreamTraceID, f.AssertMessage)
-					assert.Equal(t, test.expect.UpstreamOperatorID, actualRes.UpstreamOperatorID, f.AssertMessage)
-					assert.Equal(t, test.expect.UpstreamTraceID, actualRes.UpstreamTraceID, f.AssertMessage)
+					assert.Equal(t, test.expect, actualRes, f.AssertMessage)
 				}
 			},
 		)
@@ -708,25 +814,25 @@ func TestProjectUsecaseTraceability_PutTradeResponse_Abnormal(tt *testing.T) {
 	}{
 		{
 			name:              "2-1. 400: ページングエラー(PUT)",
-			input:             f.PutTradeResponseInput,
+			input:             f.NewPutTradeResponseInput(),
 			receiveTrRes:      nil,
 			receiveTrResError: common.StringPtr(f.Error_PagingError()),
 			receiveTrRec:      nil,
 			receiveTrRecError: nil,
-			expect:            expectedPagingError,
+			expect:            &expectedPagingError,
 		},
 		{
 			name:              "2-2. 400: ページングエラー(取得)",
-			input:             f.PutTradeResponseInput,
+			input:             f.NewPutTradeResponseInput(),
 			receiveTrRes:      common.StringPtr(f.PostTrades()),
 			receiveTrResError: nil,
 			receiveTrRec:      nil,
 			receiveTrRecError: common.StringPtr(f.Error_PagingError()),
-			expect:            expectedPagingError,
+			expect:            &expectedPagingError,
 		},
 		{
 			name:              "2-3. 400: 対象データなし",
-			input:             f.PutTradeResponseInput,
+			input:             f.NewPutTradeResponseInput(),
 			receiveTrRes:      common.StringPtr(f.PostTrades()),
 			receiveTrResError: nil,
 			receiveTrRec:      common.StringPtr(f.GetTradeRequestsReceived_NoData()),
@@ -759,7 +865,7 @@ func TestProjectUsecaseTraceability_PutTradeResponse_Abnormal(tt *testing.T) {
 					if err := json.Unmarshal([]byte(*test.receiveTrRes), &postTradesResponse); err != nil {
 						log.Fatalf(f.UnmarshalMockFailureMessage, err)
 					}
-					traceabilityRepositoryMock.On("PostTrades", mock.Anything, mock.Anything).Return(postTradesResponse, nil)
+					traceabilityRepositoryMock.On("PostTrades", mock.Anything, mock.Anything).Return(postTradesResponse, common.ResponseHeaders{}, nil)
 					if test.receiveTrRec != nil {
 						getTradesResponse := traceabilityentity.GetTradeRequestsReceivedResponse{}
 						if err := json.Unmarshal([]byte(*test.receiveTrRec), &getTradesResponse); err != nil {
@@ -778,22 +884,15 @@ func TestProjectUsecaseTraceability_PutTradeResponse_Abnormal(tt *testing.T) {
 					if err := json.Unmarshal([]byte(*test.receiveTrResError), &postTradesResponse); err != nil {
 						log.Fatalf(f.UnmarshalMockFailureMessage, err)
 					}
-					traceabilityRepositoryMock.On("PostTrades", mock.Anything, mock.Anything).Return(traceabilityentity.PostTradesResponse{}, postTradesResponse)
+					traceabilityRepositoryMock.On("PostTrades", mock.Anything, mock.Anything).Return(traceabilityentity.PostTradesResponse{}, common.ResponseHeaders{}, postTradesResponse)
 				}
 
 				tradeUsecase := usecase.NewTradeTraceabilityUsecase(traceabilityRepositoryMock)
-				_, err := tradeUsecase.PutTradeResponse(c, test.input)
+				_, _, err := tradeUsecase.PutTradeResponse(c, test.input)
 				if assert.Error(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					if test.name == "2-3. 400: 対象データなし" {
-						assert.Equal(t, test.expect.Error(), err.Error())
-					} else {
-						assert.Equal(t, test.expect.(common.CustomError).Code, err.(*common.CustomError).Code)
-						assert.Equal(t, test.expect.(common.CustomError).Message, err.(*common.CustomError).Message)
-						assert.Equal(t, test.expect.(common.CustomError).MessageDetail, err.(*common.CustomError).MessageDetail)
-						assert.Equal(t, test.expect.(common.CustomError).Source, err.(*common.CustomError).Source)
-					}
+					assert.Equal(t, test.expect, err)
 				}
 			},
 		)

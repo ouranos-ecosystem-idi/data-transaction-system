@@ -37,7 +37,8 @@ func TestProjectHandler_GetCfpCertification_Normal(tt *testing.T) {
 		{
 			name: "1-1. 200: 正常系",
 			modifyQueryParams: func(q url.Values) {
-				q.Set("traceId", f.TraceId)
+				// q.Set("traceId", "d17833fe-22b7-4a4a-b097-bc3f2150c9a6")
+				q.Set("traceId", "38bdd8a5-76a7-a53d-de12-725707b04a1b")
 			},
 			expectStatus: http.StatusOK,
 		},
@@ -50,7 +51,7 @@ func TestProjectHandler_GetCfpCertification_Normal(tt *testing.T) {
 
 			operatorUUID, _ := uuid.Parse(f.OperatorId)
 			traceId, _ := uuid.Parse(f.TraceId)
-			input := traceability.GetCfpCertificationModel{
+			input := traceability.GetCfpCertificationInput{
 				OperatorID: operatorUUID,
 				TraceID:    traceId,
 			}
@@ -78,6 +79,10 @@ func TestProjectHandler_GetCfpCertification_Normal(tt *testing.T) {
 				// モックの呼び出しが期待通りであることを確認
 				cfpCertificationUsecase.AssertExpectations(t)
 			}
+
+			// レスポンスヘッダにX-Trackが含まれているかチェック
+			_, ok := rec.Header()["X-Track"]
+			assert.True(t, ok, "Header should have 'X-Track' key")
 		})
 	}
 }
@@ -102,6 +107,7 @@ func TestProjectHandler_GetCfpCertification_Abnormal(tt *testing.T) {
 		modifyContexts    func(c echo.Context)
 		receive           error
 		expectError       string
+		expectStatus      int
 	}{
 		{
 			name: "1-1. 400: バリデーションエラー：traceIdが含まれない場合",
@@ -111,7 +117,8 @@ func TestProjectHandler_GetCfpCertification_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-2. 400: バリデーションエラー：traceIdがUUID形式ではない場合",
@@ -121,61 +128,67 @@ func TestProjectHandler_GetCfpCertification_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-3. 400: バリデーションエラー：operatorIdがUUID形式ではない場合",
 			modifyQueryParams: func(q url.Values) {
-				q.Set("traceId", f.TraceId)
+				q.Set("traceId", "d17833fe-22b7-4a4a-b097-bc3f2150c9a6")
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", "invalid")
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid or expired token",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid or expired token",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-4. 500: システムエラー：取得処理エラー",
 			modifyQueryParams: func(q url.Values) {
-				q.Set("traceId", f.TraceId)
+				q.Set("traceId", "d17833fe-22b7-4a4a-b097-bc3f2150c9a6")
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			receive:     common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-5. 500: システムエラー：取得処理エラー",
 			modifyQueryParams: func(q url.Values) {
-				q.Set("traceId", f.TraceId)
+				q.Set("traceId", "d17833fe-22b7-4a4a-b097-bc3f2150c9a6")
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			receive:     fmt.Errorf("Internal Server Error"),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      fmt.Errorf("Internal Server Error"),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-6. 503: システムエラー：トレサビエラー",
 			modifyQueryParams: func(q url.Values) {
-				q.Set("traceId", f.TraceId)
+				q.Set("traceId", "d17833fe-22b7-4a4a-b097-bc3f2150c9a6")
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			receive:     common.ToTracebilityAPIError(f.Error_MaintenanceError()).ToCustomError(503),
-			expectError: "code=503, message={[traceability] ServiceUnavailable The service is currently undergoing maintenance. We apologize for any inconvenience. MSGXXXXYYYY",
+			receive:      common.ToTracebilityAPIError(f.Error_MaintenanceError()).ToCustomError(503),
+			expectError:  "code=503, message={[traceability] ServiceUnavailable The service is currently undergoing maintenance. We apologize for any inconvenience. MSGXXXXYYYY",
+			expectStatus: http.StatusServiceUnavailable,
 		},
 		{
 			name: "1-7. 503: システムエラー：トレサビエラー",
 			modifyQueryParams: func(q url.Values) {
-				q.Set("traceId", f.TraceId)
+				q.Set("traceId", "d17833fe-22b7-4a4a-b097-bc3f2150c9a6")
 			},
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			receive:     common.ToTracebilityAPIError(f.Error_GatewayError()).ToCustomError(503),
-			expectError: "code=503, message={[traceability] ServiceUnavailable  Service Unavailable",
+			receive:      common.ToTracebilityAPIError(f.Error_GatewayError()).ToCustomError(503),
+			expectError:  "code=503, message={[traceability] ServiceUnavailable  Service Unavailable",
+			expectStatus: http.StatusServiceUnavailable,
 		},
 	}
 
@@ -201,8 +214,11 @@ func TestProjectHandler_GetCfpCertification_Abnormal(tt *testing.T) {
 			cfpCertificationHandler := handler.NewCfpCertificationHandler(cfpCertificationUsecase)
 
 			err := cfpCertificationHandler.GetCfpCertification(c)
-			// エラーが返ってくることを確認
+			e.HTTPErrorHandler(err, c)
+			// エラーが返されることを確認
 			if assert.Error(t, err) {
+				// ステータスコードが期待通りであることを確認
+				assert.Equal(t, test.expectStatus, rec.Code)
 				// エラーメッセージが期待通りであることを確認
 				assert.ErrorContains(t, err, test.expectError)
 			}

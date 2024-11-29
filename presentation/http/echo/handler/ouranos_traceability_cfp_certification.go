@@ -16,7 +16,7 @@ import (
 // ICfpCertificationHandler
 // Summary: This is interface which defines CfpCertificationHandler
 //
-//go:generate mockery --name ICfpCertificationHandler --output ../test/mock --case underscore
+//go:generate mockery --name ICfpCertificationHandler --output ../../../../test/mock --case underscore
 type ICfpCertificationHandler interface {
 	GetCfpCertification(c echo.Context) error
 }
@@ -59,11 +59,11 @@ func (h cfpCertificationHandler) GetCfpCertification(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400InvalidRequest, operatorID, dataTarget, method, errDetails))
 	}
 
-	getCfpCertificationModel := traceability.GetCfpCertificationModel{
+	getCfpCertificationInput := traceability.GetCfpCertificationInput{
 		OperatorID: OperatorUUID,
 		TraceID:    traceID,
 	}
-	res, err := h.cfpCertificationUsecase.GetCfpCertification(c, getCfpCertificationModel)
+	res, err := h.cfpCertificationUsecase.GetCfpCertification(c, getCfpCertificationInput)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) {
@@ -80,5 +80,6 @@ func (h cfpCertificationHandler) GetCfpCertification(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusInternalServerError, common.HTTPErrorSourceDataspace, common.Err500Unexpected, operatorID, dataTarget, method))
 	}
 
+	common.SetResponseHeader(c, common.ResponseHeaders{})
 	return c.JSON(http.StatusOK, res)
 }

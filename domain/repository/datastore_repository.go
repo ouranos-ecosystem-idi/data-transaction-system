@@ -8,14 +8,18 @@ import (
 type (
 	OuranosRepository interface {
 		// Parts
-		ListParts(getPlantPartsModel traceability.GetPartsModel) (traceability.PartsModelEntities, error)
+		ListParts(getPlantPartsModel traceability.GetPartsInput) (traceability.PartsModelEntities, error)
 		GetPartByTraceID(traceID string) (traceability.PartsModelEntity, error)
-		CountPartsList(getPlantPartsModel traceability.GetPartsModel) (int, error)
+		CountPartsList(getPlantPartsModel traceability.GetPartsInput) (int, error)
 		DeleteParts(traceID string) error
+		DeletePartsWithCFP(traceID string) error
 
 		// PartsStructure
-		GetPartsStructure(getPartsStructureModel traceability.GetPartsStructureModel) (traceability.PartsStructureEntity, error)
+		GetPartsStructure(getPartsStructureInput traceability.GetPartsStructureInput) (traceability.PartsStructureEntity, error)
 		GetPartsStructureByTraceId(traceID string) (traceability.PartsStructureEntityModel, error)
+		ListParentPartsStructureByTraceId(traceID string) (traceability.PartsStructureEntityModels, error)
+		ListChildPartsStructureByTraceId(traceID string) (traceability.PartsStructureEntityModels, error)
+
 		PutPartsStructure(partsStructure traceability.PartsStructureModel) (traceability.PartsStructureEntity, error)
 		DeletePartsStructure(traceID string) error
 
@@ -25,6 +29,7 @@ type (
 		GetTradeByDownstreamTraceID(donwstreamTraceID string) (traceability.TradeEntityModel, error)
 		GetTrade(tradeID string) (traceability.TradeEntityModel, error)
 		ListTradeByUpstreamTraceID(upstreamTraceID string) (traceability.TradeEntityModels, error)
+		ListTradeByDownstreamTraceID(downstreamTraceID string) (traceability.TradeEntityModels, error)
 		CountTradeRequest(downstreamOperatorID string) (int, error)
 		CountTradeResponse(upstreamOperatorID string) (int, error)
 		PutTradeRequest(tradeRequestEntityModel traceability.TradeRequestEntityModel) (traceability.TradeRequestEntityModel, error)
@@ -36,7 +41,7 @@ type (
 		GetStatusByTradeID(tradeID string) (traceability.StatusEntityModel, error)
 		GetStatus(operatorID string, limit int, statusID *string, traceID *string, statusTarget string) (traceability.StatusEntityModels, error)
 		CountStatus(operatorID string, statusID *string, traceID *string, statusTarget string) (int, error)
-		PutStatusCancel(statusID string, operatorID string) (traceability.StatusEntityModel, error)
+		PutStatusCancel(statusID string, operatorID string) error
 		PutStatusReject(statusID string, replyMessage *string, operatorID string) (traceability.StatusEntityModel, error)
 		DeleteRequestStatusByTradeID(tradeID string) error
 

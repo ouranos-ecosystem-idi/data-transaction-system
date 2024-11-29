@@ -24,11 +24,11 @@ func NewCfpCertificationUsecase(r repository.OuranosRepository) ICfpCertificatio
 // GetCfpCertification
 // Summary: This is function which get cfp certification.
 // input: c(echo.Context) echo context
-// input: getCfpCertificationModel(traceability.GetCfpCertificationModel) GetCfpCertificationModel object
+// input: getCfpCertificationInput(traceability.GetCfpCertificationInput) GetCfpCertificationInput object
 // output: (traceability.CfpCertificationModels) CfpCertificationModels object
 // output: (error) error object
-func (u *cfpCertificationUsecase) GetCfpCertification(c echo.Context, getCfpCertificationModel traceability.GetCfpCertificationModel) (traceability.CfpCertificationModels, error) {
-	cfpCertificationModels, _ := u.r.GetCFPCertifications(getCfpCertificationModel.OperatorID.String(), getCfpCertificationModel.TraceID.String())
+func (u *cfpCertificationUsecase) GetCfpCertification(c echo.Context, getCfpCertificationInput traceability.GetCfpCertificationInput) (traceability.CfpCertificationModels, error) {
+	cfpCertificationModels, _ := u.r.GetCFPCertifications(getCfpCertificationInput.OperatorID.String(), getCfpCertificationInput.TraceID.String())
 
 	return cfpCertificationModels, nil
 }

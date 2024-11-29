@@ -10,7 +10,6 @@ import (
 	"data-spaces-backend/extension/logger"
 
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -31,26 +30,26 @@ func NewCfpUsecase(r repository.OuranosRepository) ICfpUsecase {
 // GetCfp
 // Summary: This is function which get a list of cfp.
 // input: c(echo.Context) echo context
-// input: getCfpModel(traceability.GetCfpModel) GetCfpModel object
+// input: getCfpInput(traceability.GetCfpInput) GetCfpInput object
 // output: ([]traceability.CfpModel) list of CfpModel
 // output: (error) error object
-func (u *cfpUsecase) GetCfp(c echo.Context, getCfpModel traceability.GetCfpModel) ([]traceability.CfpModel, error) {
+func (u *cfpUsecase) GetCfp(c echo.Context, getCfpInput traceability.GetCfpInput) ([]traceability.CfpModel, error) {
 	var res []traceability.CfpModel = []traceability.CfpModel{}
 
-	for _, traceID := range getCfpModel.TraceIDs {
+	for _, traceID := range getCfpInput.TraceIDs {
 		parts, err := u.r.GetPartByTraceID(traceID.String())
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				continue
 			}
-			zap.S().Errorf(err.Error())
+			logger.Set(nil).Errorf(err.Error())
 
 			return nil, err
 		}
 
 		partsStructureModel, err := u.r.GetPartsStructureByTraceId(traceID.String())
 		if err != nil {
-			zap.S().Errorf(err.Error())
+			logger.Set(nil).Errorf(err.Error())
 
 			return nil, err
 		}
@@ -166,8 +165,8 @@ func (u *cfpUsecase) GetCfp(c echo.Context, getCfpModel traceability.GetCfpModel
 		logger.Set(c).Debugf("TraceID: %#v has child parts, so it gets its own CFP value and the child parts' CFP values", traceID.String())
 
 		// Get child parts
-		getPartsStructureModel := traceability.GetPartsStructureModel{OperatorID: getCfpModel.OperatorID.String(), TraceID: traceID}
-		partsStructure, err := u.r.GetPartsStructure(getPartsStructureModel)
+		getPartsStructureInput := traceability.GetPartsStructureInput{OperatorID: getCfpInput.OperatorID.String(), TraceID: traceID}
+		partsStructure, err := u.r.GetPartsStructure(getPartsStructureInput)
 		if err != nil {
 			logger.Set(c).Errorf(err.Error())
 
@@ -259,22 +258,31 @@ func (u *cfpUsecase) GetCfp(c echo.Context, getCfpModel traceability.GetCfpModel
 // PutCfp
 // Summary: This is function which put a list of cfp.
 // input: c(echo.Context) echo context
-// input: cfpModels(traceability.CfpModels) CfpModels object
+// input: putCfpInputs(traceability.PutCfpInputs) PutCfpInputs object
 // input: operatorID(string) ID of the operator
 // output: ([]traceability.CfpModel) list of CfpModel
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *cfpUsecase) PutCfp(c echo.Context, cfpModels traceability.CfpModels, operatorID string) ([]traceability.CfpModel, error) {
+func (u *cfpUsecase) PutCfp(c echo.Context, putCfpInputs traceability.PutCfpInputs, operatorID string) ([]traceability.CfpModel, common.ResponseHeaders, error) {
+	cfpModels, err := putCfpInputs.ToModels()
+	if err != nil {
+		logger.Set(c).Warnf(err.Error())
+		errDetails := err.Error()
+
+		return nil, common.ResponseHeaders{}, common.NewCustomError(common.CustomErrorCode400, common.Err400Validation, &errDetails, common.HTTPErrorSourceDataspace)
+	}
+
 	cfpID, err := cfpModels.GetCommonCfpID()
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return nil, err
+		return nil, common.ResponseHeaders{}, err
 	}
 	traceID, err := cfpModels.GetCommonTraceID()
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return nil, err
+		return nil, common.ResponseHeaders{}, err
 	}
 
 	if cfpID == nil {
@@ -282,12 +290,12 @@ func (u *cfpUsecase) PutCfp(c echo.Context, cfpModels traceability.CfpModels, op
 		if err != nil {
 			logger.Set(c).Errorf(err.Error())
 
-			return nil, err
+			return nil, common.ResponseHeaders{}, err
 		}
 		if len(cfps) != 0 {
 			logger.Set(c).Errorf(common.TraceIDAlreadyHasCfpsError(traceID.String()))
 
-			return nil, fmt.Errorf(common.TraceIDAlreadyHasCfpsError(traceID.String()))
+			return nil, common.ResponseHeaders{}, fmt.Errorf(common.TraceIDAlreadyHasCfpsError(traceID.String()))
 		}
 
 		es := traceability.GenerateCfpEntitisFromModels(cfpModels)
@@ -295,21 +303,21 @@ func (u *cfpUsecase) PutCfp(c echo.Context, cfpModels traceability.CfpModels, op
 		if err != nil {
 			logger.Set(c).Errorf(err.Error())
 
-			return nil, err
+			return nil, common.ResponseHeaders{}, err
 		}
 
 		trades, err := u.r.ListTradeByUpstreamTraceID(traceID.String())
 		if err != nil {
 			logger.Set(c).Errorf(err.Error())
 
-			return nil, err
+			return nil, common.ResponseHeaders{}, err
 		}
 		for _, trade := range trades {
 			tradePart, err := u.r.GetPartByTraceID((*trade.UpstreamTraceID).String())
 			if err != nil {
 				logger.Set(c).Errorf(err.Error())
 
-				return nil, err
+				return nil, common.ResponseHeaders{}, err
 			}
 
 			putTradeResponseInput := traceability.PutTradeResponseInput{
@@ -323,20 +331,28 @@ func (u *cfpUsecase) PutCfp(c echo.Context, cfpModels traceability.CfpModels, op
 			} else {
 				tradeTreeStatus = traceability.TradeTreeStatusUnterminated
 			}
+			cfpResponseStatusComplete := traceability.CfpResponseStatusComplete
 			requestStatusValue := traceability.RequestStatus{
-				CfpResponseStatus: traceability.CfpResponseStatusComplete,
-				TradeTreeStatus:   tradeTreeStatus,
+				CfpResponseStatus: &cfpResponseStatusComplete,
+				TradeTreeStatus:   &tradeTreeStatus,
+				// set fixed value due to complexity of calculateion process
+				CompletedCount: common.IntPtr(1),
 			}
 
 			_, err = u.r.PutTradeResponse(putTradeResponseInput, requestStatusValue)
 			if err != nil {
 				logger.Set(c).Errorf(err.Error())
 
-				return nil, err
+				return nil, common.ResponseHeaders{}, err
 			}
 		}
+		models, err := resCfpEs.ToModels()
+		if err != nil {
+			logger.Set(c).Errorf(err.Error())
 
-		return resCfpEs.ToModels()
+			return nil, common.ResponseHeaders{}, err
+		}
+		return models, common.ResponseHeaders{}, nil
 	} else {
 		res := make(traceability.CfpModels, len(cfpModels))
 		for i, m := range cfpModels {
@@ -344,7 +360,7 @@ func (u *cfpUsecase) PutCfp(c echo.Context, cfpModels traceability.CfpModels, op
 			if err != nil {
 				logger.Set(c).Errorf(err.Error())
 
-				return nil, err
+				return nil, common.ResponseHeaders{}, err
 			}
 			e.Update(
 				m.GhgEmission,
@@ -358,18 +374,18 @@ func (u *cfpUsecase) PutCfp(c echo.Context, cfpModels traceability.CfpModels, op
 			if err != nil {
 				logger.Set(c).Errorf(err.Error())
 
-				return nil, err
+				return nil, common.ResponseHeaders{}, err
 			}
 
 			r, err := e.ToModel()
 			if err != nil {
 				logger.Set(c).Errorf(err.Error())
 
-				return nil, err
+				return nil, common.ResponseHeaders{}, err
 			}
 			res[i] = r
 
 		}
-		return res, nil
+		return res, common.ResponseHeaders{}, nil
 	}
 }

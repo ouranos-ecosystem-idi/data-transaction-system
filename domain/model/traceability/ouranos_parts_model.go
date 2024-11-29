@@ -118,9 +118,9 @@ type PartsModelEntity struct {
 // Summary: This is structure which defines parts model.
 type PartsModelEntities []PartsModelEntity
 
-// GetPartsModel
+// GetPartsInput
 // Summary: Defines the type of request used for usecase of parts.
-type GetPartsModel struct {
+type GetPartsInput struct {
 	OperatorID string
 	TraceID    *string `json:"traceId"`
 	PartsName  *string `json:"partsName"`
@@ -149,6 +149,12 @@ type PutPartsInput struct {
 // PutPartsInputs
 // Summary: This is structure which defines list of parts model.
 type PutPartsInputs []PutPartsInput
+
+// DeletePartsInput
+// Summary: Defines the type of request used for usecase of parts.
+type DeletePartsInput struct {
+	TraceID string `json:"traceId"`
+}
 
 // validate
 // Summary: This is the function to validate PutPartsInput.

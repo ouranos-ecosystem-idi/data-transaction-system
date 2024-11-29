@@ -19,9 +19,13 @@ import (
 // output: (traceabilityentity.GetCfpResponses) GetCfpResponses object
 // output: (error) error object
 func (r *traceabilityRepository) GetCfp(c echo.Context, request traceabilityentity.GetCfpRequest) (traceabilityentity.GetCfpResponses, error) {
-	token := common.ExtractBearerToken(c)
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
 
-	resString, err := r.cli.Get(client.PathCfp, token, request)
+	resString, err := r.cli.Get(c, client.PathCfp, headers, request)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -50,18 +54,23 @@ func (r *traceabilityRepository) GetCfp(c echo.Context, request traceabilityenti
 // input: c(echo.Context) echo context
 // input: requests(traceabilityentity.PostCfpRequest) PostCfpRequest object
 // output: (traceabilityentity.PostCfpResponses) PostCfpResponses object
+// output: (common.ResponseHeaders) ResponseHeaders object
 // output: (error) error object
-func (r *traceabilityRepository) PostCfp(c echo.Context, requests traceabilityentity.PostCfpRequest) (traceabilityentity.PostCfpResponses, error) {
+func (r *traceabilityRepository) PostCfp(c echo.Context, requests traceabilityentity.PostCfpRequest) (traceabilityentity.PostCfpResponses, common.ResponseHeaders, error) {
 	body, err := json.Marshal(requests)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return nil, err
+		return nil, common.ResponseHeaders{}, err
 	}
 
-	token := common.ExtractBearerToken(c)
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
 
-	resString, err := r.cli.Post(client.PathCfp, token, body)
+	res, err := r.cli.Post(c, client.PathCfp, headers, body)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -70,15 +79,15 @@ func (r *traceabilityRepository) PostCfp(c echo.Context, requests traceabilityen
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return nil, err
+		return nil, common.ResponseHeaders{}, err
 	}
 
 	var responses traceabilityentity.PostCfpResponses
-	if err := json.Unmarshal([]byte(resString), &responses); err != nil {
+	if err := json.Unmarshal([]byte(res.Body), &responses); err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return nil, err
+		return nil, common.ResponseHeaders{}, err
 	}
 
-	return responses, nil
+	return responses, res.Headers, nil
 }

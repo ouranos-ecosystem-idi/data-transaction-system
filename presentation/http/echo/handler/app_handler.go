@@ -4,5 +4,6 @@ type (
 	AppHandler interface {
 		AuthHandler
 		OuranosHandler
+		HealthCheckHandler
 	}
 )

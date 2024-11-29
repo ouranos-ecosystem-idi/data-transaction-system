@@ -25,8 +25,9 @@ import (
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 200: 全項目応答
 // [x] 1-2. 200: 必須項目のみ
-// [x] 1-3. 200: 構成部品なし
-// [x] 1-4. 200: 検索結果なし
+// [x] 1-3. 200: 必須項目のみ(キーなし)
+// [x] 1-4. 200: 構成部品なし
+// [x] 1-5. 200: 検索結果なし
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 
@@ -39,18 +40,18 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
 			"partsName": "B01",
 			"supportPartsName": "A000001",
-			"plantId": "b1234567-1234-1234-1234-123456789012",
-			"operatorId": "b1234567-1234-1234-1234-123456789012",
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": "kilogram",
 			"terminatedFlag": false
 		},
 		"childrenPartsModel": [
 			{
-				"traceId": "4d987ed4-f1b0-4bf1-8795-1fdb25300e34",
+				"traceId": "1c2f37f5-25b9-dea5-346a-7b88035f2553",
 				"partsName": "B01001",
 				"supportPartsName": "B001",
-				"plantId": "b1234567-1234-1234-1234-123456789012",
-				"operatorId": "b1234567-1234-1234-1234-123456789012",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
 				"terminatedFlag": false,
 				"amountRequired": 2.1
@@ -63,20 +64,20 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
 			"partsName": "B01",
 			"supportPartsName": null,
-			"plantId": "b1234567-1234-1234-1234-123456789012",
-			"operatorId": "b1234567-1234-1234-1234-123456789012",
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
 			"terminatedFlag": false,
 			"amountRequired": null
 		},
 		"childrenPartsModel": [
 			{
-				"partsStructureId": "2680ed32-19a3-435b-a094-23ff43aaa611_4d987ed4-f1b0-4bf1-8795-1fdb25300e34",
-				"traceId": "4d987ed4-f1b0-4bf1-8795-1fdb25300e34",
+				"partsStructureId": "2680ed32-19a3-435b-a094-23ff43aaa611_1c2f37f5-25b9-dea5-346a-7b88035f2553",
+				"traceId": "1c2f37f5-25b9-dea5-346a-7b88035f2553",
 				"partsName": "B01001",
 				"supportPartsName": null,
-				"plantId": "b1234567-1234-1234-1234-123456789012",
-				"operatorId": "b1234567-1234-1234-1234-123456789012",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "",
 				"terminatedFlag": false,
 				"amountRequired": null
@@ -89,8 +90,8 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
 			"partsName": "B01",
 			"supportPartsName": null,
-			"plantId": "b1234567-1234-1234-1234-123456789012",
-			"operatorId": "b1234567-1234-1234-1234-123456789012",
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
 			"terminatedFlag": false,
 			"amountRequired": null
@@ -105,31 +106,37 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.GetPartsStructureModel
+		input   traceability.GetPartsStructureInput
 		receive string
 		expect  string
 	}{
 		{
 			name:    "1-1. 200: 全項目応答",
-			input:   f.NewGetPartsStructureModel(),
+			input:   f.NewGetPartsStructureInput(),
 			receive: f.GetPartsStructure_AllItem(),
 			expect:  dsExpectedResAll,
 		},
 		{
 			name:    "1-2. 200: 必須項目のみ",
-			input:   f.NewGetPartsStructureModel(),
+			input:   f.NewGetPartsStructureInput(),
 			receive: f.GetPartsStructure_RequireItemOnly(),
 			expect:  dsExpectedResRequireOnly,
 		},
 		{
-			name:    "1-3. 200: 構成部品なし",
-			input:   f.NewGetPartsStructureModel(),
+			name:    "1-3. 200: 必須項目のみ(キーなし)",
+			input:   f.NewGetPartsStructureInput(),
+			receive: f.GetPartsStructure_RequireItemOnlyWithUndefined(),
+			expect:  dsExpectedResRequireOnly,
+		},
+		{
+			name:    "1-4. 200: 構成部品なし",
+			input:   f.NewGetPartsStructureInput(),
 			receive: f.GetPartsStructure_NoComponent(),
 			expect:  dsExpectedResNoComponent,
 		},
 		{
-			name:    "1-4. 200: 検索結果なし",
-			input:   f.NewGetPartsStructureModel(),
+			name:    "1-5. 200: 検索結果なし",
+			input:   f.NewGetPartsStructureInput(),
 			receive: f.GetPartsStructure_NoData(),
 			expect:  dsExpectedResNoData,
 		},
@@ -174,17 +181,7 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 				if assert.NoError(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					if test.name == "1-4. 200: 検索結果なし" {
-						assert.Equal(t, expected.ParentPartsModel, actual.ParentPartsModel, f.AssertMessage)
-					} else {
-						assert.Equal(t, expected.ParentPartsModel.OperatorID, actual.ParentPartsModel.OperatorID, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.TraceID, actual.ParentPartsModel.TraceID, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.PartsName, actual.ParentPartsModel.PartsName, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.SupportPartsName, actual.ParentPartsModel.SupportPartsName, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.PlantID, actual.ParentPartsModel.PlantID, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.AmountRequiredUnit, actual.ParentPartsModel.AmountRequiredUnit, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.TerminatedFlag, actual.ParentPartsModel.TerminatedFlag, f.AssertMessage)
-					}
+					assert.Equal(t, expected.ParentPartsModel, actual.ParentPartsModel, f.AssertMessage)
 					assert.ElementsMatch(t, expected.ChildrenPartsModel, actual.ChildrenPartsModel, f.AssertMessage)
 				}
 			},
@@ -215,21 +212,21 @@ func TestProjectUsecaseTraceability_GetPartsStructure_Abnormal(tt *testing.T) {
 
 	tests := []struct {
 		name         string
-		input        traceability.GetPartsStructureModel
+		input        traceability.GetPartsStructureInput
 		receive      *string
 		receiveError *string
 		expect       error
 	}{
 		{
 			name:         "2-1. 400: ページングエラー",
-			input:        f.NewGetPartsStructureModel(),
+			input:        f.NewGetPartsStructureInput(),
 			receive:      nil,
 			receiveError: common.StringPtr(f.Error_PagingError()),
 			expect:       &expectedPagingError,
 		},
 		{
 			name:         "2-2. 400: 想定外の単位",
-			input:        f.NewGetPartsStructureModel(),
+			input:        f.NewGetPartsStructureInput(),
 			receive:      common.StringPtr(f.GetPartsStructure_InvalidTypeError()),
 			receiveError: nil,
 			expect:       expectedInvalidTypeError,
@@ -272,14 +269,7 @@ func TestProjectUsecaseTraceability_GetPartsStructure_Abnormal(tt *testing.T) {
 				if assert.Error(t, err) {
 					assert.Nil(t, actualRes.ParentPartsModel)
 					assert.Nil(t, actualRes.ChildrenPartsModel)
-					if test.name == "2-1. 400: ページングエラー" {
-						assert.Equal(t, test.expect.(*common.CustomError).Code, err.(*common.CustomError).Code)
-						assert.Equal(t, test.expect.(*common.CustomError).Message, err.(*common.CustomError).Message)
-						assert.Equal(t, test.expect.(*common.CustomError).MessageDetail, err.(*common.CustomError).MessageDetail)
-						assert.Equal(t, test.expect.(*common.CustomError).Source, err.(*common.CustomError).Source)
-					} else if test.name == "2-2. 400: 想定外の単位" {
-						assert.Equal(t, test.expect.Error(), err.Error())
-					}
+					assert.Equal(t, test.expect, err)
 				}
 			},
 		)
@@ -299,37 +289,37 @@ func TestProjectUsecaseTraceability_PutPartsStructure(tt *testing.T) {
 
 	dsExpectedRes := `{
 		"parentPartsModel": {
-			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
-			"partsName": "B01",
-			"supportPartsName": "A000001",
-			"plantId": "b1234567-1234-1234-1234-123456789012",
-			"operatorId": "b1234567-1234-1234-1234-123456789012",
-			"amountRequiredUnit": "kilogram",
+			"traceId": "d17833fe-22b7-4a4a-b097-bc3f2150c9a6",
+			"partsName": "PartsA-002123",
+			"supportPartsName": "modelA",
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+			"amountRequiredUnit": "liter",
 			"terminatedFlag": false
 		},
 		"childrenPartsModel": [
 			{
-				"traceId": "4d987ed4-f1b0-4bf1-8795-1fdb25300e34",
-				"partsName": "B01001",
-				"supportPartsName": "B001",
-				"plantId": "b1234567-1234-1234-1234-123456789012",
-				"operatorId": "b1234567-1234-1234-1234-123456789012",
-				"amountRequiredUnit": "kilogram",
+				"traceId": "06c9b015-4225-ba30-1ed3-6faf02cb3fe6",
+				"partsName": "PartsA-002123",
+				"supportPartsName": "modelA",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+				"amountRequiredUnit": "liter",
 				"terminatedFlag": false,
-				"amountRequired": 2.1
+				"amountRequired": 1
 			}
 		]
 	}`
 
 	tests := []struct {
 		name    string
-		input   traceability.PartsStructureModel
+		input   traceability.PutPartsStructureInput
 		receive string
 		expect  string
 	}{
 		{
 			name:    "1-1. 200: 正常系",
-			input:   f.NewPutPartsStructureModel(),
+			input:   f.NewPutPartsStructureInput(),
 			receive: f.PutPartsStructure(),
 			expect:  dsExpectedRes,
 		},
@@ -366,21 +356,15 @@ func TestProjectUsecaseTraceability_PutPartsStructure(tt *testing.T) {
 				}
 
 				traceabilityRepositoryMock := new(mocks.TraceabilityRepository)
-				traceabilityRepositoryMock.On("PostPartsStructures", mock.Anything, mock.Anything).Return(postPartsStructuresResponse, nil)
+				traceabilityRepositoryMock.On("PostPartsStructures", mock.Anything, mock.Anything).Return(postPartsStructuresResponse, common.ResponseHeaders{}, nil)
 
 				partsStructureUsecase := usecase.NewPartsStructureTraceabilityUsecase(traceabilityRepositoryMock)
 
-				actual, err := partsStructureUsecase.PutPartsStructure(c, test.input)
+				actual, _, err := partsStructureUsecase.PutPartsStructure(c, test.input)
 				if assert.NoError(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					assert.Equal(t, expected.ParentPartsModel.OperatorID, actual.ParentPartsModel.OperatorID, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.TraceID, actual.ParentPartsModel.TraceID, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.PartsName, actual.ParentPartsModel.PartsName, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.SupportPartsName, actual.ParentPartsModel.SupportPartsName, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.PlantID, actual.ParentPartsModel.PlantID, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.AmountRequiredUnit, actual.ParentPartsModel.AmountRequiredUnit, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.TerminatedFlag, actual.ParentPartsModel.TerminatedFlag, f.AssertMessage)
+					assert.Equal(t, expected.ParentPartsModel, actual.ParentPartsModel, f.AssertMessage)
 					assert.ElementsMatch(t, expected.ChildrenPartsModel, actual.ChildrenPartsModel, f.AssertMessage)
 				}
 			},
@@ -408,13 +392,13 @@ func TestProjectUsecaseTraceability_PutPartsStructure_Abnormal(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.PartsStructureModel
+		input   traceability.PutPartsStructureInput
 		receive *string
 		expect  error
 	}{
 		{
 			name:    "2-1. 400: 存在チェックエラー（事業者）",
-			input:   f.NewPutPartsStructureModel(),
+			input:   f.NewPutPartsStructureInput(),
 			receive: common.StringPtr(f.Error_OperatorIdNotFound()),
 			expect:  &expectedExistError,
 		},
@@ -440,16 +424,13 @@ func TestProjectUsecaseTraceability_PutPartsStructure_Abnormal(tt *testing.T) {
 
 				traceabilityRepositoryMock := new(mocks.TraceabilityRepository)
 				postPartsStructuresResponse := common.ToTracebilityAPIError(*test.receive).ToCustomError(400)
-				traceabilityRepositoryMock.On("PostPartsStructures", mock.Anything, mock.Anything).Return(traceabilityentity.PostPartsStructuresResponse{}, postPartsStructuresResponse)
+				traceabilityRepositoryMock.On("PostPartsStructures", mock.Anything, mock.Anything).Return(traceabilityentity.PostPartsStructuresResponse{}, common.ResponseHeaders{}, postPartsStructuresResponse)
 
 				partsStructureUsecase := usecase.NewPartsStructureTraceabilityUsecase(traceabilityRepositoryMock)
 
-				_, err := partsStructureUsecase.PutPartsStructure(c, test.input)
+				_, _, err := partsStructureUsecase.PutPartsStructure(c, test.input)
 				if assert.Error(t, err) {
-					assert.Equal(t, test.expect.(*common.CustomError).Code, err.(*common.CustomError).Code)
-					assert.Equal(t, test.expect.(*common.CustomError).Message, err.(*common.CustomError).Message)
-					assert.Equal(t, test.expect.(*common.CustomError).MessageDetail, err.(*common.CustomError).MessageDetail)
-					assert.Equal(t, test.expect.(*common.CustomError).Source, err.(*common.CustomError).Source)
+					assert.Equal(t, test.expect, err)
 				}
 			},
 		)

@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"data-spaces-backend/domain/common"
+	"data-spaces-backend/extension/logger"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -19,12 +19,13 @@ import (
 // Router: [GET] /api/v1/datatransport?dataTarget=status
 // Usage: output
 type StatusModel struct {
-	StatusID      uuid.UUID     `json:"statusId"`
-	TradeID       uuid.UUID     `json:"tradeId"`
-	RequestStatus RequestStatus `json:"requestStatus"`
-	Message       *string       `json:"message"`
-	ReplyMessage  *string       `json:"replyMessage"`
-	RequestType   string        `json:"requestType"`
+	StatusID        uuid.UUID     `json:"statusId"`
+	TradeID         uuid.UUID     `json:"tradeId"`
+	RequestStatus   RequestStatus `json:"requestStatus"`
+	Message         *string       `json:"message"`
+	ReplyMessage    *string       `json:"replyMessage"`
+	RequestType     string        `json:"requestType"`
+	ResponseDueDate *string       `json:"responseDueDate"`
 }
 
 // StatusModelForSort
@@ -69,14 +70,14 @@ func (ms StatusModelsForSort) FilterByStatusID(statusID uuid.UUID) StatusModelsF
 
 // GetStatusModels
 // Summary: This is the function to get StatusModels.
-// input: getStatusModel(GetStatusModel) GetStatusModel object
+// input: getStatusInput(GetStatusInput) GetStatusInput object
 // output: ([]StatusModel) list of StatusModel
 // output: (*string) next id
-func (ms StatusModelsForSort) GetStatusModels(getStatusModel GetStatusModel) ([]StatusModel, *string) {
+func (ms StatusModelsForSort) GetStatusModels(getStatusInput GetStatusInput) ([]StatusModel, *string) {
 	afterIndex := 0
-	if getStatusModel.After != nil {
+	if getStatusInput.After != nil {
 		for i, m := range ms {
-			if m.StatusModel.StatusID.String() == getStatusModel.After.String() {
+			if m.StatusModel.StatusID.String() == getStatusInput.After.String() {
 				afterIndex = i
 				break
 			}
@@ -84,12 +85,12 @@ func (ms StatusModelsForSort) GetStatusModels(getStatusModel GetStatusModel) ([]
 	}
 
 	var after *string
-	nextIndex := afterIndex + getStatusModel.Limit
+	nextIndex := afterIndex + getStatusInput.Limit
 	if len(ms) > nextIndex {
 		after = common.StringPtr(ms[nextIndex].StatusModel.StatusID.String())
 	}
 
-	lastIndex := afterIndex + getStatusModel.Limit
+	lastIndex := afterIndex + getStatusInput.Limit
 	if len(ms) >= lastIndex {
 		ms = ms[afterIndex:lastIndex]
 	} else {
@@ -113,8 +114,12 @@ func (ms StatusModelsForSort) ToStatusModels() []StatusModel {
 // RequestStatus
 // Summary: This is structure which defines RequestStatus.
 type RequestStatus struct {
-	CfpResponseStatus CfpResponseStatus `json:"cfpResponseStatus"`
-	TradeTreeStatus   TradeTreeStatus   `json:"tradeTreeStatus"`
+	CfpResponseStatus        *CfpResponseStatus `json:"cfpResponseStatus,omitempty"`
+	TradeTreeStatus          *TradeTreeStatus   `json:"tradeTreeStatus,omitempty"`
+	CompletedCount           *int               `json:"completedCount"`
+	CompletedCountModifiedAt *string            `json:"completedCountModifiedAt"`
+	TradesCount              *int               `json:"tradesCount"`
+	TradesCountModifiedAt    *string            `json:"tradesCountModifiedAt"`
 }
 
 // ToString
@@ -129,18 +134,23 @@ func (r RequestStatus) ToString() string {
 // Summary: This is structure which defines StatusEntityModel.
 // DBName: request_status
 type StatusEntityModel struct {
-	StatusID          uuid.UUID      `json:"statusId" gorm:"type:uuid" validate:"required" example:"d9a38406-cae2-4679-b052-15a75f5531f0"`
-	TradeID           uuid.UUID      `json:"tradeId" gorm:"type:uuid;not null" validate:"required" example:"d9a38406-cae2-4679-b052-15a75f5531f1"`
-	CfpResponseStatus string         `json:"cfpResponseStatus" gorm:"type:string" validate:"required"`
-	TradeTreeStatus   string         `json:"tradeTreeStatus" gorm:"type:string" validate:"required"`
-	Message           *string        `json:"message" gorm:"type:string" validate:"required" example:"回答依頼時のメッセージが入ります" maxLength:"100"`
-	ReplyMessage      *string        `json:"replyMessage" gorm:"type:string" validate:"required" example:"回答時のメッセージが入ります" maxLength:"100"`
-	RequestType       string         `json:"requestType" gorm:"type:string" validate:"required" example:"batteryRequestStatus" maxLength:"256"`
-	DeletedAt         gorm.DeletedAt `json:"deletedAt" swaggerignore:"true"`
-	CreatedAt         time.Time      `json:"createdAt" gorm:"<-:create " swaggerignore:"true"`
-	CreatedUserId     string         `json:"createdUserId" gorm:"type:varchar(256);not null; <-:create" swaggerignore:"true"`
-	UpdatedAt         time.Time      `json:"updatedAt" swaggerignore:"true" `
-	UpdatedUserId     string         `json:"updatedUserId" gorm:"type:varchar(256);not null" swaggerignore:"true"`
+	StatusID                 uuid.UUID      `json:"statusId" gorm:"type:uuid" validate:"required" example:"d9a38406-cae2-4679-b052-15a75f5531f0"`
+	TradeID                  uuid.UUID      `json:"tradeId" gorm:"type:uuid;not null" validate:"required" example:"d9a38406-cae2-4679-b052-15a75f5531f1"`
+	CfpResponseStatus        string         `json:"cfpResponseStatus" gorm:"type:string" validate:"required"`
+	TradeTreeStatus          string         `json:"tradeTreeStatus" gorm:"type:string" validate:"required"`
+	Message                  *string        `json:"message" gorm:"type:string" validate:"required" example:"回答依頼時のメッセージが入ります" maxLength:"1000"`
+	ReplyMessage             *string        `json:"replyMessage" gorm:"type:string" validate:"required" example:"回答時のメッセージが入ります" maxLength:"1000"`
+	RequestType              string         `json:"requestType" gorm:"type:string" validate:"required" example:"batteryRequestStatus" maxLength:"256"`
+	ResponseDueDate          string         `json:"responseDueDate" gorm:"type:string" example:"2024-01-01" maxLength:"10"`
+	CompletedCount           *int           `json:"completedCount"`
+	CompletedCountModifiedAt *time.Time     `json:"completedCountModifiedAt"`
+	TradesCount              *int           `json:"tradesCount"`
+	TradesCountModifiedAt    *time.Time     `json:"tradesCountModifiedAt"`
+	DeletedAt                gorm.DeletedAt `json:"deletedAt" swaggerignore:"true"`
+	CreatedAt                time.Time      `json:"createdAt" gorm:"<-:create " swaggerignore:"true"`
+	CreatedUserId            string         `json:"createdUserId" gorm:"type:varchar(256);not null; <-:create" swaggerignore:"true"`
+	UpdatedAt                time.Time      `json:"updatedAt" swaggerignore:"true" `
+	UpdatedUserId            string         `json:"updatedUserId" gorm:"type:varchar(256);not null" swaggerignore:"true"`
 }
 
 // StatusModels
@@ -185,13 +195,13 @@ func NewStatusTarget(s string) (StatusTarget, error) {
 	}
 }
 
-// GetStatusModel
-// Summary: This is structure which defines GetStatusModel.
+// GetStatusInput
+// Summary: This is structure which defines GetStatusInput.
 // Service: Dataspace
 // Router: [GET] /api/v1/datatransport?dataTarget=status
 // Usage: input
 // NOTE: Give json tags only for parameters required for the link on the next page.
-type GetStatusModel struct {
+type GetStatusInput struct {
 	OperatorID   uuid.UUID
 	Limit        int `json:"limit"`
 	After        *uuid.UUID
@@ -292,16 +302,17 @@ type PutStatusInput struct {
 	StatusID              *string               `json:"statusId"`
 	TradeID               *string               `json:"tradeId"`
 	RequestType           RequestType           `json:"requestType"`
-	Message               string                `json:"message"`
-	ReplyMessage          string                `json:"replyMessage"`
+	Message               *string               `json:"message"`
+	ReplyMessage          *string               `json:"replyMessage"`
+	ResponseDueDate       string                `json:"responseDueDate"`
 	PutRequestStatusInput PutRequestStatusInput `json:"requestStatus"`
 }
 
 // PutRequestStatusInput
 // Summary: This is structure which defines PutRequestStatusInput.
 type PutRequestStatusInput struct {
-	CfpResponseStatus CfpResponseStatus `json:"cfpResponseStatus"`
-	TradeTreeStatus   TradeTreeStatus   `json:"tradeTreeStatus"`
+	CfpResponseStatus *CfpResponseStatus `json:"cfpResponseStatus"`
+	TradeTreeStatus   *TradeTreeStatus   `json:"tradeTreeStatus"`
 }
 
 // ValidateForCancelOrReject
@@ -309,7 +320,7 @@ type PutRequestStatusInput struct {
 // output: (error) error object
 func (i PutStatusInput) ValidateForCancelOrReject() error {
 	if err := i.validateForCancelOrReject(); err != nil {
-		zap.S().Errorf(err.Error())
+		logger.Set(nil).Errorf(err.Error())
 
 		return err
 	}
@@ -335,7 +346,7 @@ func (i PutStatusInput) validateForCancelOrReject() error {
 		),
 		validation.Field(
 			&i.ReplyMessage,
-			validation.RuneLength(0, 100),
+			validation.RuneLength(0, 1000),
 		),
 	)
 	if err != nil {
@@ -376,12 +387,17 @@ func (i PutStatusInput) validate() error {
 		),
 		validation.Field(
 			&i.Message,
-			validation.RuneLength(0, 100),
+			validation.RuneLength(0, 1000),
 		),
 		validation.Field(
 			&i.RequestType,
 			validation.Required,
 			validation.By(EnumRequestTypeValid),
+		),
+		validation.Field(
+			&i.ResponseDueDate,
+			validation.Required,
+			validation.Date("2006-01-02"),
 		),
 	)
 }
@@ -395,7 +411,7 @@ func (i PutStatusInput) ToModel() (StatusModel, error) {
 	if i.StatusID != nil {
 		statusID, err = uuid.Parse(*i.StatusID)
 		if err != nil {
-			zap.S().Errorf(err.Error())
+			logger.Set(nil).Errorf(err.Error())
 
 			return StatusModel{}, err
 		}
@@ -404,7 +420,7 @@ func (i PutStatusInput) ToModel() (StatusModel, error) {
 	if i.TradeID != nil {
 		tradeId, err = uuid.Parse(*i.StatusID)
 		if err != nil {
-			zap.S().Errorf(err.Error())
+			logger.Set(nil).Errorf(err.Error())
 
 			return StatusModel{}, err
 		}
@@ -413,8 +429,8 @@ func (i PutStatusInput) ToModel() (StatusModel, error) {
 	statusModel := StatusModel{
 		StatusID:     statusID,
 		TradeID:      tradeId,
-		Message:      &i.Message,
-		ReplyMessage: &i.ReplyMessage,
+		Message:      i.Message,
+		ReplyMessage: i.ReplyMessage,
 		RequestType:  i.RequestType.ToString(),
 		RequestStatus: RequestStatus{
 			CfpResponseStatus: i.PutRequestStatusInput.CfpResponseStatus,
@@ -425,10 +441,30 @@ func (i PutStatusInput) ToModel() (StatusModel, error) {
 
 }
 
+// IsCfpRequestStatusCancel
+// Summary: This is the function to check if the CfpResponseStatus is cancel.
+// output: (bool) true if CfpResponseStatus is cancel
+func (i PutStatusInput) IsCfpRequestStatusCancel() bool {
+	return *i.PutRequestStatusInput.CfpResponseStatus == CfpResponseStatusCancel
+}
+
+// IsCfpRequestStatusReject
+// Summary: This is the function to check if the CfpResponseStatus is reject.
+// output: (bool) true if CfpResponseStatus is reject
+func (i PutStatusInput) IsCfpRequestStatusReject() bool {
+	return *i.PutRequestStatusInput.CfpResponseStatus == CfpResponseStatusReject
+}
+
+const (
+	PathTradeRequest  = "tradeRequest"
+	PathTradeResponse = "tradeResponse"
+	PathStatus        = "status"
+)
+
 // ToModel
 // Summary: This is the function to convert StatusEntityModel to StatusModel.
 // output: (StatusModel) converted StatusModel
-func (e StatusEntityModel) ToModel() (StatusModel, error) {
+func (e StatusEntityModel) ToModel(DataSpacesApi string) (StatusModel, error) {
 	cfpResponseStatus, err := NewCfpResponseStatus(e.CfpResponseStatus)
 	if err != nil {
 		return StatusModel{}, err
@@ -437,16 +473,46 @@ func (e StatusEntityModel) ToModel() (StatusModel, error) {
 	if err != nil {
 		return StatusModel{}, err
 	}
-
+	var cc *string
+	if e.CompletedCountModifiedAt != nil {
+		cc = common.StringPtr(common.GenerateTime(*e.CompletedCountModifiedAt))
+	}
+	var tc *string
+	if e.TradesCountModifiedAt != nil {
+		tc = common.StringPtr(common.GenerateTime(*e.TradesCountModifiedAt))
+	}
+	var responseDueDate string
+	if len(e.ResponseDueDate) > 10 {
+		responseDueDate = e.ResponseDueDate[:10]
+	} else {
+		responseDueDate = e.ResponseDueDate
+	}
+	var requestStatus RequestStatus
+	if DataSpacesApi == PathTradeRequest {
+		requestStatus = RequestStatus{
+			CompletedCount:           nil,
+			CompletedCountModifiedAt: nil,
+			TradesCount:              nil,
+			TradesCountModifiedAt:    nil,
+		}
+	} else {
+		requestStatus = RequestStatus{
+			CfpResponseStatus:        &cfpResponseStatus,
+			TradeTreeStatus:          &tradeTreeStatus,
+			CompletedCount:           e.CompletedCount,
+			CompletedCountModifiedAt: cc,
+			TradesCount:              e.TradesCount,
+			TradesCountModifiedAt:    tc,
+		}
+	}
 	return StatusModel{
-		StatusID: e.StatusID,
-		TradeID:  e.TradeID,
-		RequestStatus: RequestStatus{
-			CfpResponseStatus: cfpResponseStatus,
-			TradeTreeStatus:   tradeTreeStatus,
-		},
-		Message:     e.Message,
-		RequestType: e.RequestType,
+		StatusID:        e.StatusID,
+		TradeID:         e.TradeID,
+		RequestStatus:   requestStatus,
+		Message:         e.Message,
+		ReplyMessage:    e.ReplyMessage,
+		RequestType:     e.RequestType,
+		ResponseDueDate: &responseDueDate,
 	}, nil
 }
 
@@ -454,10 +520,10 @@ func (e StatusEntityModel) ToModel() (StatusModel, error) {
 // Summary: This is the function to convert StatusEntityModels to StatusModels.
 // output: ([]StatusModel) list of StatusModel
 // output: (error) error object
-func (es StatusEntityModels) ToModels() ([]StatusModel, error) {
+func (es StatusEntityModels) ToModels(DataSpacesApi string) ([]StatusModel, error) {
 	ms := make(StatusModels, len(es))
 	for i, e := range es {
-		m, err := e.ToModel()
+		m, err := e.ToModel(DataSpacesApi)
 		if err != nil {
 			return nil, err
 		}

@@ -1,8 +1,8 @@
 package common
 
 import (
-	"os"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -29,6 +29,22 @@ func IntPtr(i int) *int {
 // output: (*float64) pointer to the float64 value
 func Float64Ptr(f float64) *float64 {
 	return &f
+}
+
+// BoolPtr
+// Summary: This is function which returns the pointer to the Boolean value.
+// input: f(bool) bool value
+// output: (*bool) pointer to the bool value
+func BoolPtr(b bool) *bool {
+	return &b
+}
+
+// UUIDPtr
+// Summary: This is function which returns the pointer to the UUID value.
+// input: f(uuid.UUID) UUID value
+// output: (*uuid.UUID) pointer to the UUID value
+func UUIDPtr(u uuid.UUID) *uuid.UUID {
+	return &u
 }
 
 // UUIDPtrToStringPtr
@@ -130,16 +146,20 @@ func GenerateUUIDString(n int) string {
 	return strings.Join(UUIDs, ",")
 }
 
-// IsOutputDump
-// Summary: This is function which checks whether the output dump is enabled.
-// output: (bool) true if the output dump is enabled, false otherwise
-func IsOutputDump() bool {
-	executeEnv := os.Getenv("GO_ENV")
-	outputDumpEnvs := []string{"local", "dev", "sbx", "qa", "stg", "uat"}
-	for _, v := range outputDumpEnvs {
-		if executeEnv == v {
-			return true
-		}
-	}
-	return false
+// GenerateCurrentTime
+// Summary: This is function which convert string pointer from current time
+// output: (string) string of current time
+func GenerateCurrentTime() string {
+	now := time.Now()
+	utcNow := now.UTC()
+	return GenerateTime(utcNow)
+}
+
+// GenerateTime
+// Summary: This is function which convert string pointer from Time
+// output: (string) string of time
+func GenerateTime(baseTime time.Time) string {
+	// Convert to timestamp compliant with "ISO8601" compliant string and "UTC"
+	iso8601Format := "2006-01-02T15:04:05Z" // ISO8601
+	return baseTime.Format(iso8601Format)
 }

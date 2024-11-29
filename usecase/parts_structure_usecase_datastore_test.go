@@ -39,8 +39,8 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 	dsResAll := traceability.PartsStructureEntity{
 		ParentPartsEntity: &traceability.PartsModelEntity{
 			TraceID:            uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
-			OperatorID:         uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
-			PlantID:            uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
+			OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+			PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
 			PartsName:          "B01",
 			SupportPartsName:   common.StringPtr("A000001"),
 			TerminatedFlag:     false,
@@ -54,9 +54,9 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 		},
 		ChildrenPartsEntity: traceability.PartsModelEntities{
 			{
-				TraceID:            uuid.MustParse("4d987ed4-f1b0-4bf1-8795-1fdb25300e34"),
-				OperatorID:         uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
-				PlantID:            uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
+				TraceID:            uuid.MustParse("1c2f37f5-25b9-dea5-346a-7b88035f2553"),
+				OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+				PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
 				PartsName:          "B01001",
 				SupportPartsName:   common.StringPtr("B001"),
 				TerminatedFlag:     false,
@@ -74,8 +74,8 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 	dsResRequireOnly := traceability.PartsStructureEntity{
 		ParentPartsEntity: &traceability.PartsModelEntity{
 			TraceID:            uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
-			OperatorID:         uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
-			PlantID:            uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
+			OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+			PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
 			PartsName:          "B01",
 			SupportPartsName:   nil,
 			TerminatedFlag:     false,
@@ -89,9 +89,9 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 		},
 		ChildrenPartsEntity: traceability.PartsModelEntities{
 			{
-				TraceID:            uuid.MustParse("4d987ed4-f1b0-4bf1-8795-1fdb25300e34"),
-				OperatorID:         uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
-				PlantID:            uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
+				TraceID:            uuid.MustParse("1c2f37f5-25b9-dea5-346a-7b88035f2553"),
+				OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+				PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
 				PartsName:          "B01001",
 				SupportPartsName:   nil,
 				TerminatedFlag:     false,
@@ -109,8 +109,8 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 	dsResNoComponent := traceability.PartsStructureEntity{
 		ParentPartsEntity: &traceability.PartsModelEntity{
 			TraceID:            uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
-			OperatorID:         uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
-			PlantID:            uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
+			OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+			PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
 			PartsName:          "B01",
 			SupportPartsName:   nil,
 			TerminatedFlag:     false,
@@ -135,18 +135,18 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
 			"partsName": "B01",
 			"supportPartsName": "A000001",
-			"plantId": "b1234567-1234-1234-1234-123456789012",
-			"operatorId": "b1234567-1234-1234-1234-123456789012",
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": "kilogram",
 			"terminatedFlag": false
 		},
 		"childrenPartsModel": [
 			{
-				"traceId": "4d987ed4-f1b0-4bf1-8795-1fdb25300e34",
+				"traceId": "1c2f37f5-25b9-dea5-346a-7b88035f2553",
 				"partsName": "B01001",
 				"supportPartsName": "B001",
-				"plantId": "b1234567-1234-1234-1234-123456789012",
-				"operatorId": "b1234567-1234-1234-1234-123456789012",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
 				"terminatedFlag": false,
 				"amountRequired": 2.1
@@ -159,20 +159,20 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
 			"partsName": "B01",
 			"supportPartsName": null,
-			"plantId": "b1234567-1234-1234-1234-123456789012",
-			"operatorId": "b1234567-1234-1234-1234-123456789012",
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
 			"terminatedFlag": false,
 			"amountRequired": null
 		},
 		"childrenPartsModel": [
 			{
-				"partsStructureId": "2680ed32-19a3-435b-a094-23ff43aaa611_4d987ed4-f1b0-4bf1-8795-1fdb25300e34",
-				"traceId": "4d987ed4-f1b0-4bf1-8795-1fdb25300e34",
+				"partsStructureId": "2680ed32-19a3-435b-a094-23ff43aaa611_1c2f37f5-25b9-dea5-346a-7b88035f2553",
+				"traceId": "1c2f37f5-25b9-dea5-346a-7b88035f2553",
 				"partsName": "B01001",
 				"supportPartsName": null,
-				"plantId": "b1234567-1234-1234-1234-123456789012",
-				"operatorId": "b1234567-1234-1234-1234-123456789012",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "",
 				"terminatedFlag": false,
 				"amountRequired": null
@@ -185,8 +185,8 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
 			"partsName": "B01",
 			"supportPartsName": null,
-			"plantId": "b1234567-1234-1234-1234-123456789012",
-			"operatorId": "b1234567-1234-1234-1234-123456789012",
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
 			"terminatedFlag": false,
 			"amountRequired": null
@@ -201,31 +201,31 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.GetPartsStructureModel
+		input   traceability.GetPartsStructureInput
 		receive traceability.PartsStructureEntity
 		expect  string
 	}{
 		{
 			name:    "1-1. 200: 全項目応答",
-			input:   f.NewGetPartsStructureModel(),
+			input:   f.NewGetPartsStructureInput(),
 			receive: dsResAll,
 			expect:  dsExpectedResAll,
 		},
 		{
 			name:    "1-2. 200: 必須項目のみ",
-			input:   f.NewGetPartsStructureModel(),
+			input:   f.NewGetPartsStructureInput(),
 			receive: dsResRequireOnly,
 			expect:  dsExpectedResRequireOnly,
 		},
 		{
 			name:    "1-3. 200: 構成部品なし",
-			input:   f.NewGetPartsStructureModel(),
+			input:   f.NewGetPartsStructureInput(),
 			receive: dsResNoComponent,
 			expect:  dsExpectedResNoComponent,
 		},
 		{
 			name:    "1-4. 200: 検索結果なし",
-			input:   f.NewGetPartsStructureModel(),
+			input:   f.NewGetPartsStructureInput(),
 			receive: dsResNoData,
 			expect:  dsExpectedResNoData,
 		},
@@ -264,17 +264,7 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 				if assert.NoError(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					if test.name == "1-4. 200: 検索結果なし" {
-						assert.Equal(t, expected.ParentPartsModel, actual.ParentPartsModel, f.AssertMessage)
-					} else {
-						assert.Equal(t, expected.ParentPartsModel.OperatorID, actual.ParentPartsModel.OperatorID, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.TraceID, actual.ParentPartsModel.TraceID, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.PartsName, actual.ParentPartsModel.PartsName, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.SupportPartsName, actual.ParentPartsModel.SupportPartsName, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.PlantID, actual.ParentPartsModel.PlantID, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.AmountRequiredUnit, actual.ParentPartsModel.AmountRequiredUnit, f.AssertMessage)
-						assert.Equal(t, expected.ParentPartsModel.TerminatedFlag, actual.ParentPartsModel.TerminatedFlag, f.AssertMessage)
-					}
+					assert.Equal(t, expected.ParentPartsModel, actual.ParentPartsModel, f.AssertMessage)
 					assert.ElementsMatch(t, expected.ChildrenPartsModel, actual.ChildrenPartsModel, f.AssertMessage)
 				}
 			},
@@ -297,13 +287,13 @@ func TestProjectUsecasedatastore_GetPartsStructure_Abnormal(tt *testing.T) {
 
 	tests := []struct {
 		name         string
-		input        traceability.GetPartsStructureModel
+		input        traceability.GetPartsStructureInput
 		receiveError error
 		expect       error
 	}{
 		{
 			name:         "2-1. 400: データ取得エラー",
-			input:        f.NewGetPartsStructureModel(),
+			input:        f.NewGetPartsStructureInput(),
 			receiveError: dsResGetError,
 			expect:       dsResGetError,
 		},
@@ -362,18 +352,18 @@ func TestProjectUsecaseDatastore_PutPartsStructure(tt *testing.T) {
 			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
 			"partsName": "B01",
 			"supportPartsName": "A000001",
-			"plantId": "b1234567-1234-1234-1234-123456789012",
-			"operatorId": "b1234567-1234-1234-1234-123456789012",
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": "kilogram",
 			"terminatedFlag": false
 		},
 		"childrenPartsModel": [
 			{
-				"traceId": "4d987ed4-f1b0-4bf1-8795-1fdb25300e34",
+				"traceId": "1c2f37f5-25b9-dea5-346a-7b88035f2553",
 				"partsName": "B01001",
 				"supportPartsName": "B001",
-				"plantId": "b1234567-1234-1234-1234-123456789012",
-				"operatorId": "b1234567-1234-1234-1234-123456789012",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
 				"terminatedFlag": false,
 				"amountRequired": 2.1
@@ -383,13 +373,13 @@ func TestProjectUsecaseDatastore_PutPartsStructure(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.PartsStructureModel
+		input   traceability.PutPartsStructureInput
 		receive traceability.PartsStructureEntity
 		expect  string
 	}{
 		{
 			name:    "1-1. 200: 全項目応答",
-			input:   f.NewPutPartsStructureModel(),
+			input:   f.NewPutPartsStructureInput(),
 			receive: f.NewPutPartsStructureEntityModel(),
 			expect:  dsExpectedResAll,
 		},
@@ -424,17 +414,11 @@ func TestProjectUsecaseDatastore_PutPartsStructure(tt *testing.T) {
 
 				partsStructureUsecase := usecase.NewPartsStructureDatastoreUsecase(ouranosRepositoryMock)
 
-				actual, err := partsStructureUsecase.PutPartsStructure(c, test.input)
+				actual, _, err := partsStructureUsecase.PutPartsStructure(c, test.input)
 				if assert.NoError(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					assert.Equal(t, expected.ParentPartsModel.OperatorID, actual.ParentPartsModel.OperatorID, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.TraceID, actual.ParentPartsModel.TraceID, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.PartsName, actual.ParentPartsModel.PartsName, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.SupportPartsName, actual.ParentPartsModel.SupportPartsName, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.PlantID, actual.ParentPartsModel.PlantID, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.AmountRequiredUnit, actual.ParentPartsModel.AmountRequiredUnit, f.AssertMessage)
-					assert.Equal(t, expected.ParentPartsModel.TerminatedFlag, actual.ParentPartsModel.TerminatedFlag, f.AssertMessage)
+					assert.Equal(t, expected.ParentPartsModel, actual.ParentPartsModel, f.AssertMessage)
 					assert.ElementsMatch(t, expected.ChildrenPartsModel, actual.ChildrenPartsModel, f.AssertMessage)
 				}
 			},
@@ -457,13 +441,13 @@ func TestProjectUsecaseDatastore_PutPartsStructure_Abnormal(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.PartsStructureModel
+		input   traceability.PutPartsStructureInput
 		receive error
 		expect  error
 	}{
 		{
 			name:    "2-1. 400: データ取得エラー",
-			input:   f.NewPutPartsStructureModel(),
+			input:   f.NewPutPartsStructureInput(),
 			receive: dsResPutError,
 			expect:  dsResPutError,
 		},
@@ -492,7 +476,7 @@ func TestProjectUsecaseDatastore_PutPartsStructure_Abnormal(tt *testing.T) {
 
 				partsStructureUsecase := usecase.NewPartsStructureDatastoreUsecase(ouranosRepositoryMock)
 
-				_, err := partsStructureUsecase.PutPartsStructure(c, test.input)
+				_, _, err := partsStructureUsecase.PutPartsStructure(c, test.input)
 				if assert.Error(t, err) {
 					assert.Equal(t, test.expect.Error(), err.Error())
 				}

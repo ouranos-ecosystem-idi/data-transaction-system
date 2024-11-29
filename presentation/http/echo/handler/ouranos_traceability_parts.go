@@ -2,7 +2,6 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"data-spaces-backend/domain/common"
@@ -15,6 +14,8 @@ import (
 
 // IPartsHandler
 // Summary: This is interface which defines PartsHandler.
+//
+//go:generate mockery --name IPartsHandler --output ../../../../test/mock --case underscore
 type IPartsHandler interface {
 	// GetPartsModel
 	// Summary: This is function which defines #8 GetPartsList.
@@ -22,6 +23,9 @@ type IPartsHandler interface {
 	// PutPartsModel
 	// Summary: This is function which defines #5 PutPartsItem.
 	PutPartsModel(c echo.Context) error
+	// DeletePartsModel
+	// Summary: This is function which defines #19 DeletePartsItem.
+	DeletePartsModel(c echo.Context) error
 }
 
 // partsHandler
@@ -49,7 +53,7 @@ func NewPartsHandler(pu usecase.IPartsUsecase, psu usecase.IPartsStructureUsecas
 func (h *partsHandler) GetPartsModel(c echo.Context) error {
 
 	var defaultLimit int = 100
-	var input traceability.GetPartsModel
+	var input traceability.GetPartsInput
 
 	dataTarget := c.QueryParam("dataTarget")
 	method := c.Request().Method
@@ -134,6 +138,7 @@ func (h *partsHandler) GetPartsModel(c echo.Context) error {
 		c.Response().Header().Set("Link", common.CreateAfterLink(h.host, dataTarget, *afterRes, input))
 	}
 
+	common.SetResponseHeader(c, common.ResponseHeaders{})
 	return c.JSON(http.StatusOK, res)
 }
 
@@ -154,7 +159,6 @@ func (h *partsHandler) PutPartsModel(c echo.Context) error {
 
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
 	}
-	fmt.Printf("PutPartsInput: %+v\n", putPartsInput)
 
 	if err := putPartsInput.Validate(); err != nil {
 		logger.Set(c).Warnf(err.Error())
@@ -168,19 +172,11 @@ func (h *partsHandler) PutPartsModel(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusForbidden, common.HTTPErrorSourceDataspace, common.Err403AccessDenied, operatorID, dataTarget, method))
 	}
 
-	partsModel, err := putPartsInput.ToModel()
-	if err != nil {
-		logger.Set(c).Warnf(err.Error())
-		errDetails := err.Error()
-
-		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
+	putPartsStructureInput := traceability.PutPartsStructureInput{
+		ParentPartsInput: &putPartsInput,
 	}
-	var partsStructureModel = traceability.PartsStructureModel{
-		ParentPartsModel: &partsModel,
-	}
-	fmt.Printf("PutParts: PartsStructureModel: %+v\n", partsStructureModel)
 
-	res, err := h.partsStructureUsecase.PutPartsStructure(c, partsStructureModel)
+	res, headers, err := h.partsStructureUsecase.PutPartsStructure(c, putPartsStructureInput)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) {
@@ -199,5 +195,48 @@ func (h *partsHandler) PutPartsModel(c echo.Context) error {
 
 	putPartsResponse := res.ParentPartsModel
 
+	common.SetResponseHeader(c, headers)
 	return c.JSON(http.StatusCreated, putPartsResponse)
+}
+
+// DeletePartsModel
+// Summary: This is function which delete parts information.
+// input: c(echo.Context) echo context
+// output: (error) Error object
+func (h *partsHandler) DeletePartsModel(c echo.Context) error {
+
+	var deletePartsInput traceability.DeletePartsInput
+
+	dataTarget := c.QueryParam("dataTarget")
+	method := c.Request().Method
+
+	operatorID := c.Get("operatorID").(string)
+	traceID, err := common.QueryParamUUID(c, "traceId")
+	if err != nil {
+		logger.Set(c).Warnf(err.Error())
+		errDetails := common.UnexpectedQueryParameter("traceId")
+
+		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400InvalidRequest, operatorID, dataTarget, method, errDetails))
+	}
+	deletePartsInput.TraceID = traceID.String()
+
+	headers, err := h.partsUsecase.DeleteParts(c, deletePartsInput)
+	if err != nil {
+		var customErr *common.CustomError
+		if errors.As(err, &customErr) {
+			if customErr.IsWarn() {
+				logger.Set(c).Warnf(err.Error())
+			} else {
+				logger.Set(c).Errorf(err.Error())
+			}
+
+			return echo.NewHTTPError(common.HTTPErrorGenerate(int(customErr.Code), customErr.Source, customErr.Message, operatorID, dataTarget, method, *customErr.MessageDetail))
+		}
+		logger.Set(c).Errorf(err.Error())
+
+		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusInternalServerError, common.HTTPErrorSourceDataspace, common.Err500Unexpected, operatorID, dataTarget, method))
+	}
+	common.SetResponseHeader(c, headers)
+
+	return c.NoContent(http.StatusNoContent)
 }

@@ -20,9 +20,13 @@ import (
 // output: res(traceabilityentity.GetPartsResponse) api response
 // output: (error) Error object
 func (r *traceabilityRepository) GetParts(c echo.Context, request traceabilityentity.GetPartsRequest, limit int) (res traceabilityentity.GetPartsResponse, err error) {
-	token := common.ExtractBearerToken(c)
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
 
-	resString, err := r.cli.Get(client.PathParts, token, request)
+	resString, err := r.cli.Get(c, client.PathParts, headers, request)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -46,4 +50,39 @@ func (r *traceabilityRepository) GetParts(c echo.Context, request traceabilityen
 	}
 
 	return res, nil
+}
+
+// DeleteParts
+// Summary: This function is used to retrieve the results of filtering the part information by traceId.
+// input: c(echo.Context) echo context
+// input: request(traceabilityentity.DeletePartsRequest) api request
+// output: res(traceabilityentity.DeletePartsResponse) api response
+// output: (error) Error object
+func (r *traceabilityRepository) DeleteParts(c echo.Context, request traceabilityentity.DeletePartsRequest) (traceabilityentity.DeletePartsResponse, common.ResponseHeaders, error) {
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
+
+	res, err := r.cli.Delete(c, client.PathParts, headers, request)
+	if err != nil {
+		var customErr *common.CustomError
+		if errors.As(err, &customErr) && customErr.IsWarn() {
+			logger.Set(c).Warnf(err.Error())
+		} else {
+			logger.Set(c).Errorf(err.Error())
+		}
+
+		return traceabilityentity.DeletePartsResponse{}, common.ResponseHeaders{}, err
+	}
+
+	var response traceabilityentity.DeletePartsResponse
+	if err = json.Unmarshal([]byte(res.Body), &response); err != nil {
+		logger.Set(c).Errorf(err.Error())
+
+		return traceabilityentity.DeletePartsResponse{}, common.ResponseHeaders{}, err
+	}
+
+	return response, res.Headers, nil
 }

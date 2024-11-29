@@ -24,10 +24,15 @@ import (
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 200: 全項目応答(証明書)
 // [x] 1-2. 200: 全項目応答(依頼)
-// [x] 1-3. 200: 必須項目のみ(証明書)
-// [x] 1-4. 200: 回答済(必須項目のみ)(依頼)
-// [x] 1-5. 200: 未回答(必須項目のみ)(依頼)
-// [x] 1-6. 200: 検索結果なし
+// [x] 1-3. 200: 全項目応答(依頼)(トレサビレスポンスにnullを含む)
+// [x] 1-4. 200: 全項目応答(依頼)(トレサビレスポンスにnullを含まない)
+// [x] 1-5. 200: 必須項目のみ(証明書)
+// [x] 1-6. 200: 必須項目のみ(証明書)(キーなし)
+// [x] 1-7. 200: 回答済(必須項目のみ)(依頼)
+// [x] 1-8. 200: 回答済(必須項目のみ)(キーなし)(依頼)
+// [x] 1-9. 200: 未回答(必須項目のみ)(依頼)
+// [x] 1-10. 200: 未回答(必須項目のみ)(キーなし)(依頼)
+// [x] 1-11. 200: 検索結果なし
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectUsecaseTraceability_GetCfpCertification(tt *testing.T) {
 
@@ -42,7 +47,7 @@ func TestProjectUsecaseTraceability_GetCfpCertification(tt *testing.T) {
 			"cfpCertificationDescription": "B01のCFP証明書説明。",
 			"cfpCertificationFileInfo": [
 				{
-					"operatorId": "b1234567-1234-1234-1234-123456789012",
+					"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 					"fileId": "fe517a2b-2af8-48ff-b1ed-88fc50f4414f",
 					"fileName": "B01_CFP.pdf"
 				}
@@ -57,7 +62,7 @@ func TestProjectUsecaseTraceability_GetCfpCertification(tt *testing.T) {
 			"cfpCertificationDescription": null,
 			"cfpCertificationFileInfo": [
 				{
-					"operatorId": "b1234567-1234-1234-1234-123456789012",
+					"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 					"fileId": "fe517a2b-2af8-48ff-b1ed-88fc50f4414f",
 					"fileName": "B01_CFP.pdf"
 				}
@@ -72,7 +77,7 @@ func TestProjectUsecaseTraceability_GetCfpCertification(tt *testing.T) {
 			"cfpCertificationDescription": "",
 			"cfpCertificationFileInfo": [
 				{
-					"operatorId": "b1234567-1234-1234-1234-123456789012",
+					"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 					"fileId": "fe517a2b-2af8-48ff-b1ed-88fc50f4414f",
 					"fileName": "B01_CFP.pdf"
 				}
@@ -95,47 +100,81 @@ func TestProjectUsecaseTraceability_GetCfpCertification(tt *testing.T) {
 
 	tests := []struct {
 		name          string
-		input         traceability.GetCfpCertificationModel
+		input         traceability.GetCfpCertificationInput
 		receive_cert  string
 		receive_trade string
 		expect        string
 	}{
 		{
 			name:         "1-1. 200: 全項目応答(証明書)",
-			input:        f.NewGetCfpCertificationModel(),
+			input:        f.NewGetCfpCertificationInput(),
 			receive_cert: f.GetCfpCertifications_AllItem(),
 			expect:       dsExpectedResAll,
 		},
 		{
 			name:          "1-2. 200: 全項目応答(依頼)",
-			input:         f.NewGetCfpCertificationModel(),
+			input:         f.NewGetCfpCertificationInput(),
 			receive_cert:  f.GetCfpCertifications_NoData(),
 			receive_trade: f.GetTradeRequests_AllItem(),
 			expect:        dsExpectedResAllForTradeRequest,
 		},
 		{
-			name:         "1-3. 200: 必須項目のみ(証明書)",
-			input:        f.NewGetCfpCertificationModel(),
+			name:          "1-3. 200: 全項目応答(依頼)(トレサビレスポンスにnullを含む)",
+			input:         f.NewGetCfpCertificationInput(),
+			receive_cert:  f.GetCfpCertifications_NoData(),
+			receive_trade: f.GetTradeRequests_AllItem_WithNull(),
+			expect:        dsExpectedResAllForTradeRequest,
+		},
+		{
+			name:          "1-4. 200: 全項目応答(依頼)(トレサビレスポンスにnullを含まない)",
+			input:         f.NewGetCfpCertificationInput(),
+			receive_cert:  f.GetCfpCertifications_NoData(),
+			receive_trade: f.GetTradeRequests_AllItem_WithUndefined(),
+			expect:        dsExpectedResAllForTradeRequest,
+		},
+		{
+			name:         "1-5. 200: 必須項目のみ(証明書)",
+			input:        f.NewGetCfpCertificationInput(),
 			receive_cert: f.GetCfpCertifications_RequireItemOnly(),
 			expect:       dsExpectedResRequireOnly,
 		},
 		{
-			name:          "1-4. 200: 回答済(必須項目のみ)(依頼)",
-			input:         f.NewGetCfpCertificationModel(),
+			name:         "1-6. 200: 必須項目のみ(証明書)(キーなし)",
+			input:        f.NewGetCfpCertificationInput(),
+			receive_cert: f.GetCfpCertifications_RequireItemOnlyWithUndefined(),
+			expect:       dsExpectedResRequireOnly,
+		},
+		{
+			name:          "1-7. 200: 回答済(必須項目のみ)(依頼)",
+			input:         f.NewGetCfpCertificationInput(),
 			receive_cert:  f.GetCfpCertifications_NoData(),
 			receive_trade: f.GetTradeRequests_RequireItemOnlyAnswered(),
 			expect:        dsExpectedResRequireOnlyAnsweredForTradeRequest,
 		},
 		{
-			name:          "1-5. 200: 未回答(必須項目のみ)(依頼)",
-			input:         f.NewGetCfpCertificationModel(),
+			name:          "1-8. 200: 回答済(必須項目のみ)(キーなし)(依頼)",
+			input:         f.NewGetCfpCertificationInput(),
+			receive_cert:  f.GetCfpCertifications_NoData(),
+			receive_trade: f.GetTradeRequests_RequireItemOnlyAnsweredWithUndefined(),
+			expect:        dsExpectedResRequireOnlyAnsweredForTradeRequest,
+		},
+		{
+			name:          "1-9. 200: 未回答(必須項目のみ)(依頼)",
+			input:         f.NewGetCfpCertificationInput(),
 			receive_cert:  f.GetCfpCertifications_NoData(),
 			receive_trade: f.GetTradeRequests_RequireItemOnlyAnswering(),
 			expect:        dsExpectedResRequireOnlyAnsweringForTradeRequest,
 		},
 		{
-			name:          "1-6. 200: 検索結果なし",
-			input:         f.NewGetCfpCertificationModel(),
+			name:          "1-10. 200: 未回答(必須項目のみ)(キーなし)(依頼)",
+			input:         f.NewGetCfpCertificationInput(),
+			receive_cert:  f.GetCfpCertifications_NoData(),
+			receive_trade: f.GetTradeRequests_RequireItemOnlyAnsweringWithUndefined(),
+			expect:        dsExpectedResRequireOnlyAnsweringForTradeRequest,
+		},
+		{
+			name:          "1-11. 200: 検索結果なし",
+			input:         f.NewGetCfpCertificationInput(),
 			receive_cert:  f.GetCfpCertifications_NoData(),
 			receive_trade: f.GetTradeRequests_NoData(),
 			expect:        dsExpectedResNoData,
@@ -227,7 +266,7 @@ func TestProjectUsecaseTraceability_GetCfpCertification_Abnormal(tt *testing.T) 
 
 	tests := []struct {
 		name              string
-		input             traceability.GetCfpCertificationModel
+		input             traceability.GetCfpCertificationInput
 		receiveCert       string
 		receiveCertError  error
 		receiveTradeError error
@@ -235,13 +274,13 @@ func TestProjectUsecaseTraceability_GetCfpCertification_Abnormal(tt *testing.T) 
 	}{
 		{
 			name:             "2-1. 400: データ取得エラー(証明書)",
-			input:            f.NewGetCfpCertificationModel(),
+			input:            f.NewGetCfpCertificationInput(),
 			receiveCertError: expectedPagingError,
 			expect:           expectedPagingError,
 		},
 		{
 			name:              "2-2. 400: データ取得エラー(依頼)",
-			input:             f.NewGetCfpCertificationModel(),
+			input:             f.NewGetCfpCertificationInput(),
 			receiveCert:       f.GetCfpCertifications_NoData(),
 			receiveCertError:  nil,
 			receiveTradeError: expectedPagingError,
@@ -287,10 +326,7 @@ func TestProjectUsecaseTraceability_GetCfpCertification_Abnormal(tt *testing.T) 
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
 					assert.Nil(t, actualRes)
-					assert.Equal(t, test.expect.(common.CustomError).Code, err.(common.CustomError).Code)
-					assert.Equal(t, test.expect.(common.CustomError).Message, err.(common.CustomError).Message)
-					assert.Equal(t, test.expect.(common.CustomError).MessageDetail, err.(common.CustomError).MessageDetail)
-					assert.Equal(t, test.expect.(common.CustomError).Source, err.(common.CustomError).Source)
+					assert.Equal(t, test.expect, err.(common.CustomError))
 				}
 			},
 		)

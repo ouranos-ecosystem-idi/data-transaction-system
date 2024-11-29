@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -37,6 +38,7 @@ import (
 // [x] 2-11. 200: afterに値が設定されていない場合(after=)
 // [x] 2-12. 200: statusIdに値が設定されていない場合(statusId=)
 // [x] 2-13. 200: 2-9,2-10が同時に発生する場合
+// [x] 2-14. 200: 正常系(statusTarget=RESPONSE+traceId指定)
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectHandler_GetStatus_Normal(tt *testing.T) {
 	var method = "GET"
@@ -117,7 +119,7 @@ func TestProjectHandler_GetStatus_Normal(tt *testing.T) {
 			expectStatus: http.StatusOK,
 		},
 		{
-			name: "2-11. 00: afterに値が設定されていない場合(after=)",
+			name: "2-11. 200: afterに値が設定されていない場合(after=)",
 			modifyQueryParams: func(q url.Values) {
 				q.Set("after", "")
 			},
@@ -138,6 +140,14 @@ func TestProjectHandler_GetStatus_Normal(tt *testing.T) {
 			},
 			expectStatus: http.StatusOK,
 		},
+		{
+			name: "2-14. 200: 正常系(statusTarget=RESPONSE+traceId指定)",
+			modifyQueryParams: func(q url.Values) {
+				q.Set("statusTarget", "RESPONSE")
+				q.Set("traceId", f.TraceId)
+			},
+			expectStatus: http.StatusOK,
+		},
 	}
 
 	for _, test := range tests {
@@ -147,7 +157,7 @@ func TestProjectHandler_GetStatus_Normal(tt *testing.T) {
 			test.modifyQueryParams(q)
 			q.Set("dataTarget", dataTarget)
 			operatorUUID, _ := uuid.Parse(f.OperatorId)
-			input := traceability.GetStatusModel{
+			input := traceability.GetStatusInput{
 				OperatorID: operatorUUID,
 			}
 			statusModel := []traceability.StatusModel{}
@@ -174,6 +184,9 @@ func TestProjectHandler_GetStatus_Normal(tt *testing.T) {
 			}
 			if statusTarget != "" {
 				input.StatusTarget = "REQUEST"
+				if statusTarget == "RESPONSE" {
+					input.StatusTarget = "RESPONSE"
+				}
 			}
 			if statusID != "" {
 				statusId, _ := uuid.Parse(f.StatusId)
@@ -181,7 +194,9 @@ func TestProjectHandler_GetStatus_Normal(tt *testing.T) {
 			}
 			if traceID != "" {
 				traceId, _ := uuid.Parse(f.TraceId)
-				input.TraceID = &traceId
+				if statusTarget != "RESPONSE" {
+					input.TraceID = &traceId
+				}
 			}
 
 			e := echo.New()
@@ -204,6 +219,10 @@ func TestProjectHandler_GetStatus_Normal(tt *testing.T) {
 				// モックの呼び出しが期待通りであることを確認
 				statusUsecase.AssertExpectations(t)
 			}
+
+			// レスポンスヘッダにX-Trackが含まれているかチェック
+			_, ok := rec.Header()["X-Track"]
+			assert.True(t, ok, "Header should have 'X-Track' key")
 		})
 	}
 }
@@ -233,6 +252,7 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 		modifyContexts    func(c echo.Context)
 		receive           error
 		expectError       string
+		expectStatus      int
 	}{
 		{
 			name: "1-1. 400: バリデーションエラー：limitの値が不正の場合",
@@ -243,7 +263,8 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-2. 400: バリデーションエラー：limitが101以上の場合",
@@ -254,7 +275,8 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-3. 400: バリデーションエラー：afterの値が不正の場合",
@@ -265,7 +287,8 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, after: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, after: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-4. 400: バリデーションエラー：statusIdの値が不正の場合",
@@ -276,7 +299,8 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, statusId: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, statusId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-5. 400: バリデーションエラー：limitが0以下の場合",
@@ -287,7 +311,8 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, limit: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-6. 400: バリデーションエラー：traceIdの値が不正の場合",
@@ -298,7 +323,8 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, traceId: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-7. 400: バリデーションエラー：statusTargetの値が不正の場合",
@@ -309,7 +335,8 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, statusTarget: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, statusTarget: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-8. 400: バリデーションエラー：operatorIdがUUID形式ではない場合",
@@ -320,7 +347,8 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", "invalidValue")
 			},
-			expectError: "code=400, message={[auth] BadRequest Invalid or expired token",
+			expectError:  "code=400, message={[auth] BadRequest Invalid or expired token",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-9. 500: システムエラー：取得処理エラー",
@@ -331,8 +359,9 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			receive:     common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-10. 500: システムエラー：取得処理エラー",
@@ -343,8 +372,9 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			modifyContexts: func(c echo.Context) {
 				c.Set("operatorID", f.OperatorId)
 			},
-			receive:     fmt.Errorf("Internal Server Error"),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      fmt.Errorf("Internal Server Error"),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 	}
 
@@ -370,8 +400,10 @@ func TestProjectHandler_GetStatus_Abnormal(tt *testing.T) {
 			statusHandler := handler.NewStatusHandler(statusUsecase, "")
 
 			err := statusHandler.GetStatus(c)
-			// エラーが返ってくることを確認
+			e.HTTPErrorHandler(err, c)
 			if assert.Error(t, err) {
+				// ステータスコードが期待通りであることを確認
+				assert.Equal(t, test.expectStatus, rec.Code)
 				// エラーメッセージが期待通りであることを確認
 				assert.ErrorContains(t, err, test.expectError)
 			}
@@ -391,37 +423,36 @@ func TestProjectHandler_PutStatus_Normal(tt *testing.T) {
 	var endPoint = "/api/v1/datatransport"
 	dataTarget := "status"
 
+	cfpResponseStatusReject := traceability.CfpResponseStatusReject
+
 	tests := []struct {
 		name         string
-		modifyInput  func(i *traceability.PutStatusInput) string
+		inputFunc    func() traceability.PutStatusInput
 		expectStatus int
 	}{
 		{
 			name: "1-1. 200: 正常系：依頼取消",
-			modifyInput: func(i *traceability.PutStatusInput) string {
-				i.PutRequestStatusInput.CfpResponseStatus = traceability.CfpResponseStatusCancel
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				return f.NewPutStatusInput()
 			},
 			expectStatus: http.StatusCreated,
 		},
 		{
 			name: "1-2. 200: 正常系：依頼差戻：メッセージあり",
-			modifyInput: func(i *traceability.PutStatusInput) string {
-				i.PutRequestStatusInput.CfpResponseStatus = traceability.CfpResponseStatusReject
-				i.ReplyMessage = "差戻メッセージ"
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				input := f.NewPutStatusInput()
+				input.ReplyMessage = common.StringPtr("差戻メッセージ")
+				input.PutRequestStatusInput.CfpResponseStatus = &cfpResponseStatusReject
+				return input
 			},
 			expectStatus: http.StatusCreated,
 		},
 		{
 			name: "1-3. 200: 正常系：依頼差戻：メッセージなし",
-			modifyInput: func(i *traceability.PutStatusInput) string {
-				i.PutRequestStatusInput.CfpResponseStatus = traceability.CfpResponseStatusReject
-				i.ReplyMessage = ""
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				input := f.NewPutStatusInput()
+				input.PutRequestStatusInput.CfpResponseStatus = &cfpResponseStatusReject
+				return input
 			},
 			expectStatus: http.StatusCreated,
 		},
@@ -430,27 +461,26 @@ func TestProjectHandler_PutStatus_Normal(tt *testing.T) {
 	for _, test := range tests {
 		test := test
 		tt.Run(test.name, func(t *testing.T) {
-			input := f.NewPutStatusInput()
-			inputJSONStr := test.modifyInput(&input)
+			t.Parallel()
+
+			inputs := test.inputFunc()
+			inputJSON, _ := json.Marshal(inputs)
 
 			q := make(url.Values)
 			q.Set("dataTarget", dataTarget)
-
 			e := echo.New()
 			rec := httptest.NewRecorder()
-			req := httptest.NewRequest(method, endPoint+"?"+q.Encode(), strings.NewReader(inputJSONStr))
+			req := httptest.NewRequest(method, endPoint+"?"+q.Encode(), bytes.NewBuffer(inputJSON))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			c.SetPath(endPoint)
 			c.Set("operatorID", f.OperatorId)
 
 			statusUsecase := new(mocks.IStatusUsecase)
-			statusModel, _ := input.ToModel()
-			cfpRequestStatus := statusModel.RequestStatus.CfpResponseStatus
-			if cfpRequestStatus == traceability.CfpResponseStatusCancel {
-				statusUsecase.On("PutStatusCancel", c, statusModel).Return(nil)
+			if inputs.IsCfpRequestStatusCancel() {
+				statusUsecase.On("PutStatusCancel", c, inputs).Return(common.ResponseHeaders{}, nil)
 			} else {
-				statusUsecase.On("PutStatusReject", c, statusModel).Return(nil)
+				statusUsecase.On("PutStatusReject", c, inputs).Return(common.ResponseHeaders{}, nil)
 			}
 			statusHandler := handler.NewStatusHandler(statusUsecase, "")
 
@@ -462,6 +492,10 @@ func TestProjectHandler_PutStatus_Normal(tt *testing.T) {
 				// モックの呼び出しが期待通りであることを確認
 				statusUsecase.AssertExpectations(t)
 			}
+
+			// レスポンスヘッダにX-Trackが含まれているかチェック
+			_, ok := rec.Header()["X-Track"]
+			assert.True(t, ok, "Header should have 'X-Track' key")
 		})
 	}
 }
@@ -492,173 +526,193 @@ func TestProjectHandler_PutStatus_Abnormal(tt *testing.T) {
 	dataTarget := "status"
 
 	tests := []struct {
-		name        string
-		modifyInput func(i traceability.PutStatusInput) string
-		receive     error
-		expectError string
+		name             string
+		inputFunc        func() traceability.PutStatusInput
+		invalidInputFunc func() interface{}
+		receive          error
+		expectError      string
+		expectStatus     int
 	}{
 		{
 			name: "1-1. 400: バリデーションエラー：statusIdが含まれない場合",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.StatusID = nil
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				statusInput.StatusID = nil
+				return statusInput
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, statusId: cannot be blank.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, statusId: cannot be blank.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-2. 400: バリデーションエラー：statusIdの値が不正の場合",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.StatusID = common.StringPtr(f.InvalidUUID)
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				statusInput.StatusID = common.StringPtr(f.InvalidUUID)
+				return statusInput
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, statusId: invalid UUID.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, statusId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-3. 400: バリデーションエラー：tradeIdが含まれない場合",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.TradeID = nil
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				statusInput.TradeID = nil
+				return statusInput
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, tradeId: cannot be blank.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeId: cannot be blank.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-4. 400: バリデーションエラー：tradeIdの値が不正の場合",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.TradeID = common.StringPtr(f.InvalidUUID)
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				statusInput.TradeID = common.StringPtr(f.InvalidUUID)
+				return statusInput
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, tradeId: invalid UUID.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeId: invalid UUID.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-7. 400: バリデーションエラー：replyMessageがstring型でない場合",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				inputJSON, _ := json.Marshal(i)
-				inputJsonStr := string(inputJSON)
-
-				var inputJsonMap map[string]interface{}
-				// nolint
-				json.Unmarshal([]byte(inputJsonStr), &inputJsonMap)
-				inputJsonMap["replyMessage"] = 1
-				// nolint
-				inputJSON, _ = json.Marshal(inputJsonMap)
-
-				return string(inputJSON)
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutStatusInterface()
+				input.(map[string]interface{})["replyMessage"] = 1
+				return input
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, replyMessage: Unmarshal type error: expected=string, got=number.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, replyMessage: Unmarshal type error: expected=string, got=number.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
-			name: "1-8. 400: バリデーションエラー：replyMessageが101文字以上の場合",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.ReplyMessage = "Jv0ceJYX9Pa9zQTtlYPQLqLyUUhhNZ5EQCL2JDj9jLfrrgFK8MzV7zkaPvVj1wVtq5ESQGAbXrOhElxsVJzBjSxMBhwOa7hJwBrEc"
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			name: "1-8. 400: バリデーションエラー：replyMessageが1001文字以上の場合",
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				statusInput.ReplyMessage = common.StringPtr(f.CraeteRamdomString(1001))
+				return statusInput
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, replyMessage: the length must be no more than 100.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, replyMessage: the length must be no more than 1000.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-9. 400: バリデーションエラー：requestStatusのcfpResponseStatusが不正の場合",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.PutRequestStatusInput.CfpResponseStatus = traceability.CfpResponseStatus(f.InvalidEnum)
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				cfpResponseStatus := traceability.CfpResponseStatus(f.InvalidEnum)
+				statusInput.PutRequestStatusInput.CfpResponseStatus = &cfpResponseStatus
+				return statusInput
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, requestStatus: (cfpResponseStatus: cannot be allowed 'invalid_enum').",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, requestStatus: (cfpResponseStatus: cannot be allowed 'invalid_enum').",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-11. 400: バリデーションエラー：1-1と1-3が同時に発生した場合",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.StatusID = nil
-				i.TradeID = nil
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				statusInput.StatusID = nil
+				statusInput.TradeID = nil
+				return statusInput
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, statusId: cannot be blank; tradeId: cannot be blank.",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, statusId: cannot be blank; tradeId: cannot be blank.",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-12. 400: バリデーションエラー：1-3と1-9が同時に発生した場合",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.TradeID = nil
-				i.PutRequestStatusInput.CfpResponseStatus = traceability.CfpResponseStatus(f.InvalidEnum)
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				statusInput.TradeID = nil
+				cfpResponseStatus := traceability.CfpResponseStatus(f.InvalidEnum)
+				statusInput.PutRequestStatusInput.CfpResponseStatus = &cfpResponseStatus
+				return statusInput
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Validation failed, tradeId: cannot be blank.; requestStatus: (cfpResponseStatus: cannot be allowed 'invalid_enum').",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, tradeId: cannot be blank.; requestStatus: (cfpResponseStatus: cannot be allowed 'invalid_enum').",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-13. 500: システムエラー：更新処理エラー",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.PutRequestStatusInput.CfpResponseStatus = traceability.CfpResponseStatusCancel
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				return statusInput
 			},
-			receive:     common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-14. 500: システムエラー：更新処理エラー",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.PutRequestStatusInput.CfpResponseStatus = traceability.CfpResponseStatusCancel
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				return statusInput
 			},
-			receive:     fmt.Errorf("Internal Server Error"),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      fmt.Errorf("Internal Server Error"),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-15. 500: システムエラー：更新処理エラー",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.PutRequestStatusInput.CfpResponseStatus = traceability.CfpResponseStatusReject
-				i.ReplyMessage = "差戻メッセージ"
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				statusInput.ReplyMessage = common.StringPtr("差戻メッセージ")
+				cfpResponseStatusReject := traceability.CfpResponseStatusReject
+				statusInput.PutRequestStatusInput.CfpResponseStatus = &cfpResponseStatusReject
+				return statusInput
 			},
-			receive:     common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      common.NewCustomError(common.CustomErrorCode500, "Unexpected error occurred", common.StringPtr(""), common.HTTPErrorSourceDataspace),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "1-16. 500: システムエラー：更新処理エラー",
-			modifyInput: func(i traceability.PutStatusInput) string {
-				i.PutRequestStatusInput.CfpResponseStatus = traceability.CfpResponseStatusReject
-				i.ReplyMessage = "差戻メッセージ"
-				inputJSON, _ := json.Marshal(i)
-				return string(inputJSON)
+			inputFunc: func() traceability.PutStatusInput {
+				statusInput := f.NewPutStatusInput()
+				statusInput.ReplyMessage = common.StringPtr("差戻メッセージ")
+				cfpResponseStatusReject := traceability.CfpResponseStatusReject
+				statusInput.PutRequestStatusInput.CfpResponseStatus = &cfpResponseStatusReject
+
+				return statusInput
 			},
-			receive:     fmt.Errorf("Internal Server Error"),
-			expectError: "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			receive:      fmt.Errorf("Internal Server Error"),
+			expectError:  "code=500, message={[dataspace] InternalServerError Unexpected error occurred",
+			expectStatus: http.StatusInternalServerError,
 		},
 	}
 
-	for _, test := range tests {
-		test := test
-		tt.Run(test.name, func(t *testing.T) {
-			input := f.NewPutStatusInput()
-			inputJSONStr := test.modifyInput(input)
+	for _, tc := range tests {
+		tc := tc
+		tt.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
+			var inputJSON []byte
+			if tc.invalidInputFunc != nil {
+				input := tc.invalidInputFunc()
+				inputJSON, _ = json.Marshal(input)
+			} else {
+				input := tc.inputFunc()
+				inputJSON, _ = json.Marshal(input)
+			}
 			q := make(url.Values)
 			q.Set("dataTarget", dataTarget)
 
 			e := echo.New()
 			rec := httptest.NewRecorder()
-			req := httptest.NewRequest(method, endPoint+"?"+q.Encode(), strings.NewReader(inputJSONStr))
+			req := httptest.NewRequest(method, endPoint+"?"+q.Encode(), strings.NewReader(string(inputJSON)))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			c.SetPath(endPoint)
 			c.Set("operatorID", f.OperatorId)
 
 			statusUsecase := new(mocks.IStatusUsecase)
-			statusUsecase.On("PutStatusCancel", mock.Anything, mock.Anything).Return(test.receive)
-			statusUsecase.On("PutStatusReject", mock.Anything, mock.Anything).Return(test.receive)
+			statusUsecase.On("PutStatusCancel", mock.Anything, mock.Anything).Return(common.ResponseHeaders{}, tc.receive)
+			statusUsecase.On("PutStatusReject", mock.Anything, mock.Anything).Return(common.ResponseHeaders{}, tc.receive)
 			statusHandler := handler.NewStatusHandler(statusUsecase, "")
 
 			err := statusHandler.PutStatus(c)
 			// エラーが返されることを確認
+			e.HTTPErrorHandler(err, c)
 			if assert.Error(t, err) {
+				// ステータスコードが期待通りであることを確認
+				assert.Equal(t, tc.expectStatus, rec.Code)
 				// エラーメッセージが期待通りであることを確認
-				assert.ErrorContains(t, err, test.expectError)
+				assert.ErrorContains(t, err, tc.expectError)
 			}
 		})
 	}

@@ -19,9 +19,14 @@ import (
 // output: (traceabilityentity.GetTradeRequestsResponse) api response
 // output: (error) error object
 func (r *traceabilityRepository) GetTradeRequests(c echo.Context, request traceabilityentity.GetTradeRequestsRequest) (traceabilityentity.GetTradeRequestsResponse, error) {
-	token := common.ExtractBearerToken(c)
 
-	resString, err := r.cli.Get(client.PathTradeRequests, token, request)
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
+
+	resString, err := r.cli.Get(c, client.PathTradeRequests, headers, request)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -48,17 +53,21 @@ func (r *traceabilityRepository) GetTradeRequests(c echo.Context, request tracea
 // input: request(traceabilityentity.PostTradeRequestsRequest) api request
 // output: (traceabilityentity.PostTradeRequestsResponses) api response
 // output: (error) error object
-func (r *traceabilityRepository) PostTradeRequests(c echo.Context, request traceabilityentity.PostTradeRequestsRequest) (traceabilityentity.PostTradeRequestsResponses, error) {
-	token := common.ExtractBearerToken(c)
+func (r *traceabilityRepository) PostTradeRequests(c echo.Context, request traceabilityentity.PostTradeRequestsRequest) (traceabilityentity.PostTradeRequestsResponses, common.ResponseHeaders, error) {
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
 
 	body, err := json.Marshal(request)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return nil, err
+		return nil, common.ResponseHeaders{}, err
 	}
 
-	resString, err := r.cli.Post(client.PathTradeRequests, token, body)
+	res, err := r.cli.Post(c, client.PathTradeRequests, headers, body)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -67,17 +76,17 @@ func (r *traceabilityRepository) PostTradeRequests(c echo.Context, request trace
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return nil, err
+		return nil, common.ResponseHeaders{}, err
 	}
 
 	var response traceabilityentity.PostTradeRequestsResponses
-	if err = json.Unmarshal([]byte(resString), &response); err != nil {
+	if err = json.Unmarshal([]byte(res.Body), &response); err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return nil, err
+		return nil, common.ResponseHeaders{}, err
 	}
 
-	return response, nil
+	return response, res.Headers, nil
 
 }
 
@@ -88,9 +97,14 @@ func (r *traceabilityRepository) PostTradeRequests(c echo.Context, request trace
 // output: (traceabilityentity.GetTradeRequestsReceivedResponse) api response
 // output: (error) error object
 func (r *traceabilityRepository) GetTradeRequestsReceived(c echo.Context, request traceabilityentity.GetTradeRequestsReceivedRequest) (traceabilityentity.GetTradeRequestsReceivedResponse, error) {
-	token := common.ExtractBearerToken(c)
 
-	resString, err := r.cli.Get(client.PathTradeRequestsRecieved, token, request)
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
+
+	resString, err := r.cli.Get(c, client.PathTradeRequestsRecieved, headers, request)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -117,17 +131,21 @@ func (r *traceabilityRepository) GetTradeRequestsReceived(c echo.Context, reques
 // input: request(traceabilityentity.PostTradesRequest) api request
 // output: (traceabilityentity.PostTradesResponse) api response
 // output: (error) error object
-func (r *traceabilityRepository) PostTrades(c echo.Context, request traceabilityentity.PostTradesRequest) (traceabilityentity.PostTradesResponse, error) {
+func (r *traceabilityRepository) PostTrades(c echo.Context, request traceabilityentity.PostTradesRequest) (traceabilityentity.PostTradesResponse, common.ResponseHeaders, error) {
 	body, err := json.Marshal(request)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceabilityentity.PostTradesResponse{}, err
+		return traceabilityentity.PostTradesResponse{}, common.ResponseHeaders{}, err
 	}
 
-	token := common.ExtractBearerToken(c)
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
 
-	resString, err := r.cli.Post(client.PathTrades, token, body)
+	res, err := r.cli.Post(c, client.PathTrades, headers, body)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -136,15 +154,15 @@ func (r *traceabilityRepository) PostTrades(c echo.Context, request traceability
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return traceabilityentity.PostTradesResponse{}, err
+		return traceabilityentity.PostTradesResponse{}, common.ResponseHeaders{}, err
 	}
 
-	var res traceabilityentity.PostTradesResponse
-	if err := json.Unmarshal([]byte(resString), &res); err != nil {
+	var response traceabilityentity.PostTradesResponse
+	if err := json.Unmarshal([]byte(res.Body), &response); err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceabilityentity.PostTradesResponse{}, err
+		return traceabilityentity.PostTradesResponse{}, common.ResponseHeaders{}, err
 	}
 
-	return res, nil
+	return response, res.Headers, nil
 }

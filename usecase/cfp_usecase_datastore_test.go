@@ -42,37 +42,96 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 	var method = "GET"
 	var endPoint = "/api/v1/datatransport"
 	var dataTarget = "cfp"
-	cfpId := uuid.MustParse("892262ab-6795-4a97-bf25-d92c512ebb31")
+
+	cfpId := uuid.MustParse(f.CfpId)
+	traceID := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	traceID2 := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa612")
+	traceID3 := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa613")
 	partsTerminated := f.GetPartsModelEntity("2680ed32-19a3-435b-a094-23ff43aaa611", true)
-	cfpTerminated := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa611")
+	cfpTerminated := f.GetCfpEntityModels()
+	for i, cfp := range cfpTerminated {
+		cfpTerminated[i].TraceID = traceID
+		cfpTerminated[i] = cfp
+	}
 
 	partsParentOnly := f.GetPartsModelEntity("2680ed32-19a3-435b-a094-23ff43aaa611", false)
-	partsStructureParentOnly := f.GetPartsStructureEntityModel("00000000-0000-0000-0000-000000000000", "2680ed32-19a3-435b-a094-23ff43aaa611")
+	partsStructureParentOnly := f.GetPartsStructureEntityModel()
+	partsStructureParentOnly.ParentTraceID = uuid.MustParse("00000000-0000-0000-0000-000000000000")
+	partsStructureParentOnly.TraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+
 	partsStructureEntityParentOnly := f.GetPartsStructureEntity("2680ed32-19a3-435b-a094-23ff43aaa611", []string{}, false)
-	cfpParentOnly := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa611")
+	cfpParentOnly := f.GetCfpEntityModels()
+	for i, cfp := range cfpParentOnly {
+		cfp.TraceID = traceID
+		cfpParentOnly[i] = cfp
+	}
 
 	partsImport := f.GetPartsModelEntity("2680ed32-19a3-435b-a094-23ff43aaa611", false)
-	partsStructureImport := f.GetPartsStructureEntityModel("2680ed32-19a3-435b-a094-23ff43aaa611", "2680ed32-19a3-435b-a094-23ff43aaa612")
+	partsStructureImport := f.GetPartsStructureEntityModel()
+	partsStructureImport.ParentTraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	partsStructureImport.TraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa612")
+
 	partsStructureEntityImport := f.GetPartsStructureEntity("2680ed32-19a3-435b-a094-23ff43aaa611", []string{"2680ed32-19a3-435b-a094-23ff43aaa612"}, false)
-	cfpImport := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa612")
-	trade := f.GetTradeEntityModel("2680ed32-19a3-435b-a094-23ff43aaa611", "2680ed32-19a3-435b-a094-23ff43aaa611", true)
-	tradeNoAnswer := f.GetTradeEntityModel("2680ed32-19a3-435b-a094-23ff43aaa611", "2680ed32-19a3-435b-a094-23ff43aaa611", false)
+	cfpImport := f.GetCfpEntityModels()
+	for i, cfp := range cfpImport {
+		cfp.TraceID = traceID
+		cfpImport[i] = cfp
+	}
+
+	tradeID := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	trade := f.GetTradeEntityModel()
+	trade.TradeID = &tradeID
+	trade.DownstreamTraceID = traceID
+	trade.UpstreamTraceID = &traceID
+
+	tradeNoAnswer := f.GetTradeEntityModel()
+	tradeNoAnswer.TradeID = &tradeID
+	tradeNoAnswer.DownstreamTraceID = traceID
+	tradeNoAnswer.UpstreamTraceID = nil
 
 	partsWithChildParent := f.GetPartsModelEntity("2680ed32-19a3-435b-a094-23ff43aaa611", false)
-	partsStructureWithChildParent := f.GetPartsStructureEntityModel("00000000-0000-0000-0000-000000000000", "2680ed32-19a3-435b-a094-23ff43aaa611")
+	partsStructureWithChildParent := f.GetPartsStructureEntityModel()
+	partsStructureWithChildParent.ParentTraceID = uuid.MustParse("00000000-0000-0000-0000-000000000000")
+	partsStructureWithChildParent.TraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+
 	partsStructureEntityWithChild1 := f.GetPartsStructureEntity("2680ed32-19a3-435b-a094-23ff43aaa611", []string{"2680ed32-19a3-435b-a094-23ff43aaa612"}, true)
 	partsStructureEntityWithChild2 := f.GetPartsStructureEntity("2680ed32-19a3-435b-a094-23ff43aaa611", []string{"2680ed32-19a3-435b-a094-23ff43aaa613"}, false)
-	cfpWithChildParent := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa611")
-	cfpWithChildChild1 := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa612")
-	cfpWithChildChild2 := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa613")
-	tradeChild1 := f.GetTradeEntityModel("2680ed32-19a3-435b-a094-23ff43aaa612", "2680ed32-19a3-435b-a094-23ff43aaa612", true)
-	tradeChild2 := f.GetTradeEntityModel("2680ed32-19a3-435b-a094-23ff43aaa613", "2680ed32-19a3-435b-a094-23ff43aaa613", true)
+	cfpWithChildParent := f.GetCfpEntityModels()
+	for i, cfp := range cfpWithChildParent {
+		cfp.TraceID = traceID
+		cfpWithChildParent[i] = cfp
+	}
+	cfpWithChildChild1 := f.GetCfpEntityModels()
+	for i, cfp := range cfpWithChildChild1 {
+		cfp.TraceID = traceID2
+		cfpWithChildChild1[i] = cfp
+	}
+	cfpWithChildChild2 := f.GetCfpEntityModels()
+	for i, cfp := range cfpWithChildChild2 {
+		cfp.TraceID = traceID3
+		cfpWithChildChild2[i] = cfp
+	}
+
+	tradeID2 := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa612")
+	tradeChild1 := f.GetTradeEntityModel()
+	tradeChild1.TradeID = &tradeID2
+	tradeChild1.DownstreamTraceID = traceID2
+	tradeChild1.UpstreamTraceID = &traceID2
+
+	tradeID3 := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa613")
+	tradeChild2 := f.GetTradeEntityModel()
+	tradeChild2.TradeID = &tradeID3
+	tradeChild2.DownstreamTraceID = traceID3
+	tradeChild2.UpstreamTraceID = &traceID3
+
+	getCfpInput := f.NewGetCfpInput()
+	getCfpInput.TraceIDs = []uuid.UUID{uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")}
 
 	expectTerminated := []traceability.CfpModel{
 		{
 			CfpID:           &cfpId,
 			TraceID:         uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
-			GhgEmission:     &f.GhgEmission,
+			GhgEmission:     common.Float64Ptr(1.12345),
 			GhgDeclaredUnit: traceability.GhgDeclaredUnitKgCO2ePerKilogram,
 			CfpType:         traceability.CfpTypePreComponent.ToString(),
 			DqrType:         traceability.DqrTypePreProcessing.ToString(),
@@ -85,7 +144,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		{
 			CfpID:           &cfpId,
 			TraceID:         uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
-			GhgEmission:     &f.GhgEmission,
+			GhgEmission:     common.Float64Ptr(1.12345),
 			GhgDeclaredUnit: traceability.GhgDeclaredUnitKgCO2ePerKilogram,
 			CfpType:         traceability.CfpTypePreProduction.ToString(),
 			DqrType:         traceability.DqrTypePreProcessing.ToString(),
@@ -98,7 +157,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		{
 			CfpID:           &cfpId,
 			TraceID:         uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
-			GhgEmission:     &f.GhgEmission,
+			GhgEmission:     common.Float64Ptr(1.12345),
 			GhgDeclaredUnit: traceability.GhgDeclaredUnitKgCO2ePerKilogram,
 			CfpType:         traceability.CfpTypeMainComponent.ToString(),
 			DqrType:         traceability.DqrTypeMainProcessing.ToString(),
@@ -111,7 +170,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		{
 			CfpID:           &cfpId,
 			TraceID:         uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
-			GhgEmission:     &f.GhgEmission,
+			GhgEmission:     common.Float64Ptr(1.12345),
 			GhgDeclaredUnit: traceability.GhgDeclaredUnitKgCO2ePerKilogram,
 			CfpType:         traceability.CfpTypeMainProduction.ToString(),
 			DqrType:         traceability.DqrTypeMainProcessing.ToString(),
@@ -137,7 +196,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		{
 			CfpID:           &cfpId,
 			TraceID:         uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
-			GhgEmission:     &f.GhgEmission,
+			GhgEmission:     common.Float64Ptr(1.12345),
 			GhgDeclaredUnit: traceability.GhgDeclaredUnitKgCO2ePerKilogram,
 			CfpType:         traceability.CfpTypePreProductionTotal.ToString(),
 			DqrType:         traceability.DqrTypePreProcessingTotal.ToString(),
@@ -163,7 +222,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		{
 			CfpID:           &cfpId,
 			TraceID:         uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
-			GhgEmission:     &f.GhgEmission,
+			GhgEmission:     common.Float64Ptr(1.12345),
 			GhgDeclaredUnit: traceability.GhgDeclaredUnitKgCO2ePerKilogram,
 			CfpType:         traceability.CfpTypeMainProductionTotal.ToString(),
 			DqrType:         traceability.DqrTypeMainProcessingTotal.ToString(),
@@ -527,7 +586,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 
 	tests := []struct {
 		name                        string
-		input                       traceability.GetCfpModel
+		input                       traceability.GetCfpInput
 		searchType                  int
 		receiveParts                *traceability.PartsModelEntity
 		receivePartsStructure       *traceability.PartsStructureEntityModel
@@ -542,7 +601,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 	}{
 		{
 			name:                  "1-1. 200: 終端部品",
-			input:                 f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                 getCfpInput,
 			receiveParts:          &partsTerminated,
 			receivePartsStructure: &traceability.PartsStructureEntityModel{},
 			receiveCfpParent:      &cfpTerminated,
@@ -551,7 +610,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-2. 200: 親部品",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsParentOnly,
 			receivePartsStructure:       &partsStructureParentOnly,
 			receivePartsStructureEntity: &partsStructureEntityParentOnly,
@@ -561,7 +620,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-3. 200: 仕入部品",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsImport,
 			receivePartsStructure:       &partsStructureImport,
 			receivePartsStructureEntity: &partsStructureEntityImport,
@@ -571,7 +630,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-4. 200: 子部品あり(子が終端)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild1,
@@ -582,7 +641,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-5. 200: 子部品あり(子が非終端)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild2,
@@ -593,7 +652,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                  "1-6. 200: 終端部品(CFPなし)",
-			input:                 f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                 getCfpInput,
 			receiveParts:          &partsTerminated,
 			receivePartsStructure: &traceability.PartsStructureEntityModel{},
 			receiveCfpParent:      &traceability.CfpEntityModels{},
@@ -603,7 +662,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                  "1-7. 200: 終端部品(CFPなし)",
-			input:                 f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                 getCfpInput,
 			receiveParts:          &partsTerminated,
 			receivePartsStructure: &traceability.PartsStructureEntityModel{},
 			receiveCfpParent:      &traceability.CfpEntityModels{},
@@ -612,7 +671,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-8. 200: 仕入部品(依頼回答なし)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsImport,
 			receivePartsStructure:       &partsStructureImport,
 			receivePartsStructureEntity: &partsStructureEntityImport,
@@ -622,7 +681,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-9. 200: 仕入部品(CFP回答なし)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsImport,
 			receivePartsStructure:       &partsStructureImport,
 			receivePartsStructureEntity: &partsStructureEntityImport,
@@ -632,7 +691,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-10. 200: 子部品あり(CFP回答なし)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild1,
@@ -643,7 +702,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-11. 200: 子部品あり(子が終端)(CFPなし)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild1,
@@ -655,7 +714,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-12. 200: 子部品あり(子が非終端)(依頼情報なし)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild2,
@@ -667,7 +726,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-13. 200: 子部品あり(子が非終端)(依頼回答なし)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild2,
@@ -678,7 +737,7 @@ func TestProjectUsecaseDatastore_GetCfp(tt *testing.T) {
 		},
 		{
 			name:                        "1-14. 200: 子部品あり(子が非終端)(CFP回答なし)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild2,
@@ -763,26 +822,75 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 	accessError := fmt.Errorf("DB AccessError")
 	formatError := fmt.Errorf("ghgDeclaredUnits must be same")
 	partsTerminate := f.GetPartsModelEntity("2680ed32-19a3-435b-a094-23ff43aaa611", true)
-	partsStructureTerminate := f.GetPartsStructureEntityModel("00000000-0000-0000-0000-000000000000", "2680ed32-19a3-435b-a094-23ff43aaa611")
-	cfpTerminateNotSameUnit := f.GetCfpEntityModelsNotSame("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa611")
+	partsStructureTerminate := f.GetPartsStructureEntityModel()
+	partsStructureTerminate.ParentTraceID = uuid.MustParse("00000000-0000-0000-0000-000000000000")
+	partsStructureTerminate.TraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+
+	cfpTerminateNotSameUnit := f.GetCfpEntityModels()
+	cfpTerminateNotSameUnit[1].GhgDeclaredUnit = traceability.GhgDeclaredUnitKgCO2ePerLiter.ToString()
+	cfpTerminateNotSameUnit[3].GhgDeclaredUnit = traceability.GhgDeclaredUnitKgCO2ePerLiter.ToString()
 
 	partsImport := f.GetPartsModelEntity("2680ed32-19a3-435b-a094-23ff43aaa611", false)
-	partsStructureImport := f.GetPartsStructureEntityModel("2680ed32-19a3-435b-a094-23ff43aaa611", "2680ed32-19a3-435b-a094-23ff43aaa612")
-	cfpImport := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa612")
-	tradeImport := f.GetTradeEntityModel("2680ed32-19a3-435b-a094-23ff43aaa611", "2680ed32-19a3-435b-a094-23ff43aaa611", true)
+	partsStructureImport := f.GetPartsStructureEntityModel()
+	partsStructureImport.ParentTraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	partsStructureImport.TraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa612")
+
+	cfpId := uuid.MustParse("892262ab-6795-4a97-bf25-d92c512ebb31")
+	tradeID := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	tradeID3 := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa613")
+	traceID := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	traceID2 := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa612")
+	traceID3 := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa613")
+
+	cfpImport := f.GetCfpEntityModels()
+	for i, cfp := range cfpImport {
+		cfp.CfpID = &cfpId
+		cfp.TraceID = traceID2
+		cfpImport[i] = cfp
+	}
+
+	tradeImport := f.GetTradeEntityModel()
+	tradeImport.TradeID = &tradeID
+	tradeImport.DownstreamTraceID = traceID
+	tradeImport.UpstreamTraceID = &traceID
 
 	partsWithChildParent := f.GetPartsModelEntity("2680ed32-19a3-435b-a094-23ff43aaa611", false)
-	partsStructureWithChildParent := f.GetPartsStructureEntityModel("00000000-0000-0000-0000-000000000000", "2680ed32-19a3-435b-a094-23ff43aaa611")
+	partsStructureWithChildParent := f.GetPartsStructureEntityModel()
+	partsStructureWithChildParent.ParentTraceID = uuid.MustParse("00000000-0000-0000-0000-000000000000")
+	partsStructureWithChildParent.TraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa612")
+
 	partsStructureEntityWithChild1 := f.GetPartsStructureEntity("2680ed32-19a3-435b-a094-23ff43aaa611", []string{"2680ed32-19a3-435b-a094-23ff43aaa612"}, true)
 	partsStructureEntityWithChild2 := f.GetPartsStructureEntity("2680ed32-19a3-435b-a094-23ff43aaa611", []string{"2680ed32-19a3-435b-a094-23ff43aaa613"}, false)
-	cfpWithChildParent := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa611")
-	cfpWithChildChild1 := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa612")
-	cfpWithChildChild2 := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa613")
-	tradeChild2 := f.GetTradeEntityModel("2680ed32-19a3-435b-a094-23ff43aaa613", "2680ed32-19a3-435b-a094-23ff43aaa613", true)
+	cfpWithChildParent := f.GetCfpEntityModels()
+	for i, cfp := range cfpWithChildParent {
+		cfp.CfpID = &cfpId
+		cfp.TraceID = traceID
+		cfpWithChildParent[i] = cfp
+	}
+	cfpWithChildChild1 := f.GetCfpEntityModels()
+	for i, cfp := range cfpWithChildChild1 {
+		cfp.CfpID = &cfpId
+		cfp.TraceID = traceID2
+		cfpWithChildChild1[i] = cfp
+	}
+	cfpWithChildChild2 := f.GetCfpEntityModels()
+	for i, cfp := range cfpWithChildChild2 {
+		cfp.CfpID = &cfpId
+		cfp.TraceID = traceID3
+		cfpWithChildChild2[i] = cfp
+	}
+
+	tradeChild2 := f.GetTradeEntityModel()
+	tradeChild2.TradeID = &tradeID3
+	tradeChild2.DownstreamTraceID = traceID3
+	tradeChild2.UpstreamTraceID = &traceID3
+
+	getCfpInput := f.NewGetCfpInput()
+	getCfpInput.TraceIDs = []uuid.UUID{uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")}
 
 	tests := []struct {
 		name                             string
-		input                            traceability.GetCfpModel
+		input                            traceability.GetCfpInput
 		searchType                       int
 		receiveParts                     *traceability.PartsModelEntity
 		receivePartsError                error
@@ -801,14 +909,14 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 	}{
 		{
 			name:              "2-1. 400: データ取得エラー(部品)",
-			input:             f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:             getCfpInput,
 			receiveParts:      &traceability.PartsModelEntity{},
 			receivePartsError: accessError,
 			expect:            accessError,
 		},
 		{
 			name:                       "2-2. 400: データ取得エラー(部品構成)",
-			input:                      f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                      getCfpInput,
 			receiveParts:               &partsTerminate,
 			receivePartsStructure:      &traceability.PartsStructureEntityModel{},
 			receivePartsStructureError: accessError,
@@ -816,7 +924,7 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                  "2-3. 400: データ取得エラー(CFP)(終端)",
-			input:                 f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                 getCfpInput,
 			receiveParts:          &partsTerminate,
 			receivePartsStructure: &traceability.PartsStructureEntityModel{},
 			receiveCfpParent:      &traceability.CfpEntityModels{},
@@ -825,7 +933,7 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                  "2-4. 400: データ取得エラー(単位不一致)(終端)",
-			input:                 f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                 getCfpInput,
 			receiveParts:          &partsTerminate,
 			receivePartsStructure: &partsStructureTerminate,
 			receiveCfpParent:      &cfpTerminateNotSameUnit,
@@ -833,7 +941,7 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                  "2-5. 400: データ取得エラー(依頼)(仕入部品)",
-			input:                 f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                 getCfpInput,
 			receiveParts:          &partsImport,
 			receivePartsStructure: &partsStructureImport,
 			receiveCfpParent:      &cfpImport,
@@ -843,7 +951,7 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                  "2-6. 400: データ取得エラー(CFP)(仕入部品)",
-			input:                 f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                 getCfpInput,
 			receiveParts:          &partsImport,
 			receivePartsStructure: &partsStructureImport,
 			receiveCfpParent:      &cfpImport,
@@ -853,7 +961,7 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                             "2-7. 400: データ取得エラー(子部品)(子部品あり)",
-			input:                            f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                            getCfpInput,
 			receiveParts:                     &partsWithChildParent,
 			receivePartsStructure:            &partsStructureWithChildParent,
 			receivePartsStructureEntity:      &partsStructureEntityWithChild1,
@@ -863,7 +971,7 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                        "2-8. 400: データ取得エラー(CFP親)(子部品あり)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild1,
@@ -874,7 +982,7 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                        "2-9. 400: データ取得エラー(CFP子)(子部品あり)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild1,
@@ -885,7 +993,7 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                        "2-10. 400: データ取得エラー(依頼子非終端)(子部品あり)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild2,
@@ -897,7 +1005,7 @@ func TestProjectUsecaseDatastore_GetCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                        "2-11. 400: データ取得エラー(CFP子非終端)(子部品あり)",
-			input:                       f.NewGetCfpModel("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			input:                       getCfpInput,
 			receiveParts:                &partsWithChildParent,
 			receivePartsStructure:       &partsStructureWithChildParent,
 			receivePartsStructureEntity: &partsStructureEntityWithChild2,
@@ -971,14 +1079,47 @@ func TestProjectUsecaseDatastore_PutCfp(tt *testing.T) {
 	var method = "PUT"
 	var endPoint = "/api/v1/datatransport"
 	var dataTarget = "cfp"
-	inputCfpsForCreate := f.NewCfpModels("2680ed32-19a3-435b-a094-23ff43aaa611")
-	inputCfpsForUpdate := f.NewCfpModelsForUpdate("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa611")
-	cfp := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa611")
-	trade := f.GetTradeEntityModel("2680ed32-19a3-435b-a094-23ff43aaa611", "2680ed32-19a3-435b-a094-23ff43aaa611", true)
+	putCfpInputsForCreate := f.NewPutCfpInputs2()
+	for i, cfp := range putCfpInputsForCreate {
+		cfp.TraceID = "2680ed32-19a3-435b-a094-23ff43aaa611"
+		cfp.CfpID = nil
+		putCfpInputsForCreate[i] = cfp
+	}
+
+	putCfpInputsForUpdate := f.NewPutCfpInputs2()
+	for i, cfp := range putCfpInputsForUpdate {
+		cfp.TraceID = "2680ed32-19a3-435b-a094-23ff43aaa611"
+		cfp.CfpID = common.StringPtr("892262ab-6795-4a97-bf25-d92c512ebb31")
+		cfp.GhgDeclaredUnit = f.GhgDeclaredUnit2
+		putCfpInputsForUpdate[i] = cfp
+	}
+
+	cfpUid := uuid.MustParse("892262ab-6795-4a97-bf25-d92c512ebb31")
+	cfpModelsForUpdate := f.NewCfpModels()
+	for i, cfp := range cfpModelsForUpdate {
+		cfp.CfpID = &cfpUid
+		cfp.TraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+		cfpModelsForUpdate[i] = cfp
+	}
+
+	cfp := f.GetCfpEntityModels()
+	for i, c := range cfp {
+		c.CfpID = &cfpUid
+		c.TraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+		cfp[i] = c
+	}
+
+	tradeID := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	traceID := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	trade := f.GetTradeEntityModel()
+	trade.TradeID = &tradeID
+	trade.DownstreamTraceID = traceID
+	trade.UpstreamTraceID = &traceID
+
 	parts := f.GetPartsModelEntity("2680ed32-19a3-435b-a094-23ff43aaa611", true)
 	tests := []struct {
 		name                   string
-		input                  traceability.CfpModels
+		input                  traceability.PutCfpInputs
 		isCreate               bool
 		receiveDuplicateCfp    *traceability.CfpEntityModels
 		receiveCfp             *traceability.CfpEntityModels
@@ -991,7 +1132,7 @@ func TestProjectUsecaseDatastore_PutCfp(tt *testing.T) {
 	}{
 		{
 			name:                "1-1. 200: 正常終了(新規)",
-			input:               inputCfpsForCreate,
+			input:               putCfpInputsForCreate,
 			isCreate:            true,
 			receiveDuplicateCfp: &traceability.CfpEntityModels{},
 			receiveCfp:          &cfp,
@@ -1002,11 +1143,11 @@ func TestProjectUsecaseDatastore_PutCfp(tt *testing.T) {
 			receivePutTrade:        &trade,
 			receiveCfpForUpdate:    nil,
 			receivePutCfpForUpdate: nil,
-			expect:                 inputCfpsForUpdate,
+			expect:                 cfpModelsForUpdate,
 		},
 		{
 			name:                   "1-2. 200: 正常終了(更新)",
-			input:                  inputCfpsForUpdate,
+			input:                  putCfpInputsForUpdate,
 			isCreate:               false,
 			receiveDuplicateCfp:    nil,
 			receiveCfp:             nil,
@@ -1015,7 +1156,7 @@ func TestProjectUsecaseDatastore_PutCfp(tt *testing.T) {
 			receivePutTrade:        nil,
 			receiveCfpForUpdate:    &cfp,
 			receivePutCfpForUpdate: &cfp,
-			expect:                 inputCfpsForUpdate,
+			expect:                 cfpModelsForUpdate,
 		},
 	}
 
@@ -1052,7 +1193,7 @@ func TestProjectUsecaseDatastore_PutCfp(tt *testing.T) {
 				}
 
 				usecase := usecase.NewCfpUsecase(ouranosRepositoryMock)
-				actualRes, err := usecase.PutCfp(c, test.input, f.OperatorId)
+				actualRes, _, err := usecase.PutCfp(c, test.input, f.OperatorId)
 				if assert.NoError(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
@@ -1074,16 +1215,41 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 	var method = "PUT"
 	var endPoint = "/api/v1/datatransport"
 	var dataTarget = "cfp"
-	inputCfpsForCreate := f.NewCfpModels("2680ed32-19a3-435b-a094-23ff43aaa611")
-	inputCfpsForUpdate := f.NewCfpModelsForUpdate("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa611")
-	cfp := f.GetCfpEntityModels("892262ab-6795-4a97-bf25-d92c512ebb31", "2680ed32-19a3-435b-a094-23ff43aaa611")
-	trade := f.GetTradeEntityModel("2680ed32-19a3-435b-a094-23ff43aaa611", "2680ed32-19a3-435b-a094-23ff43aaa611", true)
+	putCfpInputsForCreate := f.NewPutCfpInputs2()
+	for i, cfp := range putCfpInputsForCreate {
+		cfp.TraceID = "2680ed32-19a3-435b-a094-23ff43aaa611"
+		cfp.CfpID = nil
+		putCfpInputsForCreate[i] = cfp
+	}
+
+	putCfpInputsForUpdate := f.NewPutCfpInputs2()
+	for i, cfp := range putCfpInputsForUpdate {
+		cfp.TraceID = "2680ed32-19a3-435b-a094-23ff43aaa611"
+		cfp.CfpID = common.StringPtr("892262ab-6795-4a97-bf25-d92c512ebb31")
+		cfp.GhgDeclaredUnit = f.GhgDeclaredUnit2
+		putCfpInputsForUpdate[i] = cfp
+	}
+	cfpID := uuid.MustParse("892262ab-6795-4a97-bf25-d92c512ebb31")
+	cfp := f.GetCfpEntityModels()
+	for i, c := range cfp {
+		c.CfpID = &cfpID
+		c.TraceID = uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+		cfp[i] = c
+	}
+
+	tradeID := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	traceID := uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611")
+	trade := f.GetTradeEntityModel()
+	trade.TradeID = &tradeID
+	trade.DownstreamTraceID = traceID
+	trade.UpstreamTraceID = &traceID
+
 	parts := f.GetPartsModelEntity("2680ed32-19a3-435b-a094-23ff43aaa611", true)
 	accessError := fmt.Errorf("DB AccessError")
 	duplicateError := fmt.Errorf("traceId %v already has cfps", "2680ed32-19a3-435b-a094-23ff43aaa611")
 	tests := []struct {
 		name                        string
-		input                       traceability.CfpModels
+		input                       traceability.PutCfpInputs
 		isCreate                    bool
 		receiveDuplicateCfp         *traceability.CfpEntityModels
 		receiveDuplicateCfpError    error
@@ -1103,7 +1269,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 	}{
 		{
 			name:                "2-1. 400: データ取得エラー(CFP重複)(新規)",
-			input:               inputCfpsForCreate,
+			input:               putCfpInputsForCreate,
 			isCreate:            true,
 			receiveDuplicateCfp: &cfp,
 			receiveCfp:          &cfp,
@@ -1118,7 +1284,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                     "2-2. 400: データ取得エラー(CFP重複)(新規)",
-			input:                    inputCfpsForCreate,
+			input:                    putCfpInputsForCreate,
 			isCreate:                 true,
 			receiveDuplicateCfp:      &traceability.CfpEntityModels{},
 			receiveDuplicateCfpError: accessError,
@@ -1134,7 +1300,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                "2-3. 400: データ取得エラー(CFP登録)(新規)",
-			input:               inputCfpsForCreate,
+			input:               putCfpInputsForCreate,
 			isCreate:            true,
 			receiveDuplicateCfp: &traceability.CfpEntityModels{},
 			receiveCfp:          &cfp,
@@ -1150,7 +1316,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                "2-4. 400: データ取得エラー(依頼)(新規)",
-			input:               inputCfpsForCreate,
+			input:               putCfpInputsForCreate,
 			isCreate:            true,
 			receiveDuplicateCfp: &traceability.CfpEntityModels{},
 			receiveCfp:          &cfp,
@@ -1166,7 +1332,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                "2-5. 400: データ取得エラー(部品)(新規)",
-			input:               inputCfpsForCreate,
+			input:               putCfpInputsForCreate,
 			isCreate:            true,
 			receiveDuplicateCfp: &traceability.CfpEntityModels{},
 			receiveCfp:          &cfp,
@@ -1182,7 +1348,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                "2-6. 400: データ取得エラー(依頼更新)(新規)",
-			input:               inputCfpsForCreate,
+			input:               putCfpInputsForCreate,
 			isCreate:            true,
 			receiveDuplicateCfp: &traceability.CfpEntityModels{},
 			receiveCfp:          &cfp,
@@ -1198,7 +1364,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                     "2-7. 400: データ取得エラー(CFP取得)(更新)",
-			input:                    inputCfpsForUpdate,
+			input:                    putCfpInputsForUpdate,
 			isCreate:                 false,
 			receiveDuplicateCfp:      nil,
 			receiveCfp:               nil,
@@ -1212,7 +1378,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 		},
 		{
 			name:                        "2-8. 400: データ取得エラー(CFP更新)(更新)",
-			input:                       inputCfpsForUpdate,
+			input:                       putCfpInputsForUpdate,
 			isCreate:                    false,
 			receiveDuplicateCfp:         nil,
 			receiveCfp:                  nil,
@@ -1231,7 +1397,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 		tt.Run(
 			test.name,
 			func(t *testing.T) {
-				t.Parallel()
+				// t.Parallel()
 
 				q := make(url.Values)
 				q.Set("dataTarget", dataTarget)
@@ -1259,7 +1425,7 @@ func TestProjectUsecaseDatastore_PutCfp_Abnormal(tt *testing.T) {
 				}
 
 				usecase := usecase.NewCfpUsecase(ouranosRepositoryMock)
-				_, err := usecase.PutCfp(c, test.input, f.OperatorId)
+				_, _, err := usecase.PutCfp(c, test.input, f.OperatorId)
 				if assert.Error(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較

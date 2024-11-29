@@ -11,7 +11,6 @@ import (
 func NewMiddleware(e *echo.Echo) {
 	e.Use(middleware.Logger())
 	e.Use(middleware.BodyDumpWithConfig(middleware.BodyDumpConfig{
-		Skipper: dumpSkipper,
 		Handler: dumpHandler,
 	}))
 }

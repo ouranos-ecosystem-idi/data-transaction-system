@@ -45,6 +45,25 @@ type GetPartsResponseParts struct {
 	ParentFlag       bool    `json:"parentFlag"`
 }
 
+// DeletePartsRequest
+// Summary: This is structure which defines DeletePartsRequest.
+// Service: Traceability
+// Router: [DELETE] /parts
+// Usage: input
+type DeletePartsRequest struct {
+	OperatorID string `json:"operatorId"`
+	TraceID    string `json:"traceId"`
+}
+
+// DeletePartsResponse
+// Summary: This is a type that defines a DeletePartsResponse.
+// Service: Traceability
+// Router: [DELETE] /parts
+// Usage: output
+type DeletePartsResponse struct {
+	TraceID string `json:"traceId"`
+}
+
 // ToModel
 // Summary: This is function to convert GetPartsResponse to []traceability.PartsModel.
 // output: ([]traceability.PartsModel) converted to []traceability.PartsModel

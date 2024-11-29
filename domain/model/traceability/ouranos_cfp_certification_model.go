@@ -28,12 +28,12 @@ type CfpCertificationFileInfo struct {
 	FileName   string `json:"fileName"`
 }
 
-// GetCfpCertificationModel
-// Summary: This is structure which defines GetCfpCertificationModel.
+// GetCfpCertificationInput
+// Summary: This is structure which defines GetCfpCertificationInput.
 // Service: Dataspace
 // Router: [GET] /api/v1/datatransport?dataTarget=cfpCertification
 // Usage: input
-type GetCfpCertificationModel struct {
+type GetCfpCertificationInput struct {
 	OperatorID uuid.UUID `json:"operatorId"`
 	TraceID    uuid.UUID `json:"traceId"`
 }

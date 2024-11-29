@@ -232,6 +232,7 @@ type PostPartsStructuresResponseChild struct {
 	PartsStructureID string  `json:"partsStructureId"`
 	TraceID          string  `json:"traceId"`
 	PartsItem        string  `json:"partsItem"`
+	PlantID          string  `json:"plantId"`
 	SupportPartsItem *string `json:"supportPartsItem"`
 }
 
@@ -256,26 +257,27 @@ func (r PostPartsStructuresResponse) ParentTraceID() (uuid.UUID, error) {
 // input: supportPartsItem(*string) supportPartsItem
 // output: (uuid.UUID) parentTraceId
 // output: (error) error object
-func (r PostPartsStructuresResponse) ChildTraceID(partsItem string, supportPartsItem *string) (uuid.UUID, error) {
+func (r PostPartsStructuresResponse) ChildTraceID(partsItem string, supportPartsItem *string, plantID string) (uuid.UUID, error) {
 	var isFound bool = false
 	for _, resChild := range r.Children {
-		if partsItem == resChild.PartsItem {
-			if supportPartsItem == nil && resChild.SupportPartsItem == nil {
-				isFound = true
-			}
-			if supportPartsItem != nil && resChild.SupportPartsItem != nil && *supportPartsItem == *resChild.SupportPartsItem {
-				isFound = true
-			}
-
-			if isFound {
-				childTraceIDStr := resChild.TraceID
-				childTraceID, err := uuid.Parse(childTraceIDStr)
-				if err != nil {
-					logger.Set(nil).Errorf(err.Error())
-
-					return uuid.Nil, err
+		if plantID == resChild.PlantID {
+			if partsItem == resChild.PartsItem {
+				if supportPartsItem == nil && resChild.SupportPartsItem == nil {
+					isFound = true
 				}
-				return childTraceID, nil
+				if supportPartsItem != nil && resChild.SupportPartsItem != nil && *supportPartsItem == *resChild.SupportPartsItem {
+					isFound = true
+				}
+				if isFound {
+					childTraceIDStr := resChild.TraceID
+					childTraceID, err := uuid.Parse(childTraceIDStr)
+					if err != nil {
+						logger.Set(nil).Errorf(err.Error())
+
+						return uuid.Nil, err
+					}
+					return childTraceID, nil
+				}
 			}
 		}
 	}

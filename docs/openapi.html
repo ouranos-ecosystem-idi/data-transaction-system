@@ -18,11 +18,10 @@
     <script>
      const spec=
      {
-  "openapi": "3.0.1",
+  "openapi": "3.0.2",
   "info": {
     "title": "データ連携基盤 API",
-    "contact": {},
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "paths": {
     "/api/v1/authInfo?dataTarget=operator": {
@@ -96,7 +95,9 @@
                     "value": {
                       "openOperatorId": "9876543210987",
                       "operatorAddress": "xx県xx市xxxx町1-1",
-                      "operatorAttribute": {},
+                      "operatorAttribute": {
+                        "globalOperatorId": null
+                      },
                       "operatorId": "d9a38406-cae2-4679-b052-15a75f5531e6",
                       "operatorName": "A株式会社"
                     }
@@ -174,7 +175,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: operator, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -182,7 +183,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: operator, method: GET"
                     }
                   }
                 }
@@ -436,7 +437,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: operator, method: PUT"
                     }
                   },
                   "invalidKeyError": {
@@ -444,7 +445,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: operator, method: PUT"
                     }
                   }
                 }
@@ -559,7 +560,9 @@
                         "plantAddress": "xx県xx市xxxx町1-1-1234",
                         "plantId": "d9a38406-cae2-4679-b052-15a75f5531e9",
                         "plantName": "A工場",
-                        "plantAttribute": {}
+                        "plantAttribute": {
+                          "globalPlantId": null
+                        }
                       }
                     ]
                   },
@@ -658,7 +661,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: plant, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -666,7 +669,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: plant, method: GET"
                     }
                   }
                 }
@@ -921,7 +924,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: plant, method: PUT"
                     }
                   },
                   "invalidKeyError": {
@@ -929,7 +932,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T22:59:18.243Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:59:18.243Z, dataTarget: plant, method: PUT"
                     }
                   }
                 }
@@ -1034,6 +1037,14 @@
         "responses": {
           "200": {
             "description": "CfpModelの配列を取得",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1043,6 +1054,10 @@
                   }
                 },
                 "examples": {
+                  "zero": {
+                    "summary": "結果が0件の場合",
+                    "value": []
+                  },
                   "parent": {
                     "summary": "指定したトレース識別子が親の場合",
                     "value": [
@@ -1375,7 +1390,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: cfp, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -1383,7 +1398,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: cfp, method: GET"
                     }
                   }
                 }
@@ -1460,6 +1475,26 @@
                       "code": "[traceability] ServiceUnavailable",
                       "message": "Now under system maintenance.",
                       "detail": "MSGCE000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
                     }
                   }
                 }
@@ -1745,6 +1780,14 @@
         "responses": {
           "201": {
             "description": "Created",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1967,7 +2010,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: cfp, method: PUT"
                     }
                   },
                   "invalidKeyError": {
@@ -1975,7 +2018,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: cfp, method: PUT"
                     }
                   }
                 }
@@ -2057,6 +2100,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2106,6 +2169,14 @@
         "responses": {
           "200": {
             "description": "CfpModelの配列を取得",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2115,6 +2186,10 @@
                   }
                 },
                 "examples": {
+                  "zero": {
+                    "summary": "結果が0件の場合",
+                    "value": []
+                  },
                   "parent": {
                     "summary": "指定したトレース識別子が自社部品の場合",
                     "value": [
@@ -2233,7 +2308,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: cfpCertification, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -2241,7 +2316,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: cfpCertification, method: GET"
                     }
                   }
                 }
@@ -2323,6 +2398,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2371,7 +2466,7 @@
           {
             "name": "after",
             "in": "query",
-            "description": "データ取得開始位置の識別子を設定します。本項目はResponse HeaderのLink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。",
+            "description": "データ取得開始位置の識別子を設定します。本項目はResponse Headerのlink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。",
             "required": false,
             "style": "form",
             "explode": true,
@@ -2433,10 +2528,16 @@
           "200": {
             "description": "PartsModelの配列を取得",
             "headers": {
-              "Link": {
+              "link": {
                 "description": "\\<https://example.com/api/v1/datatransport?dataTarget=parts&limit=100&after=(uuid)\\>;",
                 "style": "simple",
                 "explode": false,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
                 "schema": {
                   "type": "string"
                 }
@@ -2558,7 +2659,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: parts, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -2566,7 +2667,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: parts, method: GET"
                     }
                   }
                 }
@@ -2648,6 +2749,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2721,6 +2842,14 @@
         "responses": {
           "201": {
             "description": "Created",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2874,7 +3003,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: parts, method: PUT"
                     }
                   },
                   "invalidKeyError": {
@@ -2882,7 +3011,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: parts, method: PUT"
                     }
                   }
                 }
@@ -2964,6 +3093,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2975,6 +3124,282 @@
           }
         ],
         "x-codegen-request-body-name": "RequestBody"
+      }
+    },
+    "/api/v1/datatransport?dataTarget=parts&traceId={uuid}": {
+      "delete": {
+        "tags": [
+          "データ流通システム"
+        ],
+        "summary": "#19部品情報削除",
+        "description": "【v2.0.0 追加API】    \n事業者識別子（内部）、トレース識別子に紐づいた部品を削除します。\n\n\n### 本API利用上の注意点\n- 削除対象の部品に「親部品」として「部品構成情報」がある場合は削除できません。\n  - エラーが発生した場合には紐づく部品構成情報を削除してから再度実行してください。\n- 削除対象の部品に「子部品」として「部品構成情報」がある場合は削除できません。\n  - エラーが発生した場合は紐づく部品構成情報を削除してから再度実行してください。\n- 削除対象の部品が納品先からの依頼に紐づけられている場合は削除できません。\n  - エラーが発生した場合は納品先が紐づく依頼を取り下げてから再度実行してください。\n- 削除対象の部品が仕入先への依頼に紐づけられている場合は削除できません。\n  - エラーが発生した場合は紐づく依頼を取り下げてから再度実行してください。\n- 部品に紐づく「CFP情報」・「CFP証明書情報」は削除されます。\n- データ削除自体は非同期処理となるため、即時処理ではありません。\n- 部品削除後に同一のoperatorId, plantId, partsName, supportPartsNameの組み合わせで部品を登録すると、新たなtraceIdが発番されます。",
+        "parameters": [
+          {
+            "name": "dataTarget",
+            "in": "query",
+            "description": "データターゲット",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "parts"
+          },
+          {
+            "name": "traceId",
+            "in": "query",
+            "description": "トレース識別子",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "cb9a4840-8b45-40c8-a647-08688ca68c4e"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "リクエスト自体に問題がある場合の異常ステータスコード",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP400Error"
+                },
+                "examples": {
+                  "invalidError": {
+                    "summary": "Queryパラメータが不正な場合",
+                    "value": {
+                      "code": "[dataspace] BadRequest",
+                      "message": "Invalid request parameters, dataTarget: Unexpected query parameter",
+                      "detail": "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-13T00:39:39.839Z, dataTarget: parts, method: DELETE"
+                    }
+                  },
+                  "parentRelationshipError": {
+                    "summary": "削除対象の部品が親部品と紐付けられている場合",
+                    "value": {
+                      "code": "[traceability] BadRequest",
+                      "message": "指定された部品は部品構成が存在するため削除できません。",
+                      "detail": "MSGAECP0014"
+                    }
+                  },
+                  "childRelationshipError": {
+                    "summary": "削除対象の部品が子部品と紐付けられている場合",
+                    "value": {
+                      "code": "[traceability] BadRequest",
+                      "message": "指定された部品は部品構成が存在するため削除できません。",
+                      "detail": "MSGAECP0014"
+                    }
+                  },
+                  "supplierCFPRequestDependencyError": {
+                    "summary": "削除対象の部品が仕入先へCFP依頼中の場合",
+                    "value": {
+                      "code": "[traceability] BadRequest",
+                      "message": "指定された部品は依頼済みのため削除できません。",
+                      "detail": "MSGAECP0015"
+                    }
+                  },
+                  "deliveryDestination\"CFPRequestDependencyError": {
+                    "summary": "削除対象の部品が納品先へCFP依頼中の場合",
+                    "value": {
+                      "code": "[traceability] BadRequest",
+                      "message": "指定された部品は受領済みの依頼に紐づいているため削除できません。",
+                      "detail": "MSGAECP0016"
+                    }
+                  },
+                  "partNotExistError": {
+                    "summary": "削除対象の部品が存在しない場合",
+                    "value": {
+                      "code": "[traceability] BadRequest",
+                      "message": "指定された部品は存在しません。",
+                      "detail": "MSGAECP0013"
+                    }
+                  },
+                  "cfpDeleteFailedError": {
+                    "summary": "紐付くCFP証明書の削除に失敗した場合",
+                    "value": {
+                      "code": "[traceability] BadRequest",
+                      "message": "ファイル削除に失敗しました。",
+                      "detail": "MSGAECO0034"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "提供された認証情報が無効または問題がある場合の異常ステータスコード",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP401Error"
+                },
+                "examples": {
+                  "authenticatedError": {
+                    "summary": "アクセストークンがリクエストに含まれない場合",
+                    "value": {
+                      "code": "[auth] Unauthorized",
+                      "message": "Authentication required",
+                      "detail": "id: , timeStamp: 2023-12-13T00:42:51.903Z, dataTarget: parts, method: DELETE"
+                    }
+                  },
+                  "authenticatedUnexpectedError": {
+                    "summary": "アクセストークンが期限切れまたは不正の場合",
+                    "value": {
+                      "code": "[auth] Unauthorized",
+                      "message": "Invalid or expired token",
+                      "detail": "id: , timeStamp: 2023-12-13T00:42:51.903Z, dataTarget: parts, method: DELETE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "クライアントがリソースへのアクセスを拒否された場合の異常ステータスコード",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP403Error"
+                },
+                "examples": {
+                  "invalidError": {
+                    "summary": "APIKeyがリクエストに含まれない場合",
+                    "value": {
+                      "code": "[auth] AccessDenied",
+                      "message": "You do not have the necessary privileges",
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: parts, method: DELETE"
+                    }
+                  },
+                  "invalidKeyError": {
+                    "summary": "APIKeyが一致しない場合",
+                    "value": {
+                      "code": "[auth] AccessDenied",
+                      "message": "Invalid key",
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: parts, method: DELETE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "要求されたリソースが存在しない場合の異常ステータスコード",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP404Error"
+                },
+                "examples": {
+                  "authenticatedError": {
+                    "summary": "指定されたエンドポイントが存在しない場合",
+                    "value": {
+                      "code": "[dataspace] NotFound",
+                      "message": "Endpoint Not Found",
+                      "detail": "id: , timeStamp: 2023-12-13T00:45:03.838Z, dataTarget: parts, method: DELETE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "システムの内部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP500Error"
+                },
+                "examples": {
+                  "dataspaceError": {
+                    "summary": "データ連携基盤で内部エラーが発生した場合",
+                    "value": {
+                      "code": "[dataspace] InternalServerError",
+                      "message": "Unexpected error occurred",
+                      "detail": "id: d9a38406-cae2-4679-b052-15a75f5531e6, timeStamp:2023-09-25T14:30:00Z, dataTarget: parts, method:DELETE"
+                    }
+                  },
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムで内部エラーが発生した場合",
+                    "value": {
+                      "code": "[traceability] InternalServerError",
+                      "message": "システムエラーが発生しました。管理者にお問い合わせください。",
+                      "detail": "MSGAECO0013"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP503Error"
+                },
+                "examples": {
+                  "authError": {
+                    "summary": "ユーザ認証システムで外部エラーが発生した場合",
+                    "value": {
+                      "code": "[auth] ServiceUnavailable",
+                      "message": "Unexpected error occurred in outer service",
+                      "detail": "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: parts, method: DELETE"
+                    }
+                  },
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムで外部エラーが発生した場合",
+                    "value": {
+                      "code": "[traceability] ServiceUnavailable",
+                      "message": "Now under system maintenance.",
+                      "detail": "MSGCE000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "Authorization": []
+          }
+        ]
       }
     },
     "/api/v1/datatransport?dataTarget=partsStructure&traceId={uuid}": {
@@ -3013,6 +3438,14 @@
         "responses": {
           "200": {
             "description": "PartsStructureModelを取得",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -3135,7 +3568,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-07T00:30:54.204Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-07T00:30:54.204Z, dataTarget: partsStructure, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -3143,7 +3576,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-07T00:30:54.204Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-07T00:30:54.204Z, dataTarget: partsStructure, method: GET"
                     }
                   }
                 }
@@ -3220,6 +3653,26 @@
                       "code": "[traceability] ServiceUnavailable",
                       "message": "Now under system maintenance.",
                       "detail": "MSGCE000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
                     }
                   }
                 }
@@ -3328,6 +3781,14 @@
         "responses": {
           "201": {
             "description": "Created",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -3469,7 +3930,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: partsStructure, method: PUT"
                     }
                   },
                   "invalidKeyError": {
@@ -3477,7 +3938,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: partsStructure, method: PUT"
                     }
                   }
                 }
@@ -3559,6 +4020,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -3578,7 +4059,7 @@
           "データ流通システム"
         ],
         "summary": "#11依頼・回答情報一覧取得",
-        "description": "事業者識別子（内部）に紐づいている依頼・回答情報の一覧を取得します。\n\n取得されるモデル：StatusModel\n\n- requestStatus：取引の依頼種別で指定した範囲が扱うステータスを配列で全て返却します。\nトレーサビリティ管理システムでは下記が返却されます。\n\n  - cfpResponseStatus: CFPの回答状況を表します。ステータスの種類と意味合いは以下になります。\n\n    - NOT_COMPLETED: 依頼中\n    - COMPLETED: 回答完了\n    - REJECT: 差戻\n    - CANCEL: 取消\n\n  - tradeTreeStatus: 対象の取引関係情報が全て終端したかを表します。ステータスの種類と意味合いは以下になります。\n\n    - TERMINATED: 終端済み\n    - UNTERMINATED: 未終端\n\n- requestType：取引の依頼種別を指定します。現在は下記指定が可能です。\n\n  - CFP（固定値になります）\n\n- #11依頼・回答情報一覧取得に追加するQueryパラメータ\n  下記のQueryパラメータが指定された場合は一致するものを検索します。未設定の場合は検索条件には使用しません。\n  - statusTarget: 依頼情報（自社が依頼元）か回答情報（自社が依頼先）かを絞り込みます。指定できる値は下記になります。\n  （※こちらのQueryパラメータを指定することを強く推奨いたします。クエリパラメータを指定しない場合は、応答時間が長くなる可能性がございます）\n    - REQUEST: 依頼情報（自社が依頼元）のステータスを取得します\n    - RESPONSE: 回答情報（自社が依頼先）のステータスを取得します\n  \n  - traceId: 指定されたtraceIdに一致する結果のみ返却します。絞り込みは\"statusTarget=REQUEST\"を併用した場合のみ有効になります。\n\n  - statusId: 指定されたstatusIdに一致する結果のみ返却します。絞り込みは\"statusTarget=RESPONSE\"を併用した場合は検索時間が短いが、statusIdのみ指定した場合は応答時間が長くなる可能性がございます。\n  \"statusTarget=REQUEST\"と併用して利用することはできません。\n\n- 取得時のソート順：取引関係作成日時の降順",
+        "description": "事業者識別子（内部）に紐づいている依頼・回答情報の一覧を取得します。\n\n取得されるモデル：StatusModel\n\n- requestStatus：取引の依頼種別で指定した範囲が扱うステータスを配列で全て返却します。\nトレーサビリティ管理システムでは下記が返却されます。\n\n  - cfpResponseStatus: CFPの回答状況を表します。ステータスの種類と意味合いは以下になります。\n\n    - NOT_COMPLETED: 依頼中\n    - COMPLETED: 回答完了\n    - REJECT: 差戻\n\n  - tradeTreeStatus: 対象の取引関係情報が全て終端したかを表します。ステータスの種類と意味合いは以下になります。\n\n    - TERMINATED: 終端済み\n    - UNTERMINATED: 未終端\n\n  - completedCount: 依頼先を含む川上企業の回答完了数を表します。tradesCountを用いて、依頼に対する回答状況の進捗を示すために利用してください。\n\n  - tradesCount: 依頼先を含む川上企業のCFP回答依頼件数を表します。tradeTreeStatus.TERMINATED となるまでは、件数が増えることを考慮して利用してください。\n\n- requestType：取引の依頼種別を指定します。現在は下記指定が可能です。\n\n  - CFP（固定値になります）\n\n- #11依頼・回答情報一覧取得に追加するQueryパラメータ\n  下記のQueryパラメータが指定された場合は一致するものを検索します。未設定の場合は検索条件には使用しません。\n  - statusTarget: 依頼情報（自社が依頼元）か回答情報（自社が依頼先）かを絞り込みます。指定できる値は下記になります。\n  （※こちらのQueryパラメータを指定することを強く推奨いたします。クエリパラメータを指定しない場合は、応答時間が長くなる可能性がございます）\n    - REQUEST: 依頼情報（自社が依頼元）のステータスを取得します\n    - RESPONSE: 回答情報（自社が依頼先）のステータスを取得します\n  \n  - traceId: 指定されたtraceIdに一致する結果のみ返却します。絞り込みは\"statusTarget=REQUEST\"を併用した場合のみ有効になります。\n\n  - statusId: 指定されたstatusIdに一致する結果のみ返却します。絞り込みは\"statusTarget=RESPONSE\"を併用した場合は検索時間が短いが、statusIdのみ指定した場合は応答時間が長くなる可能性がございます。\n  \"statusTarget=REQUEST\"と併用して利用することはできません。\n\n- 取得時のソート順：取引関係作成日時の降順",
         "parameters": [
           {
             "name": "dataTarget",
@@ -3608,7 +4089,7 @@
           {
             "name": "after",
             "in": "query",
-            "description": "データ取得開始位置の識別子を設定します。本項目はResponse HeaderのLink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。",
+            "description": "データ取得開始位置の識別子を設定します。本項目はResponse Headerのlink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。",
             "required": false,
             "style": "form",
             "explode": true,
@@ -3662,10 +4143,16 @@
           "200": {
             "description": "StatusModelの配列を取得",
             "headers": {
-              "Link": {
-                "description": "\\<https://example.com/api/v1/datatransport?dataTarget=status&limit=100&after=(uuid)\\>; rel=\"next",
+              "link": {
+                "description": "\\<https://example.com/api/v1/datatransport?dataTarget=status&limit=100&after=(uuid)\\>;",
                 "style": "simple",
                 "explode": false,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
                 "schema": {
                   "type": "string"
                 }
@@ -3680,19 +4167,91 @@
                   }
                 },
                 "examples": {
-                  "cfp01treefalse": {
-                    "summary": "CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがfalseの場合",
+                  "zero": {
+                    "summary": "結果が0件の場合",
+                    "value": []
+                  },
+                  "cfp01treefalseV1": {
+                    "summary": "CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがfalseの場合（v1登録データ）",
                     "value": [
                       {
                         "message": "回答依頼時のメッセージが入ります",
                         "replyMessage": null,
                         "requestStatus": {
                           "cfpResponseStatus": "NOT_COMPLETED",
-                          "tradeTreeStatus": "UNTERMINATED"
+                          "tradeTreeStatus": "UNTERMINATED",
+                          "completedCount": null,
+                          "completedCountModifiedAt": null,
+                          "tradesCount": null,
+                          "tradesCountModifiedAt": null
                         },
                         "requestType": "CFP",
                         "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
-                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6"
+                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
+                        "responseDueDate": null
+                      }
+                    ]
+                  },
+                  "cfp01treefalseV2": {
+                    "summary": "CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがfalseの場合（v2登録データ）",
+                    "value": [
+                      {
+                        "message": "回答依頼時のメッセージが入ります",
+                        "replyMessage": null,
+                        "requestStatus": {
+                          "cfpResponseStatus": "NOT_COMPLETED",
+                          "tradeTreeStatus": "UNTERMINATED",
+                          "completedCount": 0,
+                          "completedCountModifiedAt": "2024-05-23T11:22:33Z",
+                          "tradesCount": 0,
+                          "tradesCountModifiedAt": "2024-05-23T11:22:33Z"
+                        },
+                        "requestType": "CFP",
+                        "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
+                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
+                        "responseDueDate": "2024-12-31"
+                      }
+                    ]
+                  },
+                  "cfp01treetrueV1": {
+                    "summary": "CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがtrueの場合（v1登録データ）",
+                    "value": [
+                      {
+                        "message": "回答依頼時のメッセージが入ります",
+                        "replyMessage": null,
+                        "requestStatus": {
+                          "cfpResponseStatus": "NOT_COMPLETED",
+                          "tradeTreeStatus": "TERMINATED",
+                          "completedCount": null,
+                          "completedCountModifiedAt": null,
+                          "tradesCount": null,
+                          "tradesCountModifiedAt": null
+                        },
+                        "requestType": "CFP",
+                        "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
+                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
+                        "responseDueDate": null
+                      }
+                    ]
+                  },
+                  "cfp01treetrueV2": {
+                    "summary": "CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがtrueの場合（v2登録データ）",
+                    "value": [
+                      {
+                        "message": "回答依頼時のメッセージが入ります",
+                        "replyMessage": null,
+                        "requestStatus": {
+                          "cfpResponseStatus": "NOT_COMPLETED",
+                          "tradeTreeStatus": "TERMINATED",
+                          "completedCount": 0,
+                          "completedCountModifiedAt": "2024-05-23T11:22:33Z",
+                          "tradesCount": 0,
+                          "tradesCountModifiedAt": "2024-05-23T11:22:33Z"
+                        },
+                        "requestType": "CFP",
+                        "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
+                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
+                        "responseDueDate": "2024-12-31"
                       }
                     ]
                   },
@@ -3704,43 +4263,37 @@
                         "replyMessage": null,
                         "requestStatus": {
                           "cfpResponseStatus": "COMPLETED",
-                          "tradeTreeStatus": "TERMINATED"
+                          "tradeTreeStatus": "TERMINATED",
+                          "completedCount": 1,
+                          "completedCountModifiedAt": "2024-05-23T11:22:33Z",
+                          "tradesCount": 1,
+                          "tradesCountModifiedAt": "2024-05-23T11:22:33Z"
                         },
                         "requestType": "CFP",
                         "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
-                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6"
+                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
+                        "responseDueDate": "2024-12-31"
                       }
                     ]
                   },
                   "cfp03treeFalse": {
-                    "summary": "CFP情報登録の依頼情報ステータスが差戻で樹形図ステータスがtrueの場合",
+                    "summary": "CFP情報登録の依頼情報ステータスが差戻で樹形図ステータスがfalseの場合",
                     "value": [
                       {
                         "message": "回答依頼時のメッセージが入ります",
                         "replyMessage": "回答単位が異なるため、再提出をお願いします",
                         "requestStatus": {
                           "cfpResponseStatus": "REJECT",
-                          "tradeTreeStatus": "TERMINATED"
+                          "tradeTreeStatus": "UNTERMINATED",
+                          "completedCount": 0,
+                          "completedCountModifiedAt": "2024-05-23T11:22:33Z",
+                          "tradesCount": 0,
+                          "tradesCountModifiedAt": "2024-05-23T11:22:33Z"
                         },
                         "requestType": "CFP",
                         "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
-                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6"
-                      }
-                    ]
-                  },
-                  "cfp04treeFalse": {
-                    "summary": "CFP情報登録の依頼情報ステータスが回答完了で樹形図ステータスがfalseの場合",
-                    "value": [
-                      {
-                        "message": "回答依頼時のメッセージが入ります",
-                        "replyMessage": null,
-                        "requestStatus": {
-                          "cfpResponseStatus": "CANCEL",
-                          "tradeTreeStatus": "UNNTERMINATED"
-                        },
-                        "requestType": "CFP",
-                        "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
-                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6"
+                        "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
+                        "responseDueDate": "2024-12-31"
                       }
                     ]
                   }
@@ -3817,7 +4370,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: status, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -3825,7 +4378,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: status, method: GET"
                     }
                   }
                 }
@@ -3907,6 +4460,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -3923,7 +4496,7 @@
           "データ流通システム"
         ],
         "summary": "#16依頼情報ステータスの変更（依頼取消・依頼差戻）",
-        "description": "事業者識別子（内部）に紐づけられている依頼・回答情報のステータスを変更します。\n\nトレーサビリティ管理システムではrequestStatusフィールドのcfpResponseStatusが取消(CANCEL)か差戻(REJECT)の場合に取り消しと差戻の処理を実施します。\n\n取消(CANCEL)と差戻以外(REJECT)のステータスが指定された場合は400エラーになります。\n\n依頼差戻の場合のみ、replyMessageに差戻理由を記載し、保存することができます。依頼取消時にはreplyMessageはnullを指定してください。\n\n依頼取消と依頼差戻の使い分けは下記を想定しております\n- 依頼取消：川下（依頼元）が川上（依頼先）に出している依頼を取り消す時に利用する\n- 依頼差戻：川上（依頼先）が川下（依頼元）から受けている依頼を取り消す時に利用する\n\n使用するモデル：StatusModel",
+        "description": "事業者識別子（内部）に紐づけられている依頼・回答情報のステータスを変更します。\n\nトレーサビリティ管理システムではrequestStatusフィールドのcfpResponseStatusが取消(CANCEL)か差戻(REJECT)の場合に取り消しと差戻の処理を実施します。\n\ncfpResponseStatusとtradeTreeStatusは必須項目のため、必ず値を指定してください。\n取消(CANCEL)と差戻以外(REJECT)のステータスが指定された場合は400エラーになります。\n\n依頼差戻の場合のみ、replyMessageに差戻理由を記載し、保存することができます。依頼取消時にはreplyMessageはnullを指定してください。\n依頼差戻、依頼取消ではresponseDueDate/completedCount/completedCountModifiedAtはnullを指定してください。null以外の値を指定しても保存されません。\n\n依頼取消と依頼差戻の使い分けは下記を想定しております\n- 依頼取消：川下（依頼元）が川上（依頼先）に出している依頼を取り消す時に利用する\n- 依頼差戻：川上（依頼先）が川下（依頼元）から受けている依頼を取り消す時に利用する\n\n使用するモデル：StatusModel",
         "parameters": [
           {
             "name": "dataTarget",
@@ -3953,11 +4526,16 @@
                     "replyMessage": null,
                     "requestStatus": {
                       "cfpResponseStatus": "CANCEL",
-                      "tradeTreeStatus": "TERMINATED"
+                      "tradeTreeStatus": "TERMINATED",
+                      "completedCount": null,
+                      "completedCountModifiedAt": null,
+                      "tradesCount": null,
+                      "tradesCountModifiedAt": null
                     },
                     "requestType": "CFP",
                     "statusId": "d9a38406-cae2-4679-b052-15a75f5531f0",
-                    "tradeId": "d9a38406-cae2-4679-b052-15a75f5531f1"
+                    "tradeId": "d9a38406-cae2-4679-b052-15a75f5531f1",
+                    "responseDueDate": null
                   }
                 },
                 "reject": {
@@ -3967,11 +4545,16 @@
                     "replyMessage": "依頼いただいた製品に該当する弊社製品がないため、差戻し致します。",
                     "requestStatus": {
                       "cfpResponseStatus": "REJECT",
-                      "tradeTreeStatus": "TERMINATED"
+                      "tradeTreeStatus": "TERMINATED",
+                      "completedCount": null,
+                      "completedCountModifiedAt": null,
+                      "tradesCount": null,
+                      "tradesCountModifiedAt": null
                     },
                     "requestType": "CFP",
                     "statusId": "d9a38406-cae2-4679-b052-15a75f5531f0",
-                    "tradeId": "d9a38406-cae2-4679-b052-15a75f5531f1"
+                    "tradeId": "d9a38406-cae2-4679-b052-15a75f5531f1",
+                    "responseDueDate": null
                   }
                 }
               }
@@ -3981,6 +4564,14 @@
         "responses": {
           "201": {
             "description": "Created",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {}
           },
           "400": {
@@ -4011,7 +4602,7 @@
                     "summary": "値が許容桁数以上または以下の場合",
                     "value": {
                       "code": "[dataspace] BadRequest",
-                      "message": "Validation failed, replyMessage: the length must be no more than 100.",
+                      "message": "Validation failed, replyMessage: the length must be no more than 1000.",
                       "detail": "id: ba1c69ff-f5a9-32a7-c8b9-7b57e7e6e174, timeStamp: 2024-01-10T12:41:03.722Z, dataTarget: status, method: PUT"
                     }
                   },
@@ -4084,7 +4675,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: status, method: PUT"
                     }
                   },
                   "invalidKeyError": {
@@ -4092,7 +4683,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: status, method: PUT"
                     }
                   }
                 }
@@ -4174,6 +4765,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -4222,7 +4833,7 @@
           {
             "name": "after",
             "in": "query",
-            "description": "データ取得開始位置の識別子を設定します。本項目はResponse HeaderのLink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。",
+            "description": "データ取得開始位置の識別子を設定します。本項目はResponse Headerのlink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。",
             "required": false,
             "style": "form",
             "explode": true,
@@ -4248,10 +4859,16 @@
           "200": {
             "description": "TraceModelの配列を取得",
             "headers": {
-              "Link": {
-                "description": "\\<https://example.com/api/v1/datatransport?dataTarget=tradeRequest&limit=100&after=(uuid)\\>; rel=\"next",
+              "link": {
+                "description": "\\<https://example.com/api/v1/datatransport?dataTarget=tradeRequest&limit=100&after=(uuid)\\>;",
                 "style": "simple",
                 "explode": false,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
                 "schema": {
                   "type": "string"
                 }
@@ -4355,7 +4972,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-08T10:26:44.229Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-08T10:26:44.229Z, dataTarget: tradeRequest, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -4363,7 +4980,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-08T10:26:44.229Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-08T10:26:44.229Z, dataTarget: tradeRequest, method: GET"
                     }
                   }
                 }
@@ -4445,6 +5062,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -4461,7 +5098,7 @@
           "データ流通システム"
         ],
         "summary": "#7取引関係依頼情報更新",
-        "description": "トレース識別子で指定した部品の取引情報を登録または更新します。\n\n使用するモデル：TradeRequestModel（Trademodel & StatusModel）\n\n- downstreamOperatorIdは変更できません。指定するdownstreamOperatorIdは、認証によって得られたoperatorIdと同じ値を指定する必要があります。異なる場合は403エラーとなります。\n\n- Request Bodyに指定したupstreamOperatorIdが存在しない場合は404エラーとなります。\n\n- 新規作成時のTradeModelの内容は以下の通りとなります。\n\n  - downstreamOperatorId, upstreamOperatorId, downstreamTraceIdを入力し、tradeIdとupstreamTraceIdはnullを指定してください。\n  tradeIdはResponse BodyのTradeRequestModelに発番されたIDが代入されます。\n\n- 新規作成時のStatusModelの内容は以下の通りとなります。\n\n  - tradeId, statusIdはnullを指定してください。tradeId, statusIdはResponse BodyのTradeRequestModelに発番されたIDが代入されます。\n  - requestTypeは\"CFP\"を指定します。\n\n- requestStatusの値およびreplyMessageは変更できない情報になります。\n\n- 仕入先トレース識別子（upstreamTraceId）は仕入先のみが回答できる情報のため、納品先事業者からは更新できない情報になります。",
+        "description": "トレース識別子で指定した部品の取引情報を登録します。\n\n使用するモデル：TradeRequestModel（Trademodel & StatusModel）\n\n- downstreamOperatorIdは変更できません。指定するdownstreamOperatorIdは、認証によって得られたoperatorIdと同じ値を指定する必要があります。異なる場合は403エラーとなります。\n\n- Request Bodyに指定したupstreamOperatorIdが存在しない場合は404エラーとなります。\n\n- 新規作成時のTradeModelの内容は以下の通りとなります。\n\n  - downstreamOperatorId, upstreamOperatorId, downstreamTraceIdを入力し、tradeIdとupstreamTraceIdはnullを指定してください。\n  tradeIdはResponse BodyのTradeRequestModelに発番されたIDが代入されます。\n\n- 新規作成時のStatusModelの内容は以下の通りとなります。\n\n  - tradeId, statusIdはnullを指定してください。tradeId, statusIdはResponse BodyのTradeRequestModelに発番されたIDが代入されます。\n  - requestTypeは\"CFP\"を指定します。\n  - responseDueDateはnullable: trueとなっていますが、必須項目のため、新規作成時にはnull以外を指定ください。nullを指定した場合エラーとなります。\n\n- requestStatusの値およびreplyMessageは変更できない情報になります。\n\n- 仕入先トレース識別子（upstreamTraceId）は仕入先のみが回答できる情報のため、納品先事業者からは更新できない情報になります。",
         "parameters": [
           {
             "name": "dataTarget",
@@ -4493,7 +5130,8 @@
                       "requestStatus": {},
                       "requestType": "CFP",
                       "statusId": null,
-                      "tradeId": null
+                      "tradeId": null,
+                      "responseDueDate": "2024-12-31"
                     },
                     "tradeModel": {
                       "downstreamOperatorId": "d9a38406-cae2-4679-b052-15a75f5531e7",
@@ -4501,29 +5139,6 @@
                       "tradeId": null,
                       "upsreamOperatorId": "d9a38406-cae2-4679-b052-15a75f5531e8",
                       "upstreamTraceId": null
-                    }
-                  }
-                },
-                "update": {
-                  "summary": "更新する場合",
-                  "value": {
-                    "statusModel": {
-                      "message": "回答依頼時のメッセージが入ります",
-                      "replyMessage": null,
-                      "requestStatus": {
-                        "cfpResponseStatus": "NOT_COMPLETED",
-                        "tradeTreeStatus": "TERMINATED"
-                      },
-                      "requestType": "CFP",
-                      "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
-                      "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6"
-                    },
-                    "tradeModel": {
-                      "downstreamOperatorId": "d9a38406-cae2-4679-b052-15a75f5531e7",
-                      "downstreamTraceId": "d9a38406-cae2-4679-b052-15a75f5531e9",
-                      "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
-                      "upstreamOperatorId": "d9a38406-cae2-4679-b052-15a75f5531e8",
-                      "upstreamTraceId": "d9a38406-cae2-4679-b052-15a75f5531f0"
                     }
                   }
                 }
@@ -4535,10 +5150,41 @@
         "responses": {
           "201": {
             "description": "Created",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/traceability.TradeRequestModel"
+                },
+                "example": {
+                  "statusModel": {
+                    "message": "回答依頼時のメッセージが入ります",
+                    "replyMessage": null,
+                    "requestStatus": {
+                      "completedCount": null,
+                      "completedCountModifiedAt": null,
+                      "tradesCount": null,
+                      "tradesCountModifiedAt": null
+                    },
+                    "requestType": "CFP",
+                    "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
+                    "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
+                    "responseDueDate": "2024-12-31"
+                  },
+                  "tradeModel": {
+                    "downstreamOperatorId": "d9a38406-cae2-4679-b052-15a75f5531e7",
+                    "downstreamTraceId": "d9a38406-cae2-4679-b052-15a75f5531e9",
+                    "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
+                    "upstreamOperatorId": "d9a38406-cae2-4679-b052-15a75f5531e8",
+                    "upstreamTraceId": null
+                  }
                 }
               }
             }
@@ -4567,11 +5213,19 @@
                       "detail": "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-11T23:16:33.771Z, dataTarget: tradeRequest, method: PUT"
                     }
                   },
+                  "invalidresponseDueDateError": {
+                    "summary": "responseDueDateに日付型以外を指定した場合",
+                    "value": {
+                      "code": "[dataspace] BadRequest",
+                      "message": "Validation failed, responseDueDate: must be a valid date.",
+                      "detail": "id: ba1c69ff-f5a9-32a7-c8b9-7b57e7e6e174, timeStamp: 2024-01-09T10:29:06.968Z, dataTarget: tradeRequest, method: PUT"
+                    }
+                  },
                   "invalidMaxLengthError": {
                     "summary": "値が許容桁数以上または以下の場合",
                     "value": {
                       "code": "[dataspace] BadRequest",
-                      "message": "Validation failed, message: the length must be no more than 100.",
+                      "message": "Validation failed, message: the length must be no more than 1000.",
                       "detail": "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-11T23:17:23.936Z, dataTarget: tradeRequest, method: PUT"
                     }
                   },
@@ -4652,7 +5306,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: tradeRequest, method: PUT"
                     }
                   },
                   "invalidKeyError": {
@@ -4660,7 +5314,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: tradeRequest, method: PUT"
                     }
                   }
                 }
@@ -4742,6 +5396,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -4761,7 +5435,7 @@
           "データ流通システム"
         ],
         "summary": "#12取引関係回答情報一覧取得",
-        "description": "事業者識別子（内部）に紐づいた、回答を依頼されている取引情報の一覧を取得します。\n取引情報に紐づいた依頼元の部品情報（downstreamTraceIdの部品情報）およびステータスの情報を取得します。\n\n川下の活動量は川上には非開示情報のため、nullを渡します。\n\n取得されるモデル：TradeResponseModel(TradeModel&PartsModel&StatusModel)\n\n取得時のソート順：取引関係作成日時の降順",
+        "description": "事業者識別子（内部）に紐づいた、回答を依頼されている取引情報の一覧を取得します。\n取引情報に紐づいた依頼元の部品情報（downstreamTraceIdの部品情報）およびステータスの情報を取得します。\n\n川下の活動量は川上には非開示情報のため、nullを渡します。\n\n取得されるモデル：TradeResponseModel(TradeModel&PartsModel&StatusModel)\n\n- StatusModel\n\n  - requestStatus：取引の依頼種別で指定した範囲が扱うステータスを配列で全て返却します。\nトレーサビリティ管理システムでは下記が返却されます。\n\n    - cfpResponseStatus: CFPの回答状況を表します。ステータスの種類と意味合いは以下になります。\n\n      - NOT_COMPLETED: 依頼中\n      - COMPLETED: 回答完了\n      - REJECT: 差戻\n\n    - tradeTreeStatus: 対象の取引関係情報が全て終端したかを表します。ステータスの種類と意味合いは以下になります。\n\n      - TERMINATED: 終端済み\n      - UNTERMINATED: 未終端\n\n    - completedCount: \n      依頼先を含む川上企業の回答完了数を表します。tradesCountを用いて、依頼に対する回答状況の進捗を示すために利用してください。\n\n    - tradesCount: 依頼先を含む川上企業のCFP回答依頼件数を表します。tradeTreeStatus.TERMINATED となるまでは、件数が増えることを考慮して利用してください。\n\n\n取得時のソート順：取引関係作成日時の降順",
         "parameters": [
           {
             "name": "dataTarget",
@@ -4790,7 +5464,7 @@
           {
             "name": "after",
             "in": "query",
-            "description": "データ取得開始位置の識別子を設定します。本項目はResponse HeaderのLink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。",
+            "description": "データ取得開始位置の識別子を設定します。本項目はResponse Headerのlink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。",
             "required": false,
             "style": "form",
             "explode": true,
@@ -4804,10 +5478,16 @@
           "200": {
             "description": "TradeModelの配列を取得",
             "headers": {
-              "Link": {
-                "description": "\\<https://example.com/api/v1/datatransport?dataTarget=tradeResponse&limit=100&after=(uuid)\\>; rel=\"next",
+              "link": {
+                "description": "\\<https://example.com/api/v1/datatransport?dataTarget=tradeResponse&limit=100&after=(uuid)\\>;",
                 "style": "simple",
                 "explode": false,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
                 "schema": {
                   "type": "string"
                 }
@@ -4842,11 +5522,16 @@
                           "replyMessage": null,
                           "requestStatus": {
                             "cfpResponseStatus": "NOT_COMPLETED",
-                            "tradeTreeStatus": "TERMINATED"
+                            "tradeTreeStatus": "TERMINATED",
+                            "completedCount": 1,
+                            "completedCountModifiedAt": "2024-05-23T11:22:33Z",
+                            "tradesCount": 2,
+                            "tradesCountModifiedAt": "2024-05-24T22:33:44Z"
                           },
                           "requestType": "CFP",
                           "statusId": "d9a38406-cae2-4679-b052-15a75f553c01",
-                          "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6"
+                          "tradeId": "d9a38406-cae2-4679-b052-15a75f5531e6",
+                          "responseDueDate": "2024-12-31"
                         },
                         "partsModel": {
                           "amountRequired": null,
@@ -4934,7 +5619,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: tradeResponse, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -4942,7 +5627,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                      "detail": "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: tradeResponse, method: GET"
                     }
                   }
                 }
@@ -5024,6 +5709,26 @@
                 }
               }
             }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -5084,6 +5789,14 @@
         "responses": {
           "201": {
             "description": "Created",
+            "headers": {
+              "x-track": {
+                "description": "REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -5168,7 +5881,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: tradeResponse, method: PUT"
                     }
                   },
                   "invalidKeyError": {
@@ -5176,7 +5889,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: tradeResponse, method: PUT"
                     }
                   }
                 }
@@ -5253,6 +5966,26 @@
                       "code": "[traceability] ServiceUnavailable",
                       "message": "Now under system maintenance.",
                       "detail": "MSGCE000000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "システムの外部にてエラーが発生している場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/common.HTTP504Error"
+                },
+                "examples": {
+                  "traceabilityError": {
+                    "summary": "トレーサビリティ管理システムでタイムアウトが発生した場合",
+                    "value": {
+                      "code": "[traceability] Timeout",
+                      "message": "",
+                      "detail": "Endpoint request timed out"
                     }
                   }
                 }
@@ -5689,34 +6422,6 @@
               }
             }
           },
-          "401": {
-            "description": "提供された認証情報が無効または問題がある場合の異常ステータスコード",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/common.HTTP401Error"
-                },
-                "examples": {
-                  "authenticatedError": {
-                    "summary": "アクセストークンがリクエストに含まれない場合",
-                    "value": {
-                      "code": "[auth] Unauthorized",
-                      "message": "Authentication required",
-                      "detail": "id: d9a38406-cae2-4679-b052-15a75f5531e6, timeStamp: 2023-09-25T14:30:00Z, method: POST"
-                    }
-                  },
-                  "authenticatedUnexpectedError": {
-                    "summary": "アクセストークンが期限切れまたは不正の場合",
-                    "value": {
-                      "code": "[auth] Unauthorized",
-                      "message": "Invalid or expired token",
-                      "detail": "id: d9a38406-cae2-4679-b052-15a75f5531e6, timeStamp: 2023-09-25T14:30:00Z, method: POST"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "403": {
             "description": "クライアントがリソースへのアクセスを拒否された場合の異常ステータスコード",
             "content": {
@@ -5882,8 +6587,8 @@
                   "invalidError": {
                     "summary": "Queryパラメータが不正な場合",
                     "value": {
-                      "code": "[dataspace] BadRequest",
-                      "message": "Invalid request parameters, dataTarget: Unexpected query parameter",
+                      "code": "[auth] BadRequest",
+                      "message": "Invalid request parameters, operatorIds: Unexpected query parameter",
                       "detail": "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-04T09:06:20.995Z, dataTarget: operator, method: GET"
                     }
                   }
@@ -5902,7 +6607,7 @@
                   "authenticatedError": {
                     "summary": "アクセストークンがリクエストに含まれない場合",
                     "value": {
-                      "code": "[dataspace] Unauthorized",
+                      "code": "[auth] Unauthorized",
                       "message": "Authentication required",
                       "detail": "id: , timeStamp: 2023-12-04T08:00:03.952Z, dataTarget: operator, method: GET"
                     }
@@ -5910,7 +6615,7 @@
                   "authenticatedUnexpectedError": {
                     "summary": "アクセストークンが期限切れまたは不正の場合",
                     "value": {
-                      "code": "[dataspace] Unauthorized",
+                      "code": "[auth] Unauthorized",
                       "message": "Invalid or expired token",
                       "detail": "id: , timeStamp: 2023-12-04T08:00:03.952Z, dataTarget: operator, method: GET"
                     }
@@ -5932,7 +6637,7 @@
                     "value": {
                       "code": "[dataspace] AccessDenied",
                       "message": "You do not have the necessary privileges",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: operator, method: GET"
                     }
                   },
                   "invalidKeyError": {
@@ -5940,7 +6645,7 @@
                     "value": {
                       "code": "[auth] AccessDenied",
                       "message": "Invalid key",
-                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                      "detail": "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: operator, method: GET"
                     }
                   }
                 }
@@ -6200,6 +6905,26 @@
             "type": "string",
             "description": "エラーメッセージ",
             "example": "Unexpected error occurred in outer service"
+          }
+        }
+      },
+      "common.HTTP504Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーステータス",
+            "example": "[traceability] Timeout"
+          },
+          "detail": {
+            "type": "string",
+            "description": "基盤運営事業者向け調査情報",
+            "example": "Endpoint request timed out"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ",
+            "example": ""
           }
         }
       },
@@ -6555,12 +7280,13 @@
           "requestStatus",
           "requestType",
           "statusId",
-          "tradeId"
+          "tradeId",
+          "responseDueDate"
         ],
         "type": "object",
         "properties": {
           "message": {
-            "maxLength": 100,
+            "maxLength": 1000,
             "minLength": 0,
             "type": "string",
             "description": "依頼メッセージ",
@@ -6568,7 +7294,7 @@
             "nullable": true
           },
           "replyMessage": {
-            "maxLength": 100,
+            "maxLength": 1000,
             "minLength": 0,
             "type": "string",
             "description": "差戻メッセージ",
@@ -6578,10 +7304,6 @@
           "requestStatus": {
             "type": "object",
             "description": "依頼ステータス",
-            "required": [
-              "cfpResponseStatus",
-              "tradeTreeStatus"
-            ],
             "properties": {
               "cfpResponseStatus": {
                 "type": "string",
@@ -6600,6 +7322,32 @@
                   "TERMINATED",
                   "UNTERMINATED"
                 ]
+              },
+              "completedCount": {
+                "type": "number",
+                "description": "回答完了数 【v2.0.0 追加項目】\n",
+                "example": 1,
+                "nullable": true
+              },
+              "completedCountModifiedAt": {
+                "type": "string",
+                "description": "回答完了数更新日時 【v2.0.0 追加項目】\n",
+                "example": "2024-05-23T11:22:33Z",
+                "format": "date-time",
+                "nullable": true
+              },
+              "tradesCount": {
+                "type": "number",
+                "description": "取引関係数 【v2.0.0 追加項目】\n",
+                "example": 2,
+                "nullable": true
+              },
+              "tradesCountModifiedAt": {
+                "type": "string",
+                "description": "取引関係数更新日時 【v2.0.0 追加項目】\n",
+                "example": "2024-05-24T22:33:44Z",
+                "format": "date-time",
+                "nullable": true
               }
             },
             "items": {
@@ -6630,6 +7378,13 @@
             "format": "uuid",
             "nullable": true,
             "example": "d9a38406-cae2-4679-b052-15a75f5531f1"
+          },
+          "responseDueDate": {
+            "type": "string",
+            "description": "回答希望日 【v2.0.0 追加項目】\n",
+            "format": "date",
+            "example": "2024-12-31",
+            "nullable": true
           }
         }
       },
@@ -6814,7 +7569,7 @@
           ],
           layout: "StandaloneLayout"
         })
-
+     
         window.ui = ui
       }
   </script>

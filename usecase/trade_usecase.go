@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"data-spaces-backend/domain/common"
 	"data-spaces-backend/domain/model/traceability"
 
 	"github.com/labstack/echo/v4"
@@ -16,7 +17,7 @@ type ITradeUsecase interface {
 	// #12 GetTradeResponseList
 	GetTradeResponse(c echo.Context, getTradeRequestInput traceability.GetTradeResponseInput) ([]traceability.TradeResponseModel, *string, error)
 	// #7 PutTradeRequestItem
-	PutTradeRequest(c echo.Context, tradeRequestModel traceability.TradeRequestModel) (traceability.TradeRequestModel, error)
+	PutTradeRequest(c echo.Context, putTradeRequestInput traceability.PutTradeRequestInput) (traceability.TradeRequestModel, common.ResponseHeaders, error)
 	// #13 PutTradeResponseItem
-	PutTradeResponse(c echo.Context, putTradeResponseInput traceability.PutTradeResponseInput) (traceability.TradeModel, error)
+	PutTradeResponse(c echo.Context, putTradeResponseInput traceability.PutTradeResponseInput) (traceability.TradeModel, common.ResponseHeaders, error)
 }

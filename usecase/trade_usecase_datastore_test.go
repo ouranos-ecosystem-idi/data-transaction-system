@@ -37,12 +37,12 @@ func TestProjectUsecaseDatastore_GetTradeRequest(tt *testing.T) {
 	var dataTarget = "tradeRequest"
 
 	tradeID := uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092")
-	upstreamOperatorID := uuid.MustParse("b1234567-1234-1234-1234-123456789012")
+	upstreamOperatorID := uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698")
 	upstreamTraceID := uuid.MustParse("38bdd8a5-76a7-a53d-de12-725707b04a1b")
 	dsResAll := traceability.TradeEntityModels{
 		{
 			TradeID:              &tradeID,
-			DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+			DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 			UpstreamOperatorID:   &upstreamOperatorID,
 			DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 			UpstreamTraceID:      &upstreamTraceID,
@@ -58,7 +58,7 @@ func TestProjectUsecaseDatastore_GetTradeRequest(tt *testing.T) {
 	dsResAnsweredRequireOnly := traceability.TradeEntityModels{
 		{
 			TradeID:              &tradeID,
-			DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+			DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 			UpstreamOperatorID:   &upstreamOperatorID,
 			DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 			UpstreamTraceID:      &upstreamTraceID,
@@ -74,7 +74,7 @@ func TestProjectUsecaseDatastore_GetTradeRequest(tt *testing.T) {
 	dsResAnsweringRequireOnly := traceability.TradeEntityModels{
 		{
 			TradeID:              &tradeID,
-			DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+			DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 			UpstreamOperatorID:   &upstreamOperatorID,
 			DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 			UpstreamTraceID:      nil,
@@ -92,30 +92,30 @@ func TestProjectUsecaseDatastore_GetTradeRequest(tt *testing.T) {
 	dsExpectedResAll := `[
 		{
 			"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
-			"upstreamOperatorId": "b1234567-1234-1234-1234-123456789012",
+			"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 			"upstreamTraceId": "38bdd8a5-76a7-a53d-de12-725707b04a1b",
-			"downstreamOperatorId": "e03cc699-7234-31ed-86be-cc18c92208e5"
+			"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
 		}
 	]`
 
 	dsExpectedResAnsweredRequireOnly := `[
 		{
 			"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
-			"upstreamOperatorId": "b1234567-1234-1234-1234-123456789012",
+			"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 			"upstreamTraceId": "38bdd8a5-76a7-a53d-de12-725707b04a1b",
-			"downstreamOperatorId": "e03cc699-7234-31ed-86be-cc18c92208e5"
+			"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
 		}
 	]`
 
 	dsExpectedResAnsweringRequireOnly := `[
 		{
 			"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
-			"upstreamOperatorId": "b1234567-1234-1234-1234-123456789012",
+			"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
 			"upstreamTraceId": null,
-			"downstreamOperatorId": "e03cc699-7234-31ed-86be-cc18c92208e5"
+			"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
 		}
 	]`
 
@@ -215,12 +215,12 @@ func TestProjectUsecaseDatastore_GetTradeRequest_Abnormal(tt *testing.T) {
 	dsResGetError := fmt.Errorf("DB AccessError")
 
 	tradeID := uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092")
-	upstreamOperatorID := uuid.MustParse("b1234567-1234-1234-1234-123456789012")
+	upstreamOperatorID := uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698")
 	upstreamTraceID := uuid.MustParse("38bdd8a5-76a7-a53d-de12-725707b04a1b")
 	dsResDataCountGetError := traceability.TradeEntityModels{
 		{
 			TradeID:              &tradeID,
-			DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+			DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 			UpstreamOperatorID:   &upstreamOperatorID,
 			DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 			UpstreamTraceID:      &upstreamTraceID,
@@ -311,7 +311,8 @@ func TestProjectUsecaseDatastore_PutTradeRequest(tt *testing.T) {
 	tradeID := uuid.MustParse(f.TradeID)
 	upstreamOperatorID := uuid.MustParse(f.OperatorID)
 	upstreamTraceID := uuid.MustParse(f.TraceID2)
-
+	cc, _ := time.Parse("2006-01-02T15:04:05Z", f.CompletedCountModifiedAt)
+	tc, _ := time.Parse("2006-01-02T15:04:05Z", f.TradesCountModifiedAt)
 	dsResData := traceability.TradeRequestEntityModel{
 		TradeEntityModel: traceability.TradeEntityModel{
 			TradeID:              &tradeID,
@@ -327,18 +328,23 @@ func TestProjectUsecaseDatastore_PutTradeRequest(tt *testing.T) {
 			UpdatedUserID:        "seed",
 		},
 		StatusEntityModel: traceability.StatusEntityModel{
-			StatusID:          uuid.MustParse(f.StatusID),
-			TradeID:           tradeID,
-			CfpResponseStatus: traceability.CfpResponseStatusPending.ToString(),
-			TradeTreeStatus:   traceability.TradeTreeStatusUnterminated.ToString(),
-			Message:           &f.TradeRequestMessage,
-			ReplyMessage:      nil,
-			RequestType:       traceability.RequestTypeCFP.ToString(),
-			DeletedAt:         gorm.DeletedAt{Time: time.Now()},
-			CreatedAt:         time.Now(),
-			CreatedUserId:     "seed",
-			UpdatedAt:         time.Now(),
-			UpdatedUserId:     "seed",
+			StatusID:                 uuid.MustParse(f.StatusID),
+			TradeID:                  tradeID,
+			CfpResponseStatus:        traceability.CfpResponseStatusPending.ToString(),
+			TradeTreeStatus:          traceability.TradeTreeStatusUnterminated.ToString(),
+			Message:                  &f.TradeRequestMessage,
+			ReplyMessage:             nil,
+			RequestType:              traceability.RequestTypeCFP.ToString(),
+			ResponseDueDate:          f.ResponseDueDate,
+			CompletedCount:           &f.CompletedCount,
+			CompletedCountModifiedAt: &cc,
+			TradesCount:              &f.TradesCount,
+			TradesCountModifiedAt:    &tc,
+			DeletedAt:                gorm.DeletedAt{Time: time.Now()},
+			CreatedAt:                time.Now(),
+			CreatedUserId:            "seed",
+			UpdatedAt:                time.Now(),
+			UpdatedUserId:            "seed",
 		},
 	}
 
@@ -354,30 +360,40 @@ func TestProjectUsecaseDatastore_PutTradeRequest(tt *testing.T) {
 			StatusID: uuid.MustParse(f.StatusID),
 			TradeID:  tradeID,
 			RequestStatus: traceability.RequestStatus{
-				CfpResponseStatus: traceability.CfpResponseStatusPending,
-				TradeTreeStatus:   traceability.TradeTreeStatusUnterminated,
+				CompletedCount:           nil,
+				CompletedCountModifiedAt: nil,
+				TradesCount:              nil,
+				TradesCountModifiedAt:    nil,
 			},
-			Message:      &f.TradeRequestMessage,
-			ReplyMessage: nil,
-			RequestType:  traceability.RequestTypeCFP.ToString(),
+			Message:         &f.TradeRequestMessage,
+			ReplyMessage:    nil,
+			RequestType:     traceability.RequestTypeCFP.ToString(),
+			ResponseDueDate: &f.ResponseDueDate,
 		},
 	}
 
 	tests := []struct {
-		name    string
-		input   traceability.TradeRequestModel
-		receive traceability.TradeRequestEntityModel
-		expect  traceability.TradeRequestModel
+		name      string
+		inputFunc func() traceability.PutTradeRequestInput
+		receive   traceability.TradeRequestEntityModel
+		expect    traceability.TradeRequestModel
 	}{
 		{
-			name:    "1-1. 200: 全項目応答(新規)",
-			input:   f.NewPutTradeRequestModel(true),
+			name: "1-1. 200: 全項目応答(新規)",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				input := f.NewPutTradeRequestInput()
+				input.Trade.TradeID = nil
+				return input
+			},
 			receive: dsResData,
 			expect:  expect,
 		},
 		{
-			name:    "1-2. 200: 全項目応答(更新)",
-			input:   f.NewPutTradeRequestModel(false),
+			name: "1-2. 200: 全項目応答(更新)",
+			inputFunc: func() traceability.PutTradeRequestInput {
+				input := f.NewPutTradeRequestInput()
+				return input
+			},
 			receive: dsResData,
 			expect:  expect,
 		},
@@ -405,21 +421,12 @@ func TestProjectUsecaseDatastore_PutTradeRequest(tt *testing.T) {
 				ouranosRepositoryMock.On("PutTradeRequest", mock.Anything, mock.Anything).Return(test.receive, nil)
 
 				tradeUsecase := usecase.NewTradeUsecase(ouranosRepositoryMock)
-				actualRes, err := tradeUsecase.PutTradeRequest(c, test.input)
+				actualRes, _, err := tradeUsecase.PutTradeRequest(c, test.inputFunc())
 				if assert.NoError(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					//assert.Equal(t, test.expect.StatusModel.StatusID, actualRes.StatusModel.StatusID, f.AssertMessage)
-					//assert.Equal(t, test.expect.StatusModel.TradeID, actualRes.StatusModel.TradeID, f.AssertMessage)
-					assert.Equal(t, test.expect.StatusModel.RequestStatus, actualRes.StatusModel.RequestStatus, f.AssertMessage)
-					assert.Equal(t, test.expect.StatusModel.Message, actualRes.StatusModel.Message, f.AssertMessage)
-					assert.Equal(t, test.expect.StatusModel.ReplyMessage, actualRes.StatusModel.ReplyMessage, f.AssertMessage)
-					assert.Equal(t, test.expect.StatusModel.RequestType, actualRes.StatusModel.RequestType, f.AssertMessage)
-					//assert.Equal(t, test.expect.TradeModel.TradeID, actualRes.TradeModel.TradeID, f.AssertMessage)
-					assert.Equal(t, test.expect.TradeModel.DownstreamOperatorID, actualRes.TradeModel.DownstreamOperatorID, f.AssertMessage)
-					assert.Equal(t, test.expect.TradeModel.DownstreamTraceID, actualRes.TradeModel.DownstreamTraceID, f.AssertMessage)
-					assert.Equal(t, test.expect.TradeModel.UpstreamOperatorID, actualRes.TradeModel.UpstreamOperatorID, f.AssertMessage)
-					assert.Equal(t, test.expect.TradeModel.UpstreamTraceID, actualRes.TradeModel.UpstreamTraceID, f.AssertMessage)
+					assert.Equal(t, test.expect.StatusModel, actualRes.StatusModel, f.AssertMessage)
+					assert.Equal(t, test.expect.TradeModel, actualRes.TradeModel, f.AssertMessage)
 				}
 			},
 		)
@@ -441,13 +448,13 @@ func TestProjectUsecaseDatastore_PutTradeRequest_Abnormal(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.TradeRequestModel
+		input   traceability.PutTradeRequestInput
 		receive error
 		expect  error
 	}{
 		{
 			name:    "2-1. 400: データ更新エラー",
-			input:   f.NewPutTradeRequestModel(false),
+			input:   f.NewPutTradeRequestInput(),
 			receive: dsResPutError,
 			expect:  dsResPutError,
 		},
@@ -475,7 +482,7 @@ func TestProjectUsecaseDatastore_PutTradeRequest_Abnormal(tt *testing.T) {
 				ouranosRepositoryMock.On("PutTradeRequest", mock.Anything, mock.Anything).Return(traceability.TradeRequestEntityModel{}, test.receive)
 
 				tradeUsecase := usecase.NewTradeUsecase(ouranosRepositoryMock)
-				_, err := tradeUsecase.PutTradeRequest(c, test.input)
+				_, _, err := tradeUsecase.PutTradeRequest(c, test.input)
 				if assert.Error(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
@@ -500,14 +507,14 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 	var dataTarget = "tradeResponse"
 
 	tradeID := uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092")
-	upstreamOperatorID := uuid.MustParse("b1234567-1234-1234-1234-123456789012")
+	upstreamOperatorID := uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698")
 	upstreamTraceID := uuid.MustParse("38bdd8a5-76a7-a53d-de12-725707b04a1b")
-	plantID := uuid.MustParse("b1234567-1234-1234-1234-123456789012")
+	plantID := uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0")
 	amountRequiredUnit := traceability.AmountRequiredUnitKilogram
 	dsResAllTrade := traceability.TradeEntityModels{
 		{
 			TradeID:              &tradeID,
-			DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+			DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 			UpstreamOperatorID:   &upstreamOperatorID,
 			DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 			UpstreamTraceID:      &upstreamTraceID,
@@ -519,24 +526,31 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 			UpdatedUserID:        "seed",
 		},
 	}
+	cc, _ := time.Parse("2006-01-02T15:04:05Z", f.CompletedCountModifiedAt)
+	tc, _ := time.Parse("2006-01-02T15:04:05Z", f.TradesCountModifiedAt)
 	dsResAllStatus := traceability.StatusEntityModel{
-		StatusID:          uuid.MustParse(f.StatusID),
-		TradeID:           tradeID,
-		CfpResponseStatus: traceability.CfpResponseStatusPending.ToString(),
-		TradeTreeStatus:   traceability.TradeTreeStatusUnterminated.ToString(),
-		Message:           &f.TradeRequestMessage,
-		ReplyMessage:      &f.TradeRequestMessage,
-		RequestType:       f.RequestType.ToString(),
-		DeletedAt:         gorm.DeletedAt{Time: time.Now()},
-		CreatedAt:         time.Now(),
-		CreatedUserId:     "seed",
-		UpdatedAt:         time.Now(),
-		UpdatedUserId:     "seed",
+		StatusID:                 uuid.MustParse(f.StatusID),
+		TradeID:                  tradeID,
+		CfpResponseStatus:        traceability.CfpResponseStatusPending.ToString(),
+		TradeTreeStatus:          traceability.TradeTreeStatusUnterminated.ToString(),
+		Message:                  &f.TradeRequestMessage,
+		ReplyMessage:             &f.TradeRequestMessage,
+		RequestType:              f.RequestType.ToString(),
+		ResponseDueDate:          f.ResponseDueDate,
+		CompletedCount:           &f.CompletedCount,
+		CompletedCountModifiedAt: &cc,
+		TradesCount:              &f.TradesCount,
+		TradesCountModifiedAt:    &tc,
+		DeletedAt:                gorm.DeletedAt{Time: time.Now()},
+		CreatedAt:                time.Now(),
+		CreatedUserId:            "seed",
+		UpdatedAt:                time.Now(),
+		UpdatedUserId:            "seed",
 	}
 	dsResAllParts := traceability.PartsModelEntity{
 		TraceID:            uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
-		OperatorID:         uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
-		PlantID:            uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
+		OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+		PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
 		PartsName:          "B01",
 		SupportPartsName:   common.StringPtr("B01001"),
 		TerminatedFlag:     true,
@@ -552,7 +566,7 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 	dsResRequireOnlyTrade := traceability.TradeEntityModels{
 		{
 			TradeID:              &tradeID,
-			DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+			DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 			UpstreamOperatorID:   &upstreamOperatorID,
 			DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 			UpstreamTraceID:      nil,
@@ -565,23 +579,28 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 		},
 	}
 	dsResRequireOnlyStatus := traceability.StatusEntityModel{
-		StatusID:          uuid.MustParse(f.StatusID),
-		TradeID:           tradeID,
-		CfpResponseStatus: traceability.CfpResponseStatusPending.ToString(),
-		TradeTreeStatus:   traceability.TradeTreeStatusUnterminated.ToString(),
-		Message:           nil,
-		ReplyMessage:      nil,
-		RequestType:       f.RequestType.ToString(),
-		DeletedAt:         gorm.DeletedAt{Time: time.Now()},
-		CreatedAt:         time.Now(),
-		CreatedUserId:     "seed",
-		UpdatedAt:         time.Now(),
-		UpdatedUserId:     "seed",
+		StatusID:                 uuid.MustParse(f.StatusID),
+		TradeID:                  tradeID,
+		CfpResponseStatus:        traceability.CfpResponseStatusPending.ToString(),
+		TradeTreeStatus:          traceability.TradeTreeStatusUnterminated.ToString(),
+		Message:                  nil,
+		ReplyMessage:             nil,
+		RequestType:              f.RequestType.ToString(),
+		ResponseDueDate:          f.ResponseDueDate,
+		CompletedCount:           &f.CompletedCount,
+		CompletedCountModifiedAt: &cc,
+		TradesCount:              &f.TradesCount,
+		TradesCountModifiedAt:    &tc,
+		DeletedAt:                gorm.DeletedAt{Time: time.Now()},
+		CreatedAt:                time.Now(),
+		CreatedUserId:            "seed",
+		UpdatedAt:                time.Now(),
+		UpdatedUserId:            "seed",
 	}
 	dsResRequireOnlyParts := traceability.PartsModelEntity{
 		TraceID:            uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
-		OperatorID:         uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
-		PlantID:            uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
+		OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+		PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
 		PartsName:          "B01",
 		SupportPartsName:   nil,
 		TerminatedFlag:     true,
@@ -598,29 +617,37 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 	dsResNoDataStatus := traceability.StatusEntityModel{}
 	dsResNoDataParts := traceability.PartsModelEntity{}
 
+	cfpResponseStatusPending := traceability.CfpResponseStatusPending
+	tradeTreeStatusUnterminated := traceability.TradeTreeStatusUnterminated
+
 	dsExpectedResAll := []traceability.TradeResponseModel{
 		{
 			StatusModel: traceability.StatusModel{
 				StatusID: uuid.MustParse(f.StatusID),
 				TradeID:  tradeID,
 				RequestStatus: traceability.RequestStatus{
-					CfpResponseStatus: traceability.CfpResponseStatusPending,
-					TradeTreeStatus:   traceability.TradeTreeStatusUnterminated,
+					CfpResponseStatus:        &cfpResponseStatusPending,
+					TradeTreeStatus:          &tradeTreeStatusUnterminated,
+					CompletedCount:           &f.CompletedCount,
+					CompletedCountModifiedAt: &f.CompletedCountModifiedAt,
+					TradesCount:              &f.TradesCount,
+					TradesCountModifiedAt:    &f.TradesCountModifiedAt,
 				},
-				ReplyMessage: nil,
-				Message:      &f.TradeRequestMessage,
-				RequestType:  f.RequestType.ToString(),
+				ReplyMessage:    &f.TradeRequestMessage,
+				Message:         &f.TradeRequestMessage,
+				RequestType:     f.RequestType.ToString(),
+				ResponseDueDate: &f.ResponseDueDate,
 			},
 			TradeModel: traceability.TradeModel{
 				TradeID:              &tradeID,
-				DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+				DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 				UpstreamOperatorID:   upstreamOperatorID,
 				DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 				UpstreamTraceID:      &upstreamTraceID,
 			},
 			PartsModel: traceability.PartsModel{
 				TraceID:            uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
-				OperatorID:         uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+				OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 				PlantID:            &plantID,
 				PartsName:          "B01",
 				SupportPartsName:   common.StringPtr("B01001"),
@@ -637,23 +664,28 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 				StatusID: uuid.MustParse(f.StatusID),
 				TradeID:  tradeID,
 				RequestStatus: traceability.RequestStatus{
-					CfpResponseStatus: traceability.CfpResponseStatusPending,
-					TradeTreeStatus:   traceability.TradeTreeStatusUnterminated,
+					CfpResponseStatus:        &cfpResponseStatusPending,
+					TradeTreeStatus:          &tradeTreeStatusUnterminated,
+					CompletedCount:           &f.CompletedCount,
+					CompletedCountModifiedAt: &f.CompletedCountModifiedAt,
+					TradesCount:              &f.TradesCount,
+					TradesCountModifiedAt:    &f.TradesCountModifiedAt,
 				},
-				ReplyMessage: nil,
-				Message:      nil,
-				RequestType:  f.RequestType.ToString(),
+				ReplyMessage:    nil,
+				Message:         nil,
+				RequestType:     f.RequestType.ToString(),
+				ResponseDueDate: &f.ResponseDueDate,
 			},
 			TradeModel: traceability.TradeModel{
 				TradeID:              &tradeID,
-				DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+				DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 				UpstreamOperatorID:   upstreamOperatorID,
 				DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 				UpstreamTraceID:      nil,
 			},
 			PartsModel: traceability.PartsModel{
 				TraceID:            uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
-				OperatorID:         uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+				OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 				PlantID:            &plantID,
 				PartsName:          "B01",
 				SupportPartsName:   nil,
@@ -757,12 +789,12 @@ func TestProjectUsecaseDatastore_GetTradeResponse_Abnormal(tt *testing.T) {
 
 	dsResGetError := fmt.Errorf("DB AccessError")
 	tradeID := uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092")
-	upstreamOperatorID := uuid.MustParse("b1234567-1234-1234-1234-123456789012")
+	upstreamOperatorID := uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698")
 	upstreamTraceID := uuid.MustParse("38bdd8a5-76a7-a53d-de12-725707b04a1b")
 	dsResDataErrorTrade := traceability.TradeEntityModels{
 		{
 			TradeID:              &tradeID,
-			DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+			DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 			UpstreamOperatorID:   &upstreamOperatorID,
 			DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 			UpstreamTraceID:      &upstreamTraceID,
@@ -894,7 +926,7 @@ func TestProjectUsecaseDatastore_PutTradeResponse(tt *testing.T) {
 	var dataTarget = "tradeResponse"
 
 	tradeID := uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092")
-	upstreamOperatorID := uuid.MustParse("b1234567-1234-1234-1234-123456789012")
+	upstreamOperatorID := uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698")
 	upstreamTraceID := uuid.MustParse("38bdd8a5-76a7-a53d-de12-725707b04a1b")
 	CFPID := uuid.MustParse("b1234567-1234-1234-1234-123456789012")
 	amountRequiredUnit := traceability.AmountRequiredUnitKilogram
@@ -917,8 +949,8 @@ func TestProjectUsecaseDatastore_PutTradeResponse(tt *testing.T) {
 	}
 	dsResParts := traceability.PartsModelEntity{
 		TraceID:            uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
-		OperatorID:         uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
-		PlantID:            uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
+		OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+		PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
 		PartsName:          "B01",
 		SupportPartsName:   common.StringPtr("B01001"),
 		TerminatedFlag:     true,
@@ -932,7 +964,7 @@ func TestProjectUsecaseDatastore_PutTradeResponse(tt *testing.T) {
 	}
 	dsResTrade := traceability.TradeEntityModel{
 		TradeID:              &tradeID,
-		DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+		DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 		UpstreamOperatorID:   &upstreamOperatorID,
 		DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 		UpstreamTraceID:      &upstreamTraceID,
@@ -946,7 +978,7 @@ func TestProjectUsecaseDatastore_PutTradeResponse(tt *testing.T) {
 
 	dsExpectedRes := traceability.TradeModel{
 		TradeID:              &tradeID,
-		DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+		DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 		UpstreamOperatorID:   upstreamOperatorID,
 		DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 		UpstreamTraceID:      &upstreamTraceID,
@@ -1013,15 +1045,11 @@ func TestProjectUsecaseDatastore_PutTradeResponse(tt *testing.T) {
 				}
 
 				tradeUsecase := usecase.NewTradeUsecase(ouranosRepositoryMock)
-				actualRes, err := tradeUsecase.PutTradeResponse(c, test.input)
+				actualRes, _, err := tradeUsecase.PutTradeResponse(c, test.input)
 				if assert.NoError(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較
-					assert.Equal(t, test.expectData.UpstreamTraceID, actualRes.UpstreamTraceID, f.AssertMessage)
-					assert.Equal(t, test.expectData.UpstreamOperatorID, actualRes.UpstreamOperatorID, f.AssertMessage)
-					assert.Equal(t, test.expectData.DownstreamTraceID, actualRes.DownstreamTraceID, f.AssertMessage)
-					assert.Equal(t, test.expectData.DownstreamOperatorID, actualRes.DownstreamOperatorID, f.AssertMessage)
-					assert.Equal(t, test.expectData.TradeID, actualRes.TradeID, f.AssertMessage)
+					assert.Equal(t, test.expectData, actualRes, f.AssertMessage)
 				}
 			},
 		)
@@ -1043,7 +1071,7 @@ func TestProjectUsecaseDatastore_PutTradeResponse_Abnormal(tt *testing.T) {
 
 	dsResPutError := fmt.Errorf("DB AccessError")
 	tradeID := uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092")
-	upstreamOperatorID := uuid.MustParse("b1234567-1234-1234-1234-123456789012")
+	upstreamOperatorID := uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698")
 	upstreamTraceID := uuid.MustParse("38bdd8a5-76a7-a53d-de12-725707b04a1b")
 	CFPID := uuid.MustParse("b1234567-1234-1234-1234-123456789012")
 	amountRequiredUnit := traceability.AmountRequiredUnitKilogram
@@ -1066,8 +1094,8 @@ func TestProjectUsecaseDatastore_PutTradeResponse_Abnormal(tt *testing.T) {
 	}
 	dsResParts := traceability.PartsModelEntity{
 		TraceID:            uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
-		OperatorID:         uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
-		PlantID:            uuid.MustParse("b1234567-1234-1234-1234-123456789012"),
+		OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+		PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
 		PartsName:          "B01",
 		SupportPartsName:   common.StringPtr("B01001"),
 		TerminatedFlag:     true,
@@ -1081,7 +1109,7 @@ func TestProjectUsecaseDatastore_PutTradeResponse_Abnormal(tt *testing.T) {
 	}
 	dsResTrade := traceability.TradeEntityModel{
 		TradeID:              &tradeID,
-		DownstreamOperatorID: uuid.MustParse("e03cc699-7234-31ed-86be-cc18c92208e5"),
+		DownstreamOperatorID: uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
 		UpstreamOperatorID:   &upstreamOperatorID,
 		DownstreamTraceID:    uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
 		UpstreamTraceID:      &upstreamTraceID,
@@ -1163,7 +1191,7 @@ func TestProjectUsecaseDatastore_PutTradeResponse_Abnormal(tt *testing.T) {
 				ouranosRepositoryMock.On("PutTradeResponse", mock.Anything, mock.Anything).Return(test.receiveTrade, test.receiveTradeError)
 
 				tradeUsecase := usecase.NewTradeUsecase(ouranosRepositoryMock)
-				_, err := tradeUsecase.PutTradeResponse(c, test.input)
+				_, _, err := tradeUsecase.PutTradeResponse(c, test.input)
 				if assert.Error(t, err) {
 					// 実際のレスポンスと期待されるレスポンスを比較
 					// 順番が実行ごとに異なるため、順不同で中身を比較

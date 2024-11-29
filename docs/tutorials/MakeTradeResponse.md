@@ -1,5 +1,5 @@
 # 部品登録紐付け
-B社が部品登録紐付けをする例を示します。
+B社が部品登録紐付けをする例を示します。  
 識別子およびアクセストークンは適宜置き換えが必要ですのでご注意下さい。
 
 ## 1. 事業者認証の実行
@@ -59,8 +59,8 @@ curl --location --request PUT 'http://localhost:8081/api/v1/authInfo?dataTarget=
 ```
 
 ## 3. 親部品情報の作成
-Action (B社): 下記の```curl```コマンドを実行し、B社の部品Bを登録します。
-登録する製品の情報は下記です。
+Action (B社): 下記の```curl```コマンドを実行し、B社の部品Bを登録します。  
+登録する製品の情報は下記です。  
 - 部品項目:部品B
 - 補助項目:modelB
 - 事業所識別子（内部）:{事業所(工場B)で登録した識別子}
@@ -116,11 +116,16 @@ curl --location --request GET 'http://localhost:8080/api/v1/datatransport?dataTa
             "tradeId": "f475cb75-b3b8-4427-9e8d-376377f1c795",
             "requestStatus": {
                 "cfpResponseStatus": "NOT_COMPLETED",
-                "tradeTreeStatus": "UNTERMINATED"
+                "tradeTreeStatus": "UNTERMINATED",
+                "completedCount": 0,
+                "completedCountModifiedAt": "2024-11-15T04:49:44Z",
+                "tradesCount": 1,
+                "tradesCountModifiedAt": "2024-11-15T04:49:44Z"
             },
             "message": "来月中にご回答をお願いします。",
             "replyMessage": null,
-            "requestType": "CFP"
+            "requestType": "CFP",
+            "responseDueDate": "2024-12-31"
         },
         "tradeModel": {
             "tradeId": "f475cb75-b3b8-4427-9e8d-376377f1c795",
