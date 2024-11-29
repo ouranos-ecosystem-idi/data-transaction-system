@@ -13,13 +13,17 @@ import (
 
 // GetPartsStructure
 // Summary: This function  the partsStructure of a request and response.
-// input: getPartsStructureModel(traceability.GetPartsStructureModel) target of the partsStructure
+// input: request(traceabilityentity.GetPartsStructureRequest) target of the partsStructure
 // output: (traceability.PartsStructureEntity) api response
 // output: (error) error object
 func (r *traceabilityRepository) GetPartsStructures(c echo.Context, request traceabilityentity.GetPartsStructuresRequest) (res traceabilityentity.GetPartsStructuresResponse, err error) {
-	token := common.ExtractBearerToken(c)
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
 
-	resString, err := r.cli.Get(client.PathPartsStructures, token, request)
+	resString, err := r.cli.Get(c, client.PathPartsStructures, headers, request)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
@@ -40,29 +44,34 @@ func (r *traceabilityRepository) GetPartsStructures(c echo.Context, request trac
 // input: c(echo.Context) echo context
 // input: request(traceabilityentity.PostPartsStructuresRequest) target of the partsStructure
 // output: (traceabilityentity.PostPartsStructuresResponse) api response
+// output: (common.ResponseHeaders) ResponseHeaders object
 // output: (error) error object
-func (r *traceabilityRepository) PostPartsStructures(c echo.Context, request traceabilityentity.PostPartsStructuresRequest) (traceabilityentity.PostPartsStructuresResponse, error) {
-	token := common.ExtractBearerToken(c)
+func (r *traceabilityRepository) PostPartsStructures(c echo.Context, request traceabilityentity.PostPartsStructuresRequest) (traceabilityentity.PostPartsStructuresResponse, common.ResponseHeaders, error) {
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
 
 	body, err := json.Marshal(request)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceabilityentity.PostPartsStructuresResponse{}, err
+		return traceabilityentity.PostPartsStructuresResponse{}, common.ResponseHeaders{}, err
 	}
 
-	resString, err := r.cli.Post(client.PathPartsStructures, token, body)
+	res, err := r.cli.Post(c, client.PathPartsStructures, headers, body)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceabilityentity.PostPartsStructuresResponse{}, err
+		return traceabilityentity.PostPartsStructuresResponse{}, common.ResponseHeaders{}, err
 	}
 	var response traceabilityentity.PostPartsStructuresResponse
-	if err = json.Unmarshal([]byte(resString), &response); err != nil {
+	if err = json.Unmarshal([]byte(res.Body), &response); err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceabilityentity.PostPartsStructuresResponse{}, err
+		return traceabilityentity.PostPartsStructuresResponse{}, common.ResponseHeaders{}, err
 	}
 
-	return response, nil
+	return response, res.Headers, nil
 }

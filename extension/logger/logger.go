@@ -41,7 +41,7 @@ func getTrackID(r *http.Request) string {
 
 // Log messages
 const (
-	AccessInfoLog           = "Access URL: %v"
-	AccessDebugLog          = "DataSpaceAPI Access Path: %v, OperatorId: %v, Header: %v, Request Body: %v, Response Body: %v"
-	TraceabilityAPIDebugLog = "TraceabilityAPI Access URL: %v, Header: %v, Request Body: %v, Response Body: %v"
+	AccessInfoLog      = "Access URL: %v"
+	DataSpaceAPILog    = "DataSpaceAPI Access Path: %v, Header: %v, Request Body: %v, Response Body: %v, X-Track: %v"
+	TraceabilityAPILog = "TraceabilityAPI Access URL: %v, Header: %v, Request Body: %v, Response Body: %v, X-Track: %v"
 )

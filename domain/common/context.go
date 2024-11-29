@@ -24,6 +24,14 @@ func ExtractBearerToken(c echo.Context) string {
 	return token
 }
 
+// ExtractAcceptLanguage
+// Summary: This is function which extracts the accept language from the request header with key "Accept-Language".
+// input: c(echo.Context) echo context
+// output: (string) Accept language
+func ExtractAcceptLanguage(c echo.Context) string {
+	return c.Request().Header.Get("Accept-Language")
+}
+
 // QueryParamPtr
 // Summary: This is function which extracts the query parameter value from the request context and returns the pointer to the value.
 // input: c(echo.Context) echo context

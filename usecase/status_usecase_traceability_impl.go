@@ -29,18 +29,18 @@ func NewStatusTraceabilityUsecase(r repository.TraceabilityRepository) IStatusUs
 // GetStatus
 // Summary: This function gets a list of request and response status.
 // input: c(echo.Context) echo context
-// input: getStatusModel(traceability.GetStatusModel) GetStatusModel object
+// input: getStatusInput(traceability.GetStatusInput) GetStatusInput object
 // output: ([]traceability.StatusModel) list of StatusModel
 // output: (*string) next id
 // output: (error) error object
-func (u *statusTraceabilityUsecase) GetStatus(c echo.Context, getStatusModel traceability.GetStatusModel) ([]traceability.StatusModel, *string, error) {
-	switch getStatusModel.StatusTarget {
+func (u *statusTraceabilityUsecase) GetStatus(c echo.Context, getStatusInput traceability.GetStatusInput) ([]traceability.StatusModel, *string, error) {
+	switch getStatusInput.StatusTarget {
 	case traceability.Request:
-		return getRequestStatus(u, c, getStatusModel)
+		return getRequestStatus(u, c, getStatusInput)
 	case traceability.Response:
-		return getResponseStatus(u, c, getStatusModel)
+		return getResponseStatus(u, c, getStatusInput)
 	default:
-		return getBothStatus(u, c, getStatusModel)
+		return getBothStatus(u, c, getStatusInput)
 	}
 }
 
@@ -48,15 +48,15 @@ func (u *statusTraceabilityUsecase) GetStatus(c echo.Context, getStatusModel tra
 // Summary: This function gets a list of request status.
 // input: u(*statusTraceabilityUsecase) use case interface
 // input: c(echo.Context) echo context
-// input: getStatusModel(traceability.GetStatusModel) GetStatusModel object
+// input: getStatusInput(traceability.GetStatusInput) GetStatusInput object
 // output: ([]traceability.StatusModel) list of StatusModel
 // output: (*string) next id
 // output: (error) error object
-func getRequestStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusModel traceability.GetStatusModel) ([]traceability.StatusModel, *string, error) {
+func getRequestStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusInput traceability.GetStatusInput) ([]traceability.StatusModel, *string, error) {
 	req := traceabilityentity.GetTradeRequestsRequest{
-		OperatorID: getStatusModel.OperatorID.String(),
-		TraceID:    common.UUIDPtrToStringPtr(getStatusModel.TraceID),
-		After:      common.UUIDPtrToStringPtr(getStatusModel.After),
+		OperatorID: getStatusInput.OperatorID.String(),
+		TraceID:    common.UUIDPtrToStringPtr(getStatusInput.TraceID),
+		After:      common.UUIDPtrToStringPtr(getStatusInput.After),
 	}
 
 	response, err := u.TraceabilityRepository.GetTradeRequests(c, req)
@@ -71,9 +71,9 @@ func getRequestStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusMod
 		return nil, nil, err
 	}
 
-	if len(response.TradeRequests) > getStatusModel.Limit {
-		response.Next = response.TradeRequests[getStatusModel.Limit].Trade.TradeRelation.DownstreamTraceID
-		response.TradeRequests = response.TradeRequests[:getStatusModel.Limit]
+	if len(response.TradeRequests) > getStatusInput.Limit {
+		response.Next = response.TradeRequests[getStatusInput.Limit].Trade.TradeRelation.DownstreamTraceID
+		response.TradeRequests = response.TradeRequests[:getStatusInput.Limit]
 	}
 
 	ms, err := response.ToStatusModels()
@@ -90,15 +90,15 @@ func getRequestStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusMod
 // Summary: This function gets a list of response status.
 // input: u(*statusTraceabilityUsecase) use case interface
 // input: c(echo.Context) echo context
-// input: getStatusModel(traceability.GetStatusModel) GetStatusModel object
+// input: getStatusInput(traceability.GetStatusInput) GetStatusInput object
 // output: ([]traceability.StatusModel) list of StatusModel
 // output: (*string) next id
 // output: (error) error object
-func getResponseStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusModel traceability.GetStatusModel) ([]traceability.StatusModel, *string, error) {
+func getResponseStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusInput traceability.GetStatusInput) ([]traceability.StatusModel, *string, error) {
 	req := traceabilityentity.GetTradeRequestsReceivedRequest{
-		OperatorID: getStatusModel.OperatorID.String(),
-		RequestID:  common.UUIDPtrToStringPtr(getStatusModel.StatusID),
-		After:      common.UUIDPtrToStringPtr(getStatusModel.After),
+		OperatorID: getStatusInput.OperatorID.String(),
+		RequestID:  common.UUIDPtrToStringPtr(getStatusInput.StatusID),
+		After:      common.UUIDPtrToStringPtr(getStatusInput.After),
 	}
 
 	response, err := u.TraceabilityRepository.GetTradeRequestsReceived(c, req)
@@ -113,9 +113,9 @@ func getResponseStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusMo
 		return nil, nil, err
 	}
 
-	if len(response.TradeRequests) > getStatusModel.Limit {
-		response.Next = response.TradeRequests[getStatusModel.Limit].Request.RequestID
-		response.TradeRequests = response.TradeRequests[:getStatusModel.Limit]
+	if len(response.TradeRequests) > getStatusInput.Limit {
+		response.Next = response.TradeRequests[getStatusInput.Limit].Request.RequestID
+		response.TradeRequests = response.TradeRequests[:getStatusInput.Limit]
 	}
 
 	models, err := response.ToStatusModels()
@@ -132,14 +132,14 @@ func getResponseStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusMo
 // Summary: This function gets a list of both request and response status.
 // input: u(*statusTraceabilityUsecase) use case interface
 // input: c(echo.Context) echo context
-// input: getStatusModel(traceability.GetStatusModel) GetStatusModel object
+// input: getStatusInputs(traceability.GetStatusInputs) GetStatusInputs object
 // output: ([]traceability.StatusModel) list of StatusModel
 // output: (*string) next id
 // output: (error) error object
-func getBothStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusModel traceability.GetStatusModel) ([]traceability.StatusModel, *string, error) {
+func getBothStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusInput traceability.GetStatusInput) ([]traceability.StatusModel, *string, error) {
 	tradeRecievedReq := traceabilityentity.GetTradeRequestsReceivedRequest{
-		OperatorID: getStatusModel.OperatorID.String(),
-		RequestID:  common.UUIDPtrToStringPtr(getStatusModel.StatusID),
+		OperatorID: getStatusInput.OperatorID.String(),
+		RequestID:  common.UUIDPtrToStringPtr(getStatusInput.StatusID),
 	}
 
 	hasRecievedNext := true
@@ -172,11 +172,11 @@ func getBothStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusModel 
 	}
 
 	req := traceabilityentity.GetTradeRequestsRequest{
-		OperatorID: getStatusModel.OperatorID.String(),
+		OperatorID: getStatusInput.OperatorID.String(),
 	}
 
 	tradeRequestRes := traceabilityentity.GetTradeRequestsResponse{}
-	if !(getStatusModel.StatusID != nil && len(recievedStatusModels) > 0) {
+	if !(getStatusInput.StatusID != nil && len(recievedStatusModels) > 0) {
 		hasRequestNext := true
 		for hasRequestNext {
 			TradeRes, err := u.TraceabilityRepository.GetTradeRequests(c, req)
@@ -211,10 +211,10 @@ func getBothStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusModel 
 	modelsForSort = append(modelsForSort, recievedStatusModels...)
 	modelsForSort = modelsForSort.SortByRequestedAt()
 
-	if getStatusModel.StatusID != nil {
-		modelsForSort = modelsForSort.FilterByStatusID(*getStatusModel.StatusID)
+	if getStatusInput.StatusID != nil {
+		modelsForSort = modelsForSort.FilterByStatusID(*getStatusInput.StatusID)
 	}
-	res, after := modelsForSort.GetStatusModels(getStatusModel)
+	res, after := modelsForSort.GetStatusModels(getStatusInput)
 
 	return res, after, nil
 }
@@ -222,12 +222,21 @@ func getBothStatus(u *statusTraceabilityUsecase, c echo.Context, getStatusModel 
 // PutStatusCancel
 // Summary: This function cancel a request status.
 // input: c(echo.Context) echo context
-// input: statusModel(traceability.StatusModel) StatusModel object
+// input: putStatusInput(traceability.PutStatusInput) PutStatusInput object
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *statusTraceabilityUsecase) PutStatusCancel(c echo.Context, statusModel traceability.StatusModel) error {
+func (u *statusTraceabilityUsecase) PutStatusCancel(c echo.Context, putStatusInput traceability.PutStatusInput) (common.ResponseHeaders, error) {
+	statusModel, err := putStatusInput.ToModel()
+	if err != nil {
+		logger.Set(c).Warnf(err.Error())
+		errDetails := err.Error()
+
+		return common.ResponseHeaders{}, common.NewCustomError(common.CustomErrorCode400, common.Err400Validation, &errDetails, common.HTTPErrorSourceDataspace)
+	}
+
 	operatorID := c.Get("operatorID").(string)
 	req := traceabilityentity.NewPostTradeRequestsCancelRequest(operatorID, statusModel.StatusID.String())
-	_, err := u.TraceabilityRepository.PostTradeRequestsCancel(c, req)
+	_, headers, err := u.TraceabilityRepository.PostTradeRequestsCancel(c, req)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -236,20 +245,29 @@ func (u *statusTraceabilityUsecase) PutStatusCancel(c echo.Context, statusModel 
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return err
+		return common.ResponseHeaders{}, err
 	}
-	return nil
+	return headers, nil
 }
 
 // PutStatusReject
 // Summary: This function reject a request status.
 // input: c(echo.Context) echo context
-// input: statusModel(traceability.StatusModel) StatusModel object
+// input: putStatusInput(traceability.PutStatusInput) PutStatusInput object
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *statusTraceabilityUsecase) PutStatusReject(c echo.Context, statusModel traceability.StatusModel) error {
+func (u *statusTraceabilityUsecase) PutStatusReject(c echo.Context, putStatusInput traceability.PutStatusInput) (common.ResponseHeaders, error) {
+	statusModel, err := putStatusInput.ToModel()
+	if err != nil {
+		logger.Set(c).Warnf(err.Error())
+		errDetails := err.Error()
+
+		return common.ResponseHeaders{}, common.NewCustomError(common.CustomErrorCode400, common.Err400Validation, &errDetails, common.HTTPErrorSourceDataspace)
+	}
+
 	operatorID := c.Get("operatorID").(string)
 	req := traceabilityentity.NewPostTradeRequestsRejectRequest(operatorID, statusModel.StatusID.String(), statusModel.ReplyMessage)
-	_, err := u.TraceabilityRepository.PostTradeRequestsReject(c, req)
+	_, headers, err := u.TraceabilityRepository.PostTradeRequestsReject(c, req)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -258,7 +276,7 @@ func (u *statusTraceabilityUsecase) PutStatusReject(c echo.Context, statusModel 
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return err
+		return common.ResponseHeaders{}, err
 	}
-	return nil
+	return headers, nil
 }

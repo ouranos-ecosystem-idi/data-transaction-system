@@ -53,6 +53,12 @@ type HTTP503Error struct {
 	Detail  string `json:"detail"`
 }
 
+type HTTP504Error struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	Detail  string `json:"detail"`
+}
+
 var (
 	// 400 Error Messages
 	Err400InvalidRequest  = "Invalid request parameters"
@@ -172,6 +178,13 @@ func HTTPErrorGenerate(
 			Detail:  detailMessage,
 		}
 		return 503, errorModel
+	case 504:
+		errorModel := HTTPError{
+			Code:    formatErrorCode("Timeout", source),
+			Message: errorMsg,
+			Detail:  detailMessage,
+		}
+		return 504, errorModel
 	default:
 		errorModel := HTTPError{
 			Code:    formatErrorCode("InternalServerError", source),
@@ -532,11 +545,26 @@ type TraceabilityAPIError struct {
 	Message *string                      `json:"message"`
 }
 
+// TraceabilityAPIErrorDelete
+// Summary: This is structure which defines TraceabilityAPIErrorDelete.
+type TraceabilityAPIErrorDelete struct {
+	Errors  []TraceabilityAPIErrorDetailDelete `json:"errors"`
+	Message *string                            `json:"message"`
+}
+
 // TraceabilityAPIErrorDetail
 // Summary: This is structure which defines TraceabilityAPIErrorDetail.
 type TraceabilityAPIErrorDetail struct {
 	ErrorCode        string `json:"errorCode"`
 	ErrorDescription string `json:"errorDescription"`
+}
+
+// TraceabilityAPIErrorDetailDelete
+// Summary: This is structure which defines TraceabilityAPIErrorDetailDelete.
+type TraceabilityAPIErrorDetailDelete struct {
+	ErrorCode        string    `json:"errorCode"`
+	ErrorDescription string    `json:"errorDescription"`
+	RelevantData     *[]string `json:"relevantData"`
 }
 
 // ToTracebilityAPIError
@@ -552,6 +580,19 @@ func ToTracebilityAPIError(jsonStr string) *TraceabilityAPIError {
 	return &traceabilityAPIError
 }
 
+// TraceabilityAPIErrorDelete
+// Summary: This is the function to convert json string to TraceabilityAPIErrorDelete.
+// input: jsonStr(string) json string
+// output: (*TraceabilityAPIErrorDelete) TraceabilityAPIErrorDelete object
+func ToTracebilityAPIErrorDelete(jsonStr string) *TraceabilityAPIErrorDelete {
+	var traceabilityAPIErrorDelete TraceabilityAPIErrorDelete
+	if err := json.Unmarshal([]byte(jsonStr), &traceabilityAPIErrorDelete); err != nil {
+		return nil
+	}
+
+	return &traceabilityAPIErrorDelete
+}
+
 // ErrorCodesToString
 // Summary: This is the function to convert error codes to string.
 // output: (string) converted to string
@@ -564,10 +605,34 @@ func (e *TraceabilityAPIError) ErrorCodesToString() string {
 	return strings.Join(errorCodes, ", ")
 }
 
+// ErrorCodesToString
+// Summary: This is the function to convert error codes to string.
+// output: (string) converted to string
+func (e *TraceabilityAPIErrorDelete) ErrorCodesToString() string {
+	var errorCodes []string
+	for _, errorDetail := range e.Errors {
+		errorCodes = append(errorCodes, errorDetail.ErrorCode)
+	}
+
+	return strings.Join(errorCodes, ", ")
+}
+
 // ErrorDescriptionsToString
 // Summary: This is the function to convert error descriptions to string.
 // output: (string) converted to string
 func (e *TraceabilityAPIError) ErrorDescriptionsToString() string {
+	var errorDescriptions []string
+	for _, errorDetail := range e.Errors {
+		errorDescriptions = append(errorDescriptions, errorDetail.ErrorDescription)
+	}
+
+	return strings.Join(errorDescriptions, ", ")
+}
+
+// ErrorDescriptionsToString
+// Summary: This is the function to convert error descriptions to string.
+// output: (string) converted to string
+func (e *TraceabilityAPIErrorDelete) ErrorDescriptionsToString() string {
 	var errorDescriptions []string
 	for _, errorDetail := range e.Errors {
 		errorDescriptions = append(errorDescriptions, errorDetail.ErrorDescription)
@@ -590,6 +655,21 @@ func (e *TraceabilityAPIError) ToCustomError(httpStatus int) *CustomError {
 		return NewCustomError(CustomErrorCode(httpStatus), errorDescriptions, &errorCodes, HTTPErrorSourceTraceability)
 	}
 
+}
+
+// ToCustomError
+// Summary: This is the function to convert TraceabilityAPIErrorDelete to CustomError.
+// input: httpStatus(int) http status code
+// output: (*CustomError) CustomError object
+func (e *TraceabilityAPIErrorDelete) ToCustomError(httpStatus int) *CustomError {
+	message := e.Message
+	if message != nil {
+		return NewCustomError(CustomErrorCode(httpStatus), "", message, HTTPErrorSourceTraceability)
+	} else {
+		errorCodes := e.ErrorCodesToString()
+		errorDescriptions := e.ErrorDescriptionsToString()
+		return NewCustomError(CustomErrorCode(httpStatus), errorDescriptions, &errorCodes, HTTPErrorSourceTraceability)
+	}
 }
 
 // ToAuthAPIError

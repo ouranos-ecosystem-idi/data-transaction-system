@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"data-spaces-backend/extension/logger"
 
@@ -171,7 +172,9 @@ func JoinErrors(errors []error) error {
 		if i+1 < len(filteredErrors) {
 			errDetails += "; "
 		} else {
-			errDetails += "."
+			if !strings.HasSuffix(errDetails, ".") {
+				errDetails += "."
+			}
 		}
 	}
 

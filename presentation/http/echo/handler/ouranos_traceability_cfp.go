@@ -16,7 +16,7 @@ import (
 // ICfpHandler
 // Summary: This is interface which defines CfpHandler
 //
-//go:generate mockery --name ICfpHandler --output ../test/mock --case underscore
+//go:generate mockery --name ICfpHandler --output ../../../../test/mock --case underscore
 type ICfpHandler interface {
 	// #14 GetCfpList
 	GetCfp(c echo.Context) error
@@ -68,12 +68,12 @@ func (h cfpHandler) GetCfp(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400InvalidRequest, operatorID, dataTarget, method, errDetails))
 	}
 
-	getCfpModel := traceability.GetCfpModel{
+	getCfpInput := traceability.GetCfpInput{
 		OperatorID: OperatorUUID,
 		TraceIDs:   traceIDs,
 	}
 
-	res, err := h.cfpUsecase.GetCfp(c, getCfpModel)
+	res, err := h.cfpUsecase.GetCfp(c, getCfpInput)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) {
@@ -89,8 +89,8 @@ func (h cfpHandler) GetCfp(c echo.Context) error {
 
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusInternalServerError, common.HTTPErrorSourceDataspace, common.Err500Unexpected, operatorID, dataTarget, method))
 	}
+	common.SetResponseHeader(c, common.ResponseHeaders{})
 	return c.JSON(http.StatusOK, res)
-
 }
 
 // PutCfp
@@ -110,7 +110,6 @@ func (h cfpHandler) PutCfp(c echo.Context) error {
 
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
 	}
-	logger.Set(c).Debugf("PutCfp RequestBody: %+v\n", input)
 
 	if err := input.Validate(); err != nil {
 		logger.Set(c).Warnf(err.Error())
@@ -119,15 +118,7 @@ func (h cfpHandler) PutCfp(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
 	}
 
-	cfpModels, err := input.ToModels()
-	if err != nil {
-		logger.Set(c).Warnf(err.Error())
-		errDetails := err.Error()
-
-		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
-	}
-
-	res, err := h.cfpUsecase.PutCfp(c, cfpModels, operatorID)
+	res, headers, err := h.cfpUsecase.PutCfp(c, input, operatorID)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) {
@@ -144,5 +135,6 @@ func (h cfpHandler) PutCfp(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusInternalServerError, common.HTTPErrorSourceDataspace, common.Err500Unexpected, operatorID, dataTarget, method))
 	}
 
+	common.SetResponseHeader(c, headers)
 	return c.JSON(http.StatusCreated, res)
 }

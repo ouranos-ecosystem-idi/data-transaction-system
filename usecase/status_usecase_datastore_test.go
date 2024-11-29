@@ -33,53 +33,75 @@ func TestProjectUsecaseDatastore_GetStatus(tt *testing.T) {
 	var endPoint = "/api/v1/datatransport"
 	var dataTarget = "status"
 
+	getStatusInput := f.NewGetStatusInput()
+
+	cc, _ := time.Parse("2006-01-02T15:04:05Z", f.CompletedCountModifiedAt)
+	tc, _ := time.Parse("2006-01-02T15:04:05Z", f.TradesCountModifiedAt)
 	dsResAll := []traceability.StatusEntityModel{
 		{
-			StatusID:          uuid.MustParse("5185a435-c039-4196-bb34-0ee0c2395478"),
-			TradeID:           uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092"),
-			CfpResponseStatus: traceability.CfpResponseStatusCancel.ToString(),
-			TradeTreeStatus:   traceability.TradeTreeStatusUnterminated.ToString(),
-			Message:           common.StringPtr("A01のCFP値を回答ください"),
-			ReplyMessage:      common.StringPtr("A01のCFP値を回答しました"),
-			RequestType:       f.RequestType.ToString(),
-			DeletedAt:         gorm.DeletedAt{Time: time.Now()},
-			CreatedAt:         time.Now(),
-			CreatedUserId:     "seed",
-			UpdatedAt:         time.Now(),
-			UpdatedUserId:     "seed",
+			StatusID:                 uuid.MustParse("5185a435-c039-4196-bb34-0ee0c2395478"),
+			TradeID:                  uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092"),
+			CfpResponseStatus:        traceability.CfpResponseStatusCancel.ToString(),
+			TradeTreeStatus:          traceability.TradeTreeStatusUnterminated.ToString(),
+			Message:                  common.StringPtr("A01のCFP値を回答ください"),
+			ReplyMessage:             common.StringPtr("A01のCFP値を回答しました"),
+			RequestType:              f.RequestType.ToString(),
+			ResponseDueDate:          f.ResponseDueDate,
+			CompletedCount:           &f.CompletedCount,
+			CompletedCountModifiedAt: &cc,
+			TradesCount:              &f.TradesCount,
+			TradesCountModifiedAt:    &tc,
+			DeletedAt:                gorm.DeletedAt{Time: time.Now()},
+			CreatedAt:                time.Now(),
+			CreatedUserId:            "seed",
+			UpdatedAt:                time.Now(),
+			UpdatedUserId:            "seed",
 		},
 	}
 
 	dsResRequireOnly := []traceability.StatusEntityModel{
 		{
-			StatusID:          uuid.MustParse("5185a435-c039-4196-bb34-0ee0c2395478"),
-			TradeID:           uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092"),
-			CfpResponseStatus: traceability.CfpResponseStatusCancel.ToString(),
-			TradeTreeStatus:   traceability.TradeTreeStatusUnterminated.ToString(),
-			Message:           nil,
-			ReplyMessage:      nil,
-			RequestType:       f.RequestType.ToString(),
-			DeletedAt:         gorm.DeletedAt{Time: time.Now()},
-			CreatedAt:         time.Now(),
-			CreatedUserId:     "seed",
-			UpdatedAt:         time.Now(),
-			UpdatedUserId:     "seed",
+			StatusID:                 uuid.MustParse("5185a435-c039-4196-bb34-0ee0c2395478"),
+			TradeID:                  uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092"),
+			CfpResponseStatus:        traceability.CfpResponseStatusCancel.ToString(),
+			TradeTreeStatus:          traceability.TradeTreeStatusUnterminated.ToString(),
+			Message:                  nil,
+			ReplyMessage:             nil,
+			RequestType:              f.RequestType.ToString(),
+			ResponseDueDate:          f.ResponseDueDate,
+			CompletedCount:           &f.CompletedCount,
+			CompletedCountModifiedAt: &cc,
+			TradesCount:              &f.TradesCount,
+			TradesCountModifiedAt:    &tc,
+			DeletedAt:                gorm.DeletedAt{Time: time.Now()},
+			CreatedAt:                time.Now(),
+			CreatedUserId:            "seed",
+			UpdatedAt:                time.Now(),
+			UpdatedUserId:            "seed",
 		},
 	}
 
 	dsResNoData := []traceability.StatusEntityModel{}
+
+	cfpResponseStatusCancel := traceability.CfpResponseStatusCancel
+	tradeTreeStatusUnterminated := traceability.TradeTreeStatusUnterminated
 
 	dsExpectedResAll := []traceability.StatusModel{
 		{
 			StatusID: uuid.MustParse("5185a435-c039-4196-bb34-0ee0c2395478"),
 			TradeID:  uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092"),
 			RequestStatus: traceability.RequestStatus{
-				CfpResponseStatus: traceability.CfpResponseStatusCancel,
-				TradeTreeStatus:   traceability.TradeTreeStatusUnterminated,
+				CfpResponseStatus:        &cfpResponseStatusCancel,
+				TradeTreeStatus:          &tradeTreeStatusUnterminated,
+				CompletedCount:           &f.CompletedCount,
+				CompletedCountModifiedAt: &f.CompletedCountModifiedAt,
+				TradesCount:              &f.TradesCount,
+				TradesCountModifiedAt:    &f.TradesCountModifiedAt,
 			},
-			Message:      common.StringPtr("A01のCFP値を回答ください"),
-			ReplyMessage: nil,
-			RequestType:  f.RequestType.ToString(),
+			Message:         common.StringPtr("A01のCFP値を回答ください"),
+			ReplyMessage:    common.StringPtr("A01のCFP値を回答しました"),
+			RequestType:     f.RequestType.ToString(),
+			ResponseDueDate: &f.ResponseDueDate,
 		},
 	}
 
@@ -88,12 +110,17 @@ func TestProjectUsecaseDatastore_GetStatus(tt *testing.T) {
 			StatusID: uuid.MustParse("5185a435-c039-4196-bb34-0ee0c2395478"),
 			TradeID:  uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092"),
 			RequestStatus: traceability.RequestStatus{
-				CfpResponseStatus: traceability.CfpResponseStatusCancel,
-				TradeTreeStatus:   traceability.TradeTreeStatusUnterminated,
+				CfpResponseStatus:        &cfpResponseStatusCancel,
+				TradeTreeStatus:          &tradeTreeStatusUnterminated,
+				CompletedCount:           &f.CompletedCount,
+				CompletedCountModifiedAt: &f.CompletedCountModifiedAt,
+				TradesCount:              &f.TradesCount,
+				TradesCountModifiedAt:    &f.TradesCountModifiedAt,
 			},
-			Message:      nil,
-			ReplyMessage: nil,
-			RequestType:  f.RequestType.ToString(),
+			Message:         nil,
+			ReplyMessage:    nil,
+			RequestType:     f.RequestType.ToString(),
+			ResponseDueDate: &f.ResponseDueDate,
 		},
 	}
 
@@ -101,28 +128,28 @@ func TestProjectUsecaseDatastore_GetStatus(tt *testing.T) {
 
 	tests := []struct {
 		name        string
-		input       traceability.GetStatusModel
+		input       traceability.GetStatusInput
 		receive     traceability.StatusEntityModels
 		expectData  traceability.StatusModels
 		expectAfter *string
 	}{
 		{
 			name:        "1-1. 200: 全項目応答",
-			input:       f.NewGetStatusModel(0),
+			input:       getStatusInput,
 			receive:     dsResAll,
 			expectData:  dsExpectedResAll,
 			expectAfter: nil,
 		},
 		{
 			name:        "1-2. 200: 必須項目のみ",
-			input:       f.NewGetStatusModel(0),
+			input:       getStatusInput,
 			receive:     dsResRequireOnly,
 			expectData:  dsExpectedResRequireOnly,
 			expectAfter: nil,
 		},
 		{
 			name:        "1-3. 200: 検索結果なし",
-			input:       f.NewGetStatusModel(0),
+			input:       getStatusInput,
 			receive:     dsResNoData,
 			expectData:  expectedResNoData,
 			expectAfter: nil,
@@ -177,6 +204,8 @@ func TestProjectUsecasedatastore_GetStatus_Abnormal(tt *testing.T) {
 	var endPoint = "/api/v1/datatransport"
 	var dataTarget = "parts"
 
+	getStatusInput := f.NewGetStatusInput()
+
 	dsResGetError := fmt.Errorf("DB AccessError")
 
 	dsResDataCountGetError := traceability.StatusEntityModels{
@@ -198,21 +227,21 @@ func TestProjectUsecasedatastore_GetStatus_Abnormal(tt *testing.T) {
 
 	tests := []struct {
 		name         string
-		input        traceability.GetStatusModel
+		input        traceability.GetStatusInput
 		receive      traceability.StatusEntityModels
 		receiveError error
 		expect       error
 	}{
 		{
 			name:         "2-1. 400: データ取得エラー",
-			input:        f.NewGetStatusModel(0),
+			input:        getStatusInput,
 			receive:      nil,
 			receiveError: dsResGetError,
 			expect:       dsResGetError,
 		},
 		{
 			name:         "2-2. 400: 件数取得エラー",
-			input:        f.NewGetStatusModel(0),
+			input:        getStatusInput,
 			receive:      dsResDataCountGetError,
 			receiveError: dsResGetError,
 			expect:       dsResGetError,
@@ -268,30 +297,13 @@ func TestProjectUsecaseDatastore_PutStatusCancel(tt *testing.T) {
 	var endPoint = "/api/v1/datatransport"
 	var dataTarget = "status"
 
-	dsRes := traceability.StatusEntityModel{
-		StatusID:          uuid.MustParse("5185a435-c039-4196-bb34-0ee0c2395478"),
-		TradeID:           uuid.MustParse("a84012cc-73fb-4f9b-9130-59ae546f7092"),
-		CfpResponseStatus: traceability.CfpResponseStatusCancel.ToString(),
-		TradeTreeStatus:   traceability.TradeTreeStatusUnterminated.ToString(),
-		Message:           common.StringPtr("A01のCFP値を回答ください"),
-		ReplyMessage:      common.StringPtr("A01のCFP値を回答しました"),
-		RequestType:       f.RequestType.ToString(),
-		DeletedAt:         gorm.DeletedAt{Time: time.Now()},
-		CreatedAt:         time.Now(),
-		CreatedUserId:     "seed",
-		UpdatedAt:         time.Now(),
-		UpdatedUserId:     "seed",
-	}
-
 	tests := []struct {
-		name    string
-		input   traceability.StatusModel
-		receive traceability.StatusEntityModel
+		name  string
+		input traceability.PutStatusInput
 	}{
 		{
-			name:    "1-1. 200: 正常終了",
-			input:   f.NewStatusModel(),
-			receive: dsRes,
+			name:  "1-1. 200: 正常終了",
+			input: f.NewPutStatusInput(),
 		},
 	}
 
@@ -314,11 +326,11 @@ func TestProjectUsecaseDatastore_PutStatusCancel(tt *testing.T) {
 				c.Set("operatorID", f.OperatorId)
 
 				ouranosRepositoryMock := new(mocks.OuranosRepository)
-				ouranosRepositoryMock.On("PutStatusCancel", mock.Anything, mock.Anything).Return(test.receive, nil)
+				ouranosRepositoryMock.On("PutStatusCancel", mock.Anything, mock.Anything).Return(nil)
 
 				usecase := usecase.NewStatusUsecase(ouranosRepositoryMock)
 
-				err := usecase.PutStatusCancel(c, test.input)
+				_, err := usecase.PutStatusCancel(c, test.input)
 				assert.NoError(t, err)
 			},
 		)
@@ -338,12 +350,12 @@ func TestProjectUsecaseDatastore_PutStatusCancel_Abnormal(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.StatusModel
+		input   traceability.PutStatusInput
 		receive error
 	}{
 		{
 			name:    "1-1. 400: データ取得エラー",
-			input:   f.NewStatusModel(),
+			input:   f.NewPutStatusInput(),
 			receive: fmt.Errorf("DB AccessError"),
 		},
 	}
@@ -367,11 +379,11 @@ func TestProjectUsecaseDatastore_PutStatusCancel_Abnormal(tt *testing.T) {
 				c.Set("operatorID", f.OperatorId)
 
 				ouranosRepositoryMock := new(mocks.OuranosRepository)
-				ouranosRepositoryMock.On("PutStatusCancel", mock.Anything, mock.Anything).Return(traceability.StatusEntityModel{}, test.receive)
+				ouranosRepositoryMock.On("PutStatusCancel", mock.Anything, mock.Anything).Return(test.receive)
 
 				usecase := usecase.NewStatusUsecase(ouranosRepositoryMock)
 
-				err := usecase.PutStatusCancel(c, test.input)
+				_, err := usecase.PutStatusCancel(c, test.input)
 				assert.Error(t, err)
 			},
 		)
@@ -406,12 +418,12 @@ func TestProjectUsecaseDatastore_PutStatusReject(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.StatusModel
+		input   traceability.PutStatusInput
 		receive traceability.StatusEntityModel
 	}{
 		{
 			name:    "1-1. 200: 正常終了",
-			input:   f.NewStatusModel(),
+			input:   f.NewPutStatusInput(),
 			receive: dsRes,
 		},
 	}
@@ -439,7 +451,7 @@ func TestProjectUsecaseDatastore_PutStatusReject(tt *testing.T) {
 
 				usecase := usecase.NewStatusUsecase(ouranosRepositoryMock)
 
-				err := usecase.PutStatusReject(c, test.input)
+				_, err := usecase.PutStatusReject(c, test.input)
 				assert.NoError(t, err)
 			},
 		)
@@ -459,12 +471,12 @@ func TestProjectUsecaseDatastore_PutStatusReject_Abnormal(tt *testing.T) {
 
 	tests := []struct {
 		name    string
-		input   traceability.StatusModel
+		input   traceability.PutStatusInput
 		receive error
 	}{
 		{
 			name:    "1-1. 400: データ取得エラー",
-			input:   f.NewStatusModel(),
+			input:   f.NewPutStatusInput(),
 			receive: fmt.Errorf("DB AccessError"),
 		},
 	}
@@ -492,7 +504,7 @@ func TestProjectUsecaseDatastore_PutStatusReject_Abnormal(tt *testing.T) {
 
 				usecase := usecase.NewStatusUsecase(ouranosRepositoryMock)
 
-				err := usecase.PutStatusReject(c, test.input)
+				_, err := usecase.PutStatusReject(c, test.input)
 				assert.Error(t, err)
 			},
 		)

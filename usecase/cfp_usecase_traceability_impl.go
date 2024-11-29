@@ -30,34 +30,14 @@ func NewCfpTraceabilityUsecase(r repository.TraceabilityRepository) ICfpUsecase 
 // GetCfp
 // Summary: This function gets a list of cfp.
 // input: c(echo.Context) echo context
-// input: getCfpModel(traceability.GetCfpModel) GetCfpModel object
+// input: getCfpInput(traceability.GetCfpInput) GetCfpInput object
 // output: ([]traceability.CfpModel) list of CfpModel
 // output: (error) error object
-func (u *cfpTraceabilityUsecase) GetCfp(c echo.Context, getCfpModel traceability.GetCfpModel) ([]traceability.CfpModel, error) {
-	traceIDsStr := common.JoinUUIDs(getCfpModel.TraceIDs, ",")
+func (u *cfpTraceabilityUsecase) GetCfp(c echo.Context, getCfpInput traceability.GetCfpInput) ([]traceability.CfpModel, error) {
+	traceIDsStr := common.JoinUUIDs(getCfpInput.TraceIDs, ",")
 	request := traceabilityentity.GetCfpRequest{
-		OperatorID: getCfpModel.OperatorID.String(),
+		OperatorID: getCfpInput.OperatorID.String(),
 		TraceID:    traceIDsStr,
-	}
-
-	parts := traceabilityentity.GetPartsResponse{}
-	for _, traceID := range getCfpModel.TraceIDs {
-		getPartsRequest := traceabilityentity.GetPartsRequest{
-			OperatorID: getCfpModel.OperatorID.String(),
-			TraceID:    common.StringPtr(traceID.String()),
-		}
-		partsRes, err := u.TraceabilityRepository.GetParts(c, getPartsRequest, 1)
-		if err != nil {
-			var customErr *common.CustomError
-			if errors.As(err, &customErr) && customErr.IsWarn() {
-				logger.Set(c).Warnf(err.Error())
-			} else {
-				logger.Set(c).Errorf(err.Error())
-			}
-
-			return nil, err
-		}
-		parts.Parts = append(parts.Parts, partsRes.Parts...)
 	}
 
 	// Get a list of CFP information for owned parts
@@ -72,7 +52,7 @@ func (u *cfpTraceabilityUsecase) GetCfp(c echo.Context, getCfpModel traceability
 
 		return nil, err
 	}
-	cfpModels, err := response.ToModels(parts)
+	cfpModels, err := response.ToModels()
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
@@ -81,7 +61,7 @@ func (u *cfpTraceabilityUsecase) GetCfp(c echo.Context, getCfpModel traceability
 
 	// Get a list of CFP information for parts for which a response is being requested
 	tradeRequestsRequest := traceabilityentity.GetTradeRequestsRequest{
-		OperatorID: getCfpModel.OperatorID.String(),
+		OperatorID: getCfpInput.OperatorID.String(),
 		TraceID:    &traceIDsStr,
 	}
 	tradeRequestsResponse, err := u.TraceabilityRepository.GetTradeRequests(c, tradeRequestsRequest)
@@ -106,7 +86,7 @@ func (u *cfpTraceabilityUsecase) GetCfp(c echo.Context, getCfpModel traceability
 		cfpModels = append(cfpModels, requestCfpModels...)
 	}
 
-	sortedCfpModels := cfpModels.SortCfpModelsByTraceIDs(getCfpModel.TraceIDs)
+	sortedCfpModels := cfpModels.SortCfpModelsByTraceIDs(getCfpInput.TraceIDs)
 
 	return sortedCfpModels, nil
 }
@@ -114,19 +94,28 @@ func (u *cfpTraceabilityUsecase) GetCfp(c echo.Context, getCfpModel traceability
 // PutCfp
 // Summary: This function puts a list of cfp.
 // input: c(echo.Context) echo context
-// input: cfpModels(traceability.CfpModels) CfpModels object
+// input: putCfpInputs(traceability.PutCfpInputs) PutCfpInputs object
 // input: operatorID(string) ID of the operator
 // output: ([]traceability.CfpModel) list of CfpModel
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *cfpTraceabilityUsecase) PutCfp(c echo.Context, cfpModels traceability.CfpModels, operatorID string) ([]traceability.CfpModel, error) {
+func (u *cfpTraceabilityUsecase) PutCfp(c echo.Context, putCfpInputs traceability.PutCfpInputs, operatorID string) ([]traceability.CfpModel, common.ResponseHeaders, error) {
+	cfpModels, err := putCfpInputs.ToModels()
+	if err != nil {
+		logger.Set(c).Warnf(err.Error())
+		errDetails := err.Error()
+
+		return nil, common.ResponseHeaders{}, common.NewCustomError(common.CustomErrorCode400, common.Err400Validation, &errDetails, common.HTTPErrorSourceDataspace)
+	}
+
 	request, err := traceabilityentity.NewPostCfpRequestFromModel(cfpModels, operatorID)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return nil, nil
+		return nil, common.ResponseHeaders{}, nil
 	}
 
-	res, err := u.TraceabilityRepository.PostCfp(c, request)
+	res, headers, err := u.TraceabilityRepository.PostCfp(c, request)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -135,16 +124,16 @@ func (u *cfpTraceabilityUsecase) PutCfp(c echo.Context, cfpModels traceability.C
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return nil, err
+		return nil, common.ResponseHeaders{}, err
 	}
 	cfpID, err := uuid.Parse(res.GetCfpID())
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return nil, nil
+		return nil, common.ResponseHeaders{}, nil
 	}
 
 	cfpModels.SetCfpID(cfpID)
 
-	return cfpModels, nil
+	return cfpModels, headers, nil
 }

@@ -13,10 +13,10 @@ import (
 
 // GetPartsStructure
 // Summary: This function get the partsStructure of a request and response.
-// input: getPartsStructureModel(traceability.GetPartsStructureModel) target of the partsStructure
+// input: getPartsStructureInput(traceability.GetPartsStructureInput) target of the partsStructure
 // output: (traceability.PartsStructureEntity) partsStructure entity
 // output: (error) error object
-func (r *ouranosRepository) GetPartsStructure(getPartsStructureModel traceability.GetPartsStructureModel) (traceability.PartsStructureEntity, error) {
+func (r *ouranosRepository) GetPartsStructure(getPartsStructureInput traceability.GetPartsStructureInput) (traceability.PartsStructureEntity, error) {
 	var (
 		partsStructure traceability.PartsStructureEntity
 		parentParts    traceability.PartsModelEntity
@@ -38,8 +38,8 @@ func (r *ouranosRepository) GetPartsStructure(getPartsStructureModel traceabilit
 				parts.deleted_at IS NULL
 				AND parts.trace_id = ?
 				AND parts.operator_id = ?
-			`, getPartsStructureModel.TraceID,
-			getPartsStructureModel.OperatorID).
+			`, getPartsStructureInput.TraceID,
+			getPartsStructureInput.OperatorID).
 		Find(&parentParts).Error
 	if err != nil {
 		logger.Set(nil).Errorf(err.Error())
@@ -65,11 +65,11 @@ func (r *ouranosRepository) GetPartsStructure(getPartsStructureModel traceabilit
 				AND EXISTS (
 					SELECT 1 FROM parts_structures
 					WHERE parts_structures.parent_trace_id = ?
-					AND parts_structures.trace_id = parts.trace_id
+					AND parts_structures.trace_id = parts.trace_id 
 				)
 				AND parts.operator_id = ?
-			`, getPartsStructureModel.TraceID,
-			getPartsStructureModel.OperatorID).
+			`, getPartsStructureInput.TraceID,
+			getPartsStructureInput.OperatorID).
 		Order("parts.trace_id ASC").
 		Find(&childrenParts).
 		Error
@@ -272,4 +272,38 @@ func (r *ouranosRepository) GetPartsStructureByTraceId(traceID string) (traceabi
 	}
 
 	return partsStructure, nil
+}
+
+// ListParentPartsStructureByTraceId
+// Summary: This is function which get PartsStructureEntityModels from partsStructures by using trace_id.
+// input: traceID(string) ID of the trace
+// output: (traceability.PartsStructureEntityModels) partsStructure model
+// output: (error) error object
+func (r *ouranosRepository) ListParentPartsStructureByTraceId(traceID string) (traceability.PartsStructureEntityModels, error) {
+	var es traceability.PartsStructureEntityModels
+
+	if err := r.db.Table("parts_structures").Where("trace_id = ? AND parent_trace_id <> ?", traceID, uuid.Nil.String()).Find(&es).Error; err != nil {
+		logger.Set(nil).Error(err.Error())
+
+		return traceability.PartsStructureEntityModels{}, err
+	}
+
+	return es, nil
+}
+
+// ListChildPartsStructureByTraceId
+// Summary: This is function which get PartsStructureEntityModels from partsStructures by using trace_id.
+// input: traceID(string) ID of the trace
+// output: (traceability.PartsStructureEntityModels) partsStructure model
+// output: (error) error object
+func (r *ouranosRepository) ListChildPartsStructureByTraceId(traceID string) (traceability.PartsStructureEntityModels, error) {
+	var es traceability.PartsStructureEntityModels
+
+	if err := r.db.Table("parts_structures").Where("parent_trace_id = ?", traceID).Find(&es).Error; err != nil {
+		logger.Set(nil).Error(err.Error())
+
+		return traceability.PartsStructureEntityModels{}, err
+	}
+
+	return es, nil
 }

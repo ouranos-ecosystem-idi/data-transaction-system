@@ -27,31 +27,31 @@ func NewStatusUsecase(r repository.OuranosRepository) IStatusUsecase {
 // GetStatus
 // Summary: This is function which get a list of request and response status.
 // input: c(echo.Context) echo context
-// input: getStatusModel(traceability.GetStatusModel) GetStatusModel object
+// input: getStatusInput(traceability.GetStatusInput) GetStatusInput object
 // output: ([]traceability.StatusModel) list of StatusModel
 // output: (*string) next id
 // output: (error) error object
-func (u *statusUsecase) GetStatus(c echo.Context, getStatusModel traceability.GetStatusModel) ([]traceability.StatusModel, *string, error) {
-	statusID := common.UUIDPtrToStringPtr(getStatusModel.StatusID)
-	traceID := common.UUIDPtrToStringPtr(getStatusModel.TraceID)
-	statuses, err := u.OuranosRepository.GetStatus(getStatusModel.OperatorID.String(), getStatusModel.Limit, statusID, traceID, getStatusModel.StatusTarget.ToString())
+func (u *statusUsecase) GetStatus(c echo.Context, getStatusInput traceability.GetStatusInput) ([]traceability.StatusModel, *string, error) {
+	statusID := common.UUIDPtrToStringPtr(getStatusInput.StatusID)
+	traceID := common.UUIDPtrToStringPtr(getStatusInput.TraceID)
+	statuses, err := u.OuranosRepository.GetStatus(getStatusInput.OperatorID.String(), getStatusInput.Limit, statusID, traceID, getStatusInput.StatusTarget.ToString())
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 		return []traceability.StatusModel{}, nil, err
 	}
 
-	count, err := u.OuranosRepository.CountStatus(getStatusModel.OperatorID.String(), statusID, traceID, getStatusModel.StatusTarget.ToString())
+	count, err := u.OuranosRepository.CountStatus(getStatusInput.OperatorID.String(), statusID, traceID, getStatusInput.StatusTarget.ToString())
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 		return []traceability.StatusModel{}, nil, err
 	}
 	// NOTE: Return dummy since it is a fake implementation.
 	var dummyAfterPtr *string
-	if count > getStatusModel.Limit {
+	if count > getStatusInput.Limit {
 		dummyAfter := uuid.New().String()
 		dummyAfterPtr = &dummyAfter
 	}
-	statusModels, err := statuses.ToModels()
+	statusModels, err := statuses.ToModels(traceability.PathStatus)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -61,33 +61,51 @@ func (u *statusUsecase) GetStatus(c echo.Context, getStatusModel traceability.Ge
 // PutStatusCancel
 // Summary: This is function which cancels the status of a request.
 // input: c(echo.Context) echo context
-// input: statusModel(traceability.StatusModel) StatusModel object
+// input: putStatusInput(traceability.PutStatusInput) PutStatusInput object
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *statusUsecase) PutStatusCancel(c echo.Context, statusModel traceability.StatusModel) error {
+func (u *statusUsecase) PutStatusCancel(c echo.Context, putStatusInput traceability.PutStatusInput) (common.ResponseHeaders, error) {
+	statusModel, err := putStatusInput.ToModel()
+	if err != nil {
+		logger.Set(c).Warnf(err.Error())
+		errDetails := err.Error()
+
+		return common.ResponseHeaders{}, common.NewCustomError(common.CustomErrorCode400, common.Err400Validation, &errDetails, common.HTTPErrorSourceDataspace)
+	}
+
 	operatorID := c.Get("operatorID").(string)
-	_, err := u.OuranosRepository.PutStatusCancel(statusModel.StatusID.String(), operatorID)
+	err = u.OuranosRepository.PutStatusCancel(statusModel.StatusID.String(), operatorID)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return err
+		return common.ResponseHeaders{}, err
 	}
 
-	return nil
+	return common.ResponseHeaders{}, nil
 }
 
 // PutStatusReject
 // Summary: This is function which rejects the status of a request.
 // input: c(echo.Context) echo context
-// input: statusModel(traceability.StatusModel) StatusModel object
+// input: putStatusInput(traceability.PutStatusInput) PutStatusInput object
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *statusUsecase) PutStatusReject(c echo.Context, statusModel traceability.StatusModel) error {
+func (u *statusUsecase) PutStatusReject(c echo.Context, putStatusInput traceability.PutStatusInput) (common.ResponseHeaders, error) {
+	statusModel, err := putStatusInput.ToModel()
+	if err != nil {
+		logger.Set(c).Warnf(err.Error())
+		errDetails := err.Error()
+
+		return common.ResponseHeaders{}, common.NewCustomError(common.CustomErrorCode400, common.Err400Validation, &errDetails, common.HTTPErrorSourceDataspace)
+	}
+
 	operatorID := c.Get("operatorID").(string)
-	_, err := u.OuranosRepository.PutStatusReject(statusModel.StatusID.String(), statusModel.ReplyMessage, operatorID)
+	_, err = u.OuranosRepository.PutStatusReject(statusModel.StatusID.String(), statusModel.ReplyMessage, operatorID)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return err
+		return common.ResponseHeaders{}, err
 	}
 
-	return nil
+	return common.ResponseHeaders{}, nil
 }

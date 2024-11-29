@@ -12,6 +12,7 @@ import (
 	"data-spaces-backend/domain/common"
 	"data-spaces-backend/extension/logger"
 
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
@@ -60,11 +61,11 @@ type QueryParams interface{}
 // Get
 // Summary: This is function which is used to get the data from the API
 // input: path(string) Path
-// input: authorization(string) Authorization
+// input: headers(map[string]string) Headers
 // input: params(QueryParams) Query Params
 // output: (string) Response Body
 // output: (error) error object
-func (c *Client) Get(path, authorization string, params QueryParams) (string, error) {
+func (c *Client) Get(context echo.Context, path string, headers map[string]string, params QueryParams) (string, error) {
 	endPointURL := fmt.Sprintf("%v/%v", c.apiBaseURL, path)
 
 	url := buildGetURL(endPointURL, params)
@@ -80,7 +81,9 @@ func (c *Client) Get(path, authorization string, params QueryParams) (string, er
 		req.Header.Set(key, value)
 	}
 
-	req.Header.Set("Authorization", authorization)
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
 
 	logger.Set(nil).Infof(logger.AccessInfoLog, url)
 	resp, err := c.httpClient.Do(req)
@@ -97,7 +100,7 @@ func (c *Client) Get(path, authorization string, params QueryParams) (string, er
 
 		return "", err
 	}
-	bodyDump(false, url, req.Header, nil, body)
+	bodyDump(context, url, req.Header, nil, body, "")
 
 	bodyStr := string(body)
 	if resp.StatusCode != http.StatusOK {
@@ -175,11 +178,11 @@ func buildGetURL(endPointURL string, params QueryParams) string {
 // Post
 // Summary: This is function which is used to post the data to the API
 // input: path(string) Path
-// input: authorization(string) Authorization
+// input: headers(map[string]string) Headers
 // input: body([]byte) Body
-// output: (string) Response Body
+// output: (Response) Response Body and Header
 // output: (error) error object
-func (c *Client) Post(path string, authorization string, body []byte) (string, error) {
+func (c *Client) Post(context echo.Context, path string, headers map[string]string, body []byte) (Response, error) {
 	endPointURL := fmt.Sprintf("%v/%v", c.apiBaseURL, path)
 
 	r := bytes.NewBuffer(body)
@@ -189,19 +192,15 @@ func (c *Client) Post(path string, authorization string, body []byte) (string, e
 	if err != nil {
 		logger.Set(nil).Errorf(err.Error())
 
-		return "", err
+		return Response{}, err
 	}
 
 	for key, value := range c.commonHeaders {
 		req.Header.Set(key, value)
 	}
 
-	req.Header.Set("Authorization", authorization)
-
-	if err != nil {
-		logger.Set(nil).Errorf(err.Error())
-
-		return "", err
+	for key, value := range headers {
+		req.Header.Set(key, value)
 	}
 
 	logger.Set(nil).Infof(logger.AccessInfoLog, endPointURL)
@@ -209,7 +208,7 @@ func (c *Client) Post(path string, authorization string, body []byte) (string, e
 	if err != nil {
 		logger.Set(nil).Errorf(err.Error())
 
-		return "", err
+		return Response{}, err
 	}
 	defer resp.Body.Close()
 
@@ -217,41 +216,116 @@ func (c *Client) Post(path string, authorization string, body []byte) (string, e
 	if err != nil {
 		logger.Set(nil).Errorf(err.Error())
 
-		return "", err
+		return Response{}, err
 	}
-	bodyDump(false, endPointURL, req.Header, body, responseBody)
+	resHeaders := SetResponseHeaders(resp)
+	bodyDump(context, endPointURL, req.Header, body, responseBody, resHeaders.XTrack)
 
 	responseBodyStr := string(responseBody)
 	if resp.StatusCode != http.StatusOK {
-		zap.S().Errorf("TraceabilityAPI Error, URL: %v, Status: %v, Header, %v, Body: %v", req.URL, resp.Status, resp.Header, responseBodyStr)
+		logger.Set(nil).Errorf("TraceabilityAPI Error, URL: %v, Status: %v, Header, %v, Body: %v", req.URL, resp.Status, resp.Header, responseBodyStr)
 		var commonErr *common.CustomError
 		if apiErr := common.ToTracebilityAPIError(responseBodyStr); apiErr != nil {
 			commonErr = apiErr.ToCustomError(resp.StatusCode)
 		} else {
 			commonErr = common.NewCustomError(common.CustomErrorCode500, "Internal Server Error", nil, common.HTTPErrorSourceTraceability)
 		}
-		return "", commonErr
+		return Response{}, commonErr
 	}
 
-	return responseBodyStr, nil
+	PostResponse := Response{
+		Body: responseBodyStr,
+		Headers: common.ResponseHeaders{
+			XTrack: resHeaders.XTrack,
+		},
+	}
+
+	return PostResponse, nil
+}
+
+// Delete
+// Summary: This is function which is used to delete the data from the API
+// input: path(string) Path
+// input: headers(map[string]string) Headers
+// input: params(QueryParams) Query Params
+// output: (string) Response Body
+// output: (error) error object
+func (c *Client) Delete(context echo.Context, path string, headers map[string]string, params QueryParams) (Response, error) {
+	endPointURL := fmt.Sprintf("%v/%v", c.apiBaseURL, path)
+
+	url := buildGetURL(endPointURL, params)
+
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		logger.Set(nil).Errorf(err.Error())
+
+		return Response{}, err
+	}
+
+	for key, value := range c.commonHeaders {
+		req.Header.Set(key, value)
+	}
+
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+
+	logger.Set(nil).Infof(logger.AccessInfoLog, url)
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		logger.Set(nil).Errorf(err.Error())
+
+		return Response{}, err
+	}
+	defer resp.Body.Close()
+
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logger.Set(nil).Errorf(err.Error())
+
+		return Response{}, err
+	}
+
+	resHeaders := SetResponseHeaders(resp)
+	bodyDump(context, url, req.Header, nil, responseBody, resHeaders.XTrack)
+
+	responseBodyStr := string(responseBody)
+	if resp.StatusCode != http.StatusOK {
+		logger.Set(nil).Errorf("TraceabilityAPI Error, URL: %v, Status: %v, Header, %v, Body: %v", req.URL, resp.Status, resp.Header, responseBodyStr)
+		var commonErr *common.CustomError
+		if apiErr := common.ToTracebilityAPIErrorDelete(responseBodyStr); apiErr != nil {
+			commonErr = apiErr.ToCustomError(resp.StatusCode)
+		} else {
+			commonErr = common.NewCustomError(common.CustomErrorCode500, "Internal Server Error", nil, common.HTTPErrorSourceTraceability)
+		}
+		return Response{}, commonErr
+	}
+
+	DeleteResponse := Response{
+		Body: responseBodyStr,
+		Headers: common.ResponseHeaders{
+			XTrack: resHeaders.XTrack,
+		},
+	}
+
+	return DeleteResponse, nil
 }
 
 // bodyDump
 // Summary: This is function which is used to dump the body
-// input: isReq(bool) Is Request
 // input: path(string) Path
 // input: header(http.Header) Header
 // input: reqBody([]byte) Request Body
-func bodyDump(isReq bool, path string, header http.Header, reqBody []byte, resBody []byte) {
-	if common.IsOutputDump() {
+func bodyDump(context echo.Context, path string, header http.Header, reqBody []byte, resBody []byte, xTrack string) {
+
+	if zap.S().Level() == zap.DebugLevel {
+		logger.Set(context).Debugf(logger.TraceabilityAPILog, path, header, string(reqBody), string(resBody), xTrack)
+	} else {
 		for k := range header {
 			if k == "Authorization" {
 				header[k] = []string{"Bearer ******"}
 			}
-			if k == "x-api-key" {
-				header[k] = []string{"******"}
-			}
 		}
-		logger.Set(nil).Debugf(logger.TraceabilityAPIDebugLog, path, header, string(reqBody), string(resBody))
+		logger.Set(context).Infof(logger.TraceabilityAPILog, path, header, "******", "******", xTrack)
 	}
 }

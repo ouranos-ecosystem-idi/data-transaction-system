@@ -139,10 +139,10 @@ type GetTradeRequestInput struct {
 // Summary: This is function which validate value of PutTradeRequestInput.
 // output: (error) error object
 func (i PutTradeRequestInput) Validate() error {
+	var errors []error
 	if err := i.validate(); err != nil {
 		logger.Set(nil).Warnf(err.Error())
-
-		return err
+		errors = append(errors, err)
 	}
 
 	// PutTradeInput.TradeID, PutStatusInput.StatusID, PutStatusInput.TradeID
@@ -150,8 +150,8 @@ func (i PutTradeRequestInput) Validate() error {
 	if !(i.Trade.TradeID == nil && i.Status.TradeID == nil && i.Status.StatusID == nil) &&
 		!(i.Trade.TradeID != nil && i.Status.TradeID != nil && i.Status.StatusID != nil) {
 		logger.Set(nil).Warnf(common.NotHaveValuesError("tradeModel.tradeId", "statusModel.statusId", "statusModel.tradeId"))
-
-		return fmt.Errorf(common.NotHaveValuesError("tradeModel.tradeId", "statusModel.statusId", "statusModel.tradeId"))
+		err := fmt.Errorf(common.NotHaveValuesError("tradeModel.tradeId", "statusModel.statusId", "statusModel.tradeId"))
+		errors = append(errors, err)
 	}
 
 	// An error occurs if the TradeID specified in TradeModel and the TradeID specified in StatusModel do not match.
@@ -160,8 +160,15 @@ func (i PutTradeRequestInput) Validate() error {
 		if *i.Trade.TradeID != *i.Status.TradeID {
 			logger.Set(nil).Warnf(common.InconsistentError("tradeModel.tradeId", "statusModel.tradeId"))
 
-			return fmt.Errorf(common.InconsistentError("tradeModel.tradeId", "statusModel.tradeId"))
+			err := fmt.Errorf(common.InconsistentError("tradeModel.tradeId", "statusModel.tradeId"))
+			errors = append(errors, err)
 		}
+	}
+
+	if len(errors) > 0 {
+		joinedErr := common.JoinErrors(errors)
+		logger.Set(nil).Warnf(joinedErr.Error())
+		return common.JoinErrors(errors)
 	}
 
 	return nil
@@ -171,16 +178,19 @@ func (i PutTradeRequestInput) Validate() error {
 // Summary: This is function which validate value of PutTradeRequestInput.
 // output: (error) error object
 func (i PutTradeRequestInput) validate() error {
+	var errors []error
 	if err := i.Trade.validate(); err != nil {
-		logger.Set(nil).Warnf(err.Error())
-
-		return err
+		errors = append(errors, err)
 	}
 
 	if err := i.Status.validate(); err != nil {
-		logger.Set(nil).Warnf(err.Error())
+		errors = append(errors, err)
+	}
 
-		return err
+	if len(errors) > 0 {
+		joinedErr := common.JoinErrors(errors)
+		logger.Set(nil).Warnf(joinedErr.Error())
+		return common.JoinErrors(errors)
 	}
 	return nil
 }
@@ -212,11 +222,13 @@ func (i PutTradeRequestInput) ToModel() TradeRequestModel {
 		TradeTreeStatus:   i.Status.PutRequestStatusInput.TradeTreeStatus,
 	}
 	statusModel := StatusModel{
-		StatusID:      statusID,
-		TradeID:       tradeID,
-		Message:       &i.Status.Message,
-		RequestStatus: requestStatus,
-		RequestType:   i.Status.RequestType.ToString(),
+		StatusID:        statusID,
+		TradeID:         tradeID,
+		Message:         i.Status.Message,
+		ReplyMessage:    i.Status.ReplyMessage,
+		RequestStatus:   requestStatus,
+		RequestType:     i.Status.RequestType.ToString(),
+		ResponseDueDate: common.StringPtr(i.Status.ResponseDueDate),
 	}
 
 	return TradeRequestModel{
@@ -277,8 +289,8 @@ func (es TradeEntityModels) ToModels() []TradeModel {
 // Summary: This is function which convert TradeRequestEntityModel to array of TradeRequestModel.
 // output: (TradeRequestModel) TradeRequestModel object
 // output: (error) error object
-func (e TradeRequestEntityModel) ToModel() (TradeRequestModel, error) {
-	m, err := e.StatusEntityModel.ToModel()
+func (e TradeRequestEntityModel) ToModel(DataSpacesApi string) (TradeRequestModel, error) {
+	m, err := e.StatusEntityModel.ToModel(DataSpacesApi)
 	if err != nil {
 		return TradeRequestModel{}, err
 	}

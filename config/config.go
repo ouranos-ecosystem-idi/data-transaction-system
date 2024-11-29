@@ -26,9 +26,7 @@ type Config struct {
 		Sslmode  string
 	}
 	GoogleAuth struct {
-		ClientID     string
-		ClientSecret string
-		RedirectURL  string
+		RedirectURL string
 	}
 	LogLevel               string
 	ZapLogLevel            string
@@ -71,8 +69,6 @@ func NewConfig() (*Config, error) {
 	current.Database.Database = os.Getenv("DB_DATABASE")
 	current.Database.Sslmode = os.Getenv("DB_SSLMODE")
 
-	current.GoogleAuth.ClientID = os.Getenv("GOOGLE_CLIENT_ID")
-	current.GoogleAuth.ClientSecret = os.Getenv("GOOGLE_CLIENT_SECRET")
 	current.GoogleAuth.RedirectURL = os.Getenv("GOOGLE_REDIRECT_URL")
 
 	current.LogLevel = os.Getenv("ECHO_LOG_LEVEL")

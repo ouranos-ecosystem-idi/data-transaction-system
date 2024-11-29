@@ -1,8 +1,7 @@
-openapi: 3.0.1
+openapi: 3.0.2
 info:
   title: データ連携基盤 API
-  contact: {}
-  version: 1.0.0
+  version: 1.1.0
 paths:
   /api/v1/authInfo?dataTarget=operator:
     get:
@@ -18,7 +17,7 @@ paths:
         事業者識別子（ローカル）は法人番号を登録します。
         - #2事業者情報取得に追加するQueryパラメータ
           - 下記のQueryパラメータが指定された場合、事業者識別子（ローカル）で検索を行う。未選択の場合は、ログインしている事業者識別子（内部）で検索を行います。
-            - openOperatorId
+            - openOperatorId 
       parameters:
       - name: dataTarget
         in: query
@@ -69,7 +68,8 @@ paths:
                     value:
                       openOperatorId: "9876543210987"
                       operatorAddress: xx県xx市xxxx町1-1
-                      operatorAttribute: {}
+                      operatorAttribute: 
+                        globalOperatorId: null
                       operatorId: d9a38406-cae2-4679-b052-15a75f5531e6
                       operatorName: A株式会社
         "400":
@@ -122,13 +122,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: operator, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: operator, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -314,13 +314,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: operator, method: PUT"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: operator, method: PUT"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -398,7 +398,8 @@ paths:
                         plantAddress: xx県xx市xxxx町1-1-1234
                         plantId: d9a38406-cae2-4679-b052-15a75f5531e9
                         plantName: A工場
-                        plantAttribute: {}
+                        plantAttribute: 
+                          globalPlantId: null
                   overOneIncludeEmptyDataInPlantAttribute:
                     summary: 結果が1件以上の場合かつplantAttributeのフィールドに空文字が設定されている場合
                     value:
@@ -463,13 +464,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: plant, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: plant, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -562,7 +563,7 @@ paths:
                     plantAddress: xx県xx市xxxx町1-1-1234
                     plantId: d9a38406-cae2-4679-b052-15a75f5531e7
                     plantName: A工場
-                    plantAttribute:
+                    plantAttribute: 
                       globalPlantId: "sample1"
                 create:
                   summary: 新規作成する場合
@@ -661,13 +662,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: plant, method: PUT"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T22:59:18.243Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:59:18.243Z, dataTarget: plant, method: PUT"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -767,6 +768,11 @@ paths:
       responses:
         "200":
           description: CfpModelの配列を取得
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -774,6 +780,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/traceability.CfpModel'
               examples:
+                zero:
+                  summary: 結果が0件の場合
+                  value: []
                 parent:
                   summary: 指定したトレース識別子が親の場合
                   value:
@@ -1019,13 +1028,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: cfp, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: cfp, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -1077,6 +1086,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -1151,7 +1173,7 @@ paths:
           application/json:
             schema:
               type: array
-              items:
+              items: 
                 $ref: '#/components/schemas/traceability.CfpModel'
             examples:
                 update1:
@@ -1330,11 +1352,16 @@ paths:
       responses:
         "201":
           description: Created
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
           content:
             application/json:
               schema:
                 type: array
-                items:
+                items: 
                   $ref: '#/components/schemas/traceability.CfpModel'
               example:
                     - cfpId: "d9a38406-cae2-4679-b052-15a75f5531c5"
@@ -1493,13 +1520,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: cfp, method: PUT"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: cfp, method: PUT"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -1551,6 +1578,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -1587,6 +1627,11 @@ paths:
       responses:
         "200":
           description: CfpModelの配列を取得
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -1594,6 +1639,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/traceability.CfpCertificationModel'
               examples:
+                zero:
+                  summary: 結果が0件の場合
+                  value: []
                 parent:
                   summary: 指定したトレース識別子が自社部品の場合
                   value:
@@ -1671,13 +1719,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: cfpCertification, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: cfpCertification, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -1729,6 +1777,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -1775,7 +1836,7 @@ paths:
         example: "50"
       - name: after
         in: query
-        description: データ取得開始位置の識別子を設定します。本項目はResponse HeaderのLink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。
+        description: データ取得開始位置の識別子を設定します。本項目はResponse Headerのlink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。
         required: false
         style: form
         explode: true
@@ -1822,10 +1883,14 @@ paths:
         "200":
           description: PartsModelの配列を取得
           headers:
-            Link:
+            link:
               description: \<https://example.com/api/v1/datatransport?dataTarget=parts&limit=100&after=(uuid)\>;
               style: simple
               explode: false
+              schema:
+                type: string
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
               schema:
                 type: string
           content:
@@ -1910,13 +1975,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: parts, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: parts, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -1968,6 +2033,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -1983,7 +2061,7 @@ paths:
         - operatorIdは変更できません。更新時に指定するoperatorIdは、認証によって得られたoperatorIdと同じ値を指定する必要があります。異なる場合は403エラーとなります。
 
         - traceId,plantIdは変更できません。partsName,supportPartsName,plantIdの組み合わせでtraceIdが採番されるため変更できません。
-
+        
         - traceIdをnull値で指定した場合は新規作成の処理となります。Response BodyのPartsModelに発番されたtraceIdが埋め込まれます。
 
         - traceIdの発番ルール：
@@ -2054,6 +2132,11 @@ paths:
       responses:
         "201":
           description: Created
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -2167,13 +2250,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: parts, method: PUT"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: parts, method: PUT"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -2225,10 +2308,229 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
       x-codegen-request-body-name: RequestBody
+  /api/v1/datatransport?dataTarget=parts&traceId={uuid}:
+    delete:
+      tags:
+      - データ流通システム
+      summary: '#19部品情報削除'
+      description: |-
+        【v2.0.0 追加API】    
+        事業者識別子（内部）、トレース識別子に紐づいた部品を削除します。
+  
+
+        ### 本API利用上の注意点
+        - 削除対象の部品に「親部品」として「部品構成情報」がある場合は削除できません。
+          - エラーが発生した場合には紐づく部品構成情報を削除してから再度実行してください。
+        - 削除対象の部品に「子部品」として「部品構成情報」がある場合は削除できません。
+          - エラーが発生した場合は紐づく部品構成情報を削除してから再度実行してください。
+        - 削除対象の部品が納品先からの依頼に紐づけられている場合は削除できません。
+          - エラーが発生した場合は納品先が紐づく依頼を取り下げてから再度実行してください。
+        - 削除対象の部品が仕入先への依頼に紐づけられている場合は削除できません。
+          - エラーが発生した場合は紐づく依頼を取り下げてから再度実行してください。
+        - 部品に紐づく「CFP情報」・「CFP証明書情報」は削除されます。
+        - データ削除自体は非同期処理となるため、即時処理ではありません。
+        - 部品削除後に同一のoperatorId, plantId, partsName, supportPartsNameの組み合わせで部品を登録すると、新たなtraceIdが発番されます。
+  
+      parameters:
+      - name: dataTarget
+        in: query
+        description: データターゲット
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+        example: parts
+      - name: traceId
+        in: query
+        description: トレース識別子
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+        example: "cb9a4840-8b45-40c8-a647-08688ca68c4e"
+  
+      responses:
+        "204":
+          description: >-
+            No Content
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
+        "400":
+          description: リクエスト自体に問題がある場合の異常ステータスコード
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP400Error'
+              examples:
+                invalidError:
+                  summary: Queryパラメータが不正な場合
+                  value:
+                    code: "[dataspace] BadRequest"
+                    message: "Invalid request parameters, dataTarget: Unexpected query parameter"
+                    detail: "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-13T00:39:39.839Z, dataTarget: parts, method: DELETE"
+                parentRelationshipError:
+                  summary: 削除対象の部品が親部品と紐付けられている場合
+                  value:
+                    code: "[traceability] BadRequest"
+                    message: "指定された部品は部品構成が存在するため削除できません。"
+                    detail: "MSGAECP0014"
+                childRelationshipError:
+                  summary: 削除対象の部品が子部品と紐付けられている場合
+                  value:
+                    code: "[traceability] BadRequest"
+                    message: "指定された部品は部品構成が存在するため削除できません。"
+                    detail: "MSGAECP0014"
+                supplierCFPRequestDependencyError:
+                  summary: 削除対象の部品が仕入先へCFP依頼中の場合
+                  value:
+                    code: "[traceability] BadRequest"
+                    message: "指定された部品は依頼済みのため削除できません。"
+                    detail: "MSGAECP0015"
+                deliveryDestination"CFPRequestDependencyError:
+                  summary: 削除対象の部品が納品先へCFP依頼中の場合
+                  value:
+                    code: "[traceability] BadRequest"
+                    message: "指定された部品は受領済みの依頼に紐づいているため削除できません。"
+                    detail: "MSGAECP0016"
+                partNotExistError:
+                  summary: 削除対象の部品が存在しない場合
+                  value:
+                    code: "[traceability] BadRequest"
+                    message: "指定された部品は存在しません。"
+                    detail: "MSGAECP0013"
+                cfpDeleteFailedError:
+                  summary: 紐付くCFP証明書の削除に失敗した場合
+                  value:
+                    code: "[traceability] BadRequest"
+                    message: "ファイル削除に失敗しました。"
+                    detail: "MSGAECO0034"
+        "401":
+          description: 提供された認証情報が無効または問題がある場合の異常ステータスコード
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP401Error'
+              examples:
+                authenticatedError:
+                  summary: アクセストークンがリクエストに含まれない場合
+                  value:
+                    code: "[auth] Unauthorized"
+                    message: Authentication required
+                    detail: "id: , timeStamp: 2023-12-13T00:42:51.903Z, dataTarget: parts, method: DELETE"
+                authenticatedUnexpectedError:
+                  summary: アクセストークンが期限切れまたは不正の場合
+                  value:
+                    code: "[auth] Unauthorized"
+                    message: Invalid or expired token
+                    detail: "id: , timeStamp: 2023-12-13T00:42:51.903Z, dataTarget: parts, method: DELETE"
+        "403":
+          description: クライアントがリソースへのアクセスを拒否された場合の異常ステータスコード
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP403Error'
+              examples:
+                invalidError:
+                  summary: APIKeyがリクエストに含まれない場合
+                  value:
+                    code: "[auth] AccessDenied"
+                    message: You do not have the necessary privileges
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: parts, method: DELETE"
+                invalidKeyError:
+                  summary: APIKeyが一致しない場合
+                  value:
+                    code: "[auth] AccessDenied"
+                    message: Invalid key
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: parts, method: DELETE"
+        "404":
+          description: 要求されたリソースが存在しない場合の異常ステータスコード
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP404Error'
+              examples:
+                authenticatedError:
+                  summary: 指定されたエンドポイントが存在しない場合
+                  value:
+                    code: "[dataspace] NotFound"
+                    message: Endpoint Not Found
+                    detail: "id: , timeStamp: 2023-12-13T00:45:03.838Z, dataTarget: parts, method: DELETE"
+        "500":
+          description: システムの内部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP500Error'
+              examples:
+                dataspaceError:
+                  summary: データ連携基盤で内部エラーが発生した場合
+                  value:
+                    code: "[dataspace] InternalServerError"
+                    message: Unexpected error occurred
+                    detail: "id: d9a38406-cae2-4679-b052-15a75f5531e6, timeStamp:2023-09-25T14:30:00Z, dataTarget: parts, method:DELETE"
+                traceabilityError:
+                  summary: トレーサビリティ管理システムで内部エラーが発生した場合
+                  value:
+                    code: "[traceability] InternalServerError"
+                    message: "システムエラーが発生しました。管理者にお問い合わせください。"
+                    detail: "MSGAECO0013"
+        "503":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP503Error'
+              examples:
+                authError:
+                  summary: ユーザ認証システムで外部エラーが発生した場合
+                  value:
+                    code: "[auth] ServiceUnavailable"
+                    message: Unexpected error occurred in outer service
+                    detail: "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-11T23:10:02.066Z, dataTarget: parts, method: DELETE"
+                traceabilityError:
+                  summary: トレーサビリティ管理システムで外部エラーが発生した場合
+                  value:
+                    code: "[traceability] ServiceUnavailable"
+                    message: "Now under system maintenance."
+                    detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
+      security:
+        - ApiKeyAuth: []
+        - Authorization: []
   /api/v1/datatransport?dataTarget=partsStructure&traceId={uuid}:
     get:
       tags:
@@ -2262,6 +2564,11 @@ paths:
       responses:
         "200":
           description: PartsStructureModelを取得
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -2270,7 +2577,7 @@ paths:
                 noChildren:
                   summary: 構成部品がない場合
                   value:
-                    parentPartsModel:
+                    parentPartsModel: 
                       amountRequired: null
                       amountRequiredUnit: kilogram
                       operatorId: d9a38406-cae2-4679-b052-15a75f5531e8
@@ -2283,7 +2590,7 @@ paths:
                 hasChildren:
                   summary: 構成部品がある場合
                   value:
-                    parentPartsModel:
+                    parentPartsModel: 
                       amountRequired: null
                       amountRequiredUnit: kilogram
                       operatorId: d9a38406-cae2-4679-b052-15a75f5531e8
@@ -2292,7 +2599,7 @@ paths:
                       supportPartsName: modelA
                       terminatedFlag: false
                       traceId: d9a38406-cae2-4679-b052-15a75f5531f6
-                    childrenPartsModel:
+                    childrenPartsModel: 
                       - amountRequired: 5
                         amountRequiredUnit: kilogram
                         operatorId: d9a38406-cae2-4679-b052-15a75f5531e8
@@ -2351,13 +2658,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-07T00:30:54.204Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-07T00:30:54.204Z, dataTarget: partsStructure, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-07T00:30:54.204Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-07T00:30:54.204Z, dataTarget: partsStructure, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -2409,6 +2716,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -2438,7 +2758,7 @@ paths:
         - traceId,plantIdは変更できません。partsName,supportPartsName,plantIdの組み合わせでtraceIdが採番されるため変更できません。
 
         - 活動量と活動量単位：単位による活動量やCFP値の換算は実施しません。
-
+        
         - 親部品には活動量は登録できないため、nullを指定します。
 
         - 活動量には親部品の単位量あたりに必要な子部品の活動量を登録してください。
@@ -2473,7 +2793,7 @@ paths:
               noChildren:
                 summary: 新規作成する場合
                 value:
-                  parentPartsModel:
+                  parentPartsModel: 
                     amountRequired: null
                     amountRequiredUnit: kilogram
                     operatorId: d9a38406-cae2-4679-b052-15a75f5531e8
@@ -2482,7 +2802,7 @@ paths:
                     supportPartsName: modelA
                     terminatedFlag: false
                     traceId: d9a38406-cae2-4679-b052-15a75f5531f6
-                  childrenPartsModel:
+                  childrenPartsModel: 
                     - amountRequired: 5
                       amountRequiredUnit: kilogram
                       operatorId: d9a38406-cae2-4679-b052-15a75f5531e8
@@ -2494,7 +2814,7 @@ paths:
               hasChildren:
                 summary: 更新する場合
                 value:
-                  parentPartsModel:
+                  parentPartsModel: 
                     amountRequired: null
                     amountRequiredUnit: kilogram
                     operatorId: d9a38406-cae2-4679-b052-15a75f5531e8
@@ -2503,7 +2823,7 @@ paths:
                     supportPartsName: modelA
                     terminatedFlag: false
                     traceId: d9a38406-cae2-4679-b052-15a75f5531f6
-                  childrenPartsModel:
+                  childrenPartsModel: 
                     - amountRequired: 5
                       amountRequiredUnit: kilogram
                       operatorId: d9a38406-cae2-4679-b052-15a75f5531e8
@@ -2516,12 +2836,17 @@ paths:
       responses:
         "201":
           description: Created
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/traceability.PartsStructureModel'
               example:
-                parentPartsModel:
+                parentPartsModel: 
                   amountRequired: null
                   amountRequiredUnit: kilogram
                   operatorId: d9a38406-cae2-4679-b052-15a75f5531e8
@@ -2530,7 +2855,7 @@ paths:
                   supportPartsName: modelA
                   terminatedFlag: false
                   traceId: d9a38406-cae2-4679-b052-15a75f5531f6
-                childrenPartsModel:
+                childrenPartsModel: 
                   - amountRequired: 5
                     amountRequiredUnit: kilogram
                     operatorId: d9a38406-cae2-4679-b052-15a75f5531e8
@@ -2619,13 +2944,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: partsStructure, method: PUT"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: partsStructure, method: PUT"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -2677,6 +3002,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -2699,12 +3037,15 @@ paths:
             - NOT_COMPLETED: 依頼中
             - COMPLETED: 回答完了
             - REJECT: 差戻
-            - CANCEL: 取消
 
           - tradeTreeStatus: 対象の取引関係情報が全て終端したかを表します。ステータスの種類と意味合いは以下になります。
 
             - TERMINATED: 終端済み
             - UNTERMINATED: 未終端
+
+          - completedCount: 依頼先を含む川上企業の回答完了数を表します。tradesCountを用いて、依頼に対する回答状況の進捗を示すために利用してください。
+
+          - tradesCount: 依頼先を含む川上企業のCFP回答依頼件数を表します。tradeTreeStatus.TERMINATED となるまでは、件数が増えることを考慮して利用してください。
 
         - requestType：取引の依頼種別を指定します。現在は下記指定が可能です。
 
@@ -2716,7 +3057,7 @@ paths:
           （※こちらのQueryパラメータを指定することを強く推奨いたします。クエリパラメータを指定しない場合は、応答時間が長くなる可能性がございます）
             - REQUEST: 依頼情報（自社が依頼元）のステータスを取得します
             - RESPONSE: 回答情報（自社が依頼先）のステータスを取得します
-
+          
           - traceId: 指定されたtraceIdに一致する結果のみ返却します。絞り込みは"statusTarget=REQUEST"を併用した場合のみ有効になります。
 
           - statusId: 指定されたstatusIdに一致する結果のみ返却します。絞り込みは"statusTarget=RESPONSE"を併用した場合は検索時間が短いが、statusIdのみ指定した場合は応答時間が長くなる可能性がございます。
@@ -2746,7 +3087,7 @@ paths:
         example: "50"
       - name: after
         in: query
-        description: データ取得開始位置の識別子を設定します。本項目はResponse HeaderのLink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。
+        description: データ取得開始位置の識別子を設定します。本項目はResponse Headerのlink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。
         required: false
         style: form
         explode: true
@@ -2789,11 +3130,14 @@ paths:
         "200":
           description: StatusModelの配列を取得
           headers:
-            Link:
+            link:
               description: \<https://example.com/api/v1/datatransport?dataTarget=status&limit=100&after=(uuid)\>;
-                rel="next
               style: simple
               explode: false
+              schema:
+                type: string
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
               schema:
                 type: string
           content:
@@ -2803,17 +3147,73 @@ paths:
                 items:
                   $ref: '#/components/schemas/traceability.StatusModel'
               examples:
-                cfp01treefalse:
-                  summary: CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがfalseの場合
+                zero:
+                  summary: 結果が0件の場合
+                  value: []
+                cfp01treefalseV1:
+                  summary: CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがfalseの場合（v1登録データ）
                   value:
                       - message: "回答依頼時のメッセージが入ります"
                         replyMessage: null
                         requestStatus:
                           cfpResponseStatus: NOT_COMPLETED
                           tradeTreeStatus: UNTERMINATED
+                          completedCount: null
+                          completedCountModifiedAt: null
+                          tradesCount: null
+                          tradesCountModifiedAt: null
                         requestType: "CFP"
                         statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
                         tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
+                        responseDueDate: null
+                cfp01treefalseV2:
+                  summary: CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがfalseの場合（v2登録データ）
+                  value:
+                      - message: "回答依頼時のメッセージが入ります"
+                        replyMessage: null
+                        requestStatus:
+                          cfpResponseStatus: NOT_COMPLETED
+                          tradeTreeStatus: UNTERMINATED
+                          completedCount: 0
+                          completedCountModifiedAt: "2024-05-23T11:22:33Z"
+                          tradesCount: 0
+                          tradesCountModifiedAt: "2024-05-23T11:22:33Z"
+                        requestType: "CFP"
+                        statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
+                        tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
+                        responseDueDate: "2024-12-31"
+                cfp01treetrueV1:
+                  summary: CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがtrueの場合（v1登録データ）
+                  value:
+                      - message: "回答依頼時のメッセージが入ります"
+                        replyMessage: null
+                        requestStatus:
+                          cfpResponseStatus: NOT_COMPLETED
+                          tradeTreeStatus: TERMINATED
+                          completedCount: null
+                          completedCountModifiedAt: null
+                          tradesCount: null
+                          tradesCountModifiedAt: null
+                        requestType: "CFP"
+                        statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
+                        tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
+                        responseDueDate: null
+                cfp01treetrueV2:
+                  summary: CFP情報登録の依頼情報ステータスが依頼中で樹形図ステータスがtrueの場合（v2登録データ）
+                  value:
+                      - message: "回答依頼時のメッセージが入ります"
+                        replyMessage: null
+                        requestStatus:
+                          cfpResponseStatus: NOT_COMPLETED
+                          tradeTreeStatus: TERMINATED
+                          completedCount: 0
+                          completedCountModifiedAt: "2024-05-23T11:22:33Z"
+                          tradesCount: 0
+                          tradesCountModifiedAt: "2024-05-23T11:22:33Z"
+                        requestType: "CFP"
+                        statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
+                        tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
+                        responseDueDate: "2024-12-31"
                 cfp02treeTrue:
                   summary: CFP情報登録の依頼情報ステータスが回答完了で樹形図ステータスがtrueの場合
                   value:
@@ -2822,31 +3222,30 @@ paths:
                         requestStatus:
                           cfpResponseStatus: COMPLETED
                           tradeTreeStatus: TERMINATED
+                          completedCount: 1
+                          completedCountModifiedAt: "2024-05-23T11:22:33Z"
+                          tradesCount: 1
+                          tradesCountModifiedAt: "2024-05-23T11:22:33Z"
                         requestType: "CFP"
                         statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
                         tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
+                        responseDueDate: "2024-12-31"
                 cfp03treeFalse:
-                  summary: CFP情報登録の依頼情報ステータスが差戻で樹形図ステータスがtrueの場合
+                  summary: CFP情報登録の依頼情報ステータスが差戻で樹形図ステータスがfalseの場合
                   value:
                       - message: "回答依頼時のメッセージが入ります"
                         replyMessage: "回答単位が異なるため、再提出をお願いします"
                         requestStatus:
                           cfpResponseStatus: REJECT
-                          tradeTreeStatus: TERMINATED
+                          tradeTreeStatus: UNTERMINATED
+                          completedCount: 0
+                          completedCountModifiedAt: "2024-05-23T11:22:33Z"
+                          tradesCount: 0
+                          tradesCountModifiedAt: "2024-05-23T11:22:33Z"
                         requestType: "CFP"
                         statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
                         tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
-                cfp04treeFalse:
-                  summary: CFP情報登録の依頼情報ステータスが回答完了で樹形図ステータスがfalseの場合
-                  value:
-                      - message: "回答依頼時のメッセージが入ります"
-                        replyMessage: null
-                        requestStatus:
-                          cfpResponseStatus: CANCEL
-                          tradeTreeStatus: UNNTERMINATED
-                        requestType: "CFP"
-                        statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
-                        tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
+                        responseDueDate: "2024-12-31"
         "400":
           description: リクエスト自体に問題がある場合の異常ステータスコード
           content:
@@ -2897,13 +3296,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: status, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: status, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -2955,6 +3354,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -2966,10 +3378,12 @@ paths:
         事業者識別子（内部）に紐づけられている依頼・回答情報のステータスを変更します。
 
         トレーサビリティ管理システムではrequestStatusフィールドのcfpResponseStatusが取消(CANCEL)か差戻(REJECT)の場合に取り消しと差戻の処理を実施します。
-
+        
+        cfpResponseStatusとtradeTreeStatusは必須項目のため、必ず値を指定してください。
         取消(CANCEL)と差戻以外(REJECT)のステータスが指定された場合は400エラーになります。
 
         依頼差戻の場合のみ、replyMessageに差戻理由を記載し、保存することができます。依頼取消時にはreplyMessageはnullを指定してください。
+        依頼差戻、依頼取消ではresponseDueDate/completedCount/completedCountModifiedAtはnullを指定してください。null以外の値を指定しても保存されません。
 
         依頼取消と依頼差戻の使い分けは下記を想定しております
         - 依頼取消：川下（依頼元）が川上（依頼先）に出している依頼を取り消す時に利用する
@@ -2998,26 +3412,41 @@ paths:
                   value:
                     message: 来月中にご回答をお願いします。
                     replyMessage: null
-                    requestStatus:
+                    requestStatus: 
                       cfpResponseStatus: "CANCEL"
                       tradeTreeStatus: "TERMINATED"
+                      completedCount: null
+                      completedCountModifiedAt: null
+                      tradesCount: null
+                      tradesCountModifiedAt: null
                     requestType: CFP
                     statusId: "d9a38406-cae2-4679-b052-15a75f5531f0"
                     tradeId: "d9a38406-cae2-4679-b052-15a75f5531f1"
+                    responseDueDate: null
                 reject:
                   summary: 依頼差戻の場合
                   value:
                     message: 来月中にご回答をお願いします。
                     replyMessage: 依頼いただいた製品に該当する弊社製品がないため、差戻し致します。
-                    requestStatus:
+                    requestStatus: 
                       cfpResponseStatus: "REJECT"
                       tradeTreeStatus: "TERMINATED"
+                      completedCount: null
+                      completedCountModifiedAt: null
+                      tradesCount: null
+                      tradesCountModifiedAt: null
                     requestType: CFP
                     statusId: "d9a38406-cae2-4679-b052-15a75f5531f0"
                     tradeId: "d9a38406-cae2-4679-b052-15a75f5531f1"
+                    responseDueDate: null
       responses:
         "201":
           description: Created
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
           content: {}
         "400":
           description: リクエスト自体に問題がある場合の異常ステータスコード
@@ -3042,7 +3471,7 @@ paths:
                   summary: 値が許容桁数以上または以下の場合
                   value:
                     code: "[dataspace] BadRequest"
-                    message: "Validation failed, replyMessage: the length must be no more than 100."
+                    message: "Validation failed, replyMessage: the length must be no more than 1000."
                     detail: "id: ba1c69ff-f5a9-32a7-c8b9-7b57e7e6e174, timeStamp: 2024-01-10T12:41:03.722Z, dataTarget: status, method: PUT"
                 invalidTypeError:
                   summary: 型異常の場合
@@ -3093,13 +3522,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: status, method: PUT"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: status, method: PUT"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -3151,6 +3580,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -3193,7 +3635,7 @@ paths:
         example: "50"
       - name: after
         in: query
-        description: データ取得開始位置の識別子を設定します。本項目はResponse HeaderのLink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。
+        description: データ取得開始位置の識別子を設定します。本項目はResponse Headerのlink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。
         required: false
         style: form
         explode: true
@@ -3213,11 +3655,14 @@ paths:
         "200":
           description: TraceModelの配列を取得
           headers:
-            Link:
+            link:
               description: \<https://example.com/api/v1/datatransport?dataTarget=tradeRequest&limit=100&after=(uuid)\>;
-                rel="next
               style: simple
               explode: false
+              schema:
+                type: string
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
               schema:
                 type: string
           content:
@@ -3288,13 +3733,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-08T10:26:44.229Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-08T10:26:44.229Z, dataTarget: tradeRequest, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-08T10:26:44.229Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-08T10:26:44.229Z, dataTarget: tradeRequest, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -3346,6 +3791,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -3354,7 +3812,7 @@ paths:
       - データ流通システム
       summary: '#7取引関係依頼情報更新'
       description: |-
-        トレース識別子で指定した部品の取引情報を登録または更新します。
+        トレース識別子で指定した部品の取引情報を登録します。
 
         使用するモデル：TradeRequestModel（Trademodel & StatusModel）
 
@@ -3371,6 +3829,7 @@ paths:
 
           - tradeId, statusIdはnullを指定してください。tradeId, statusIdはResponse BodyのTradeRequestModelに発番されたIDが代入されます。
           - requestTypeは"CFP"を指定します。
+          - responseDueDateはnullable: trueとなっていますが、必須項目のため、新規作成時にはnull以外を指定ください。nullを指定した場合エラーとなります。
 
         - requestStatusの値およびreplyMessageは変更できない情報になります。
 
@@ -3402,38 +3861,45 @@ paths:
                       requestType: CFP
                       statusId: null
                       tradeId: null
+                      responseDueDate: "2024-12-31"
                     tradeModel:
                       downstreamOperatorId: d9a38406-cae2-4679-b052-15a75f5531e7
                       downstreamTraceId: d9a38406-cae2-4679-b052-15a75f5531e9
                       tradeId: null
                       upsreamOperatorId: d9a38406-cae2-4679-b052-15a75f5531e8
                       upstreamTraceId: null
-                update:
-                  summary: 更新する場合
-                  value:
-                    statusModel:
-                      message: "回答依頼時のメッセージが入ります"
-                      replyMessage: null
-                      requestStatus:
-                        cfpResponseStatus: NOT_COMPLETED
-                        tradeTreeStatus: TERMINATED
-                      requestType: "CFP"
-                      statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
-                      tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
-                    tradeModel:
-                      downstreamOperatorId: d9a38406-cae2-4679-b052-15a75f5531e7
-                      downstreamTraceId: d9a38406-cae2-4679-b052-15a75f5531e9
-                      tradeId: d9a38406-cae2-4679-b052-15a75f5531e6
-                      upstreamOperatorId: d9a38406-cae2-4679-b052-15a75f5531e8
-                      upstreamTraceId: d9a38406-cae2-4679-b052-15a75f5531f0
         required: true
       responses:
         "201":
           description: Created
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/traceability.TradeRequestModel'
+              example:
+                  statusModel:
+                    message: "回答依頼時のメッセージが入ります"
+                    replyMessage: null
+                    requestStatus:
+                      completedCount: null
+                      completedCountModifiedAt: null
+                      tradesCount: null
+                      tradesCountModifiedAt: null
+                    requestType: "CFP"
+                    statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
+                    tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
+                    responseDueDate: "2024-12-31"
+                  tradeModel:
+                    downstreamOperatorId: d9a38406-cae2-4679-b052-15a75f5531e7
+                    downstreamTraceId: d9a38406-cae2-4679-b052-15a75f5531e9
+                    tradeId: d9a38406-cae2-4679-b052-15a75f5531e6
+                    upstreamOperatorId: d9a38406-cae2-4679-b052-15a75f5531e8
+                    upstreamTraceId: null
         "400":
           description: リクエスト自体に問題がある場合の異常ステータスコード
           content:
@@ -3453,11 +3919,17 @@ paths:
                     code: "[dataspace] BadRequest"
                     message: "Validation failed, downstreamTraceId: cannot be blank."
                     detail: "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-11T23:16:33.771Z, dataTarget: tradeRequest, method: PUT"
+                invalidresponseDueDateError:
+                  summary: responseDueDateに日付型以外を指定した場合
+                  value:
+                    code: "[dataspace] BadRequest"
+                    message: "Validation failed, responseDueDate: must be a valid date."
+                    detail: "id: ba1c69ff-f5a9-32a7-c8b9-7b57e7e6e174, timeStamp: 2024-01-09T10:29:06.968Z, dataTarget: tradeRequest, method: PUT"
                 invalidMaxLengthError:
                   summary: 値が許容桁数以上または以下の場合
                   value:
                     code: "[dataspace] BadRequest"
-                    message: "Validation failed, message: the length must be no more than 100."
+                    message: "Validation failed, message: the length must be no more than 1000."
                     detail:  "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-11T23:17:23.936Z, dataTarget: tradeRequest, method: PUT"
                 invalidTypeError:
                   summary: 型異常の場合
@@ -3514,13 +3986,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: tradeRequest, method: PUT"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: tradeRequest, method: PUT"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -3572,6 +4044,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -3588,6 +4073,28 @@ paths:
         川下の活動量は川上には非開示情報のため、nullを渡します。
 
         取得されるモデル：TradeResponseModel(TradeModel&PartsModel&StatusModel)
+
+        - StatusModel
+
+          - requestStatus：取引の依頼種別で指定した範囲が扱うステータスを配列で全て返却します。
+        トレーサビリティ管理システムでは下記が返却されます。
+
+            - cfpResponseStatus: CFPの回答状況を表します。ステータスの種類と意味合いは以下になります。
+
+              - NOT_COMPLETED: 依頼中
+              - COMPLETED: 回答完了
+              - REJECT: 差戻
+
+            - tradeTreeStatus: 対象の取引関係情報が全て終端したかを表します。ステータスの種類と意味合いは以下になります。
+
+              - TERMINATED: 終端済み
+              - UNTERMINATED: 未終端
+
+            - completedCount: 
+              依頼先を含む川上企業の回答完了数を表します。tradesCountを用いて、依頼に対する回答状況の進捗を示すために利用してください。
+
+            - tradesCount: 依頼先を含む川上企業のCFP回答依頼件数を表します。tradeTreeStatus.TERMINATED となるまでは、件数が増えることを考慮して利用してください。
+
 
         取得時のソート順：取引関係作成日時の降順
       parameters:
@@ -3611,7 +4118,7 @@ paths:
         example: "50"
       - name: after
         in: query
-        description: データ取得開始位置の識別子を設定します。本項目はResponse HeaderのLink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。
+        description: データ取得開始位置の識別子を設定します。本項目はResponse Headerのlink項目で返却されたクエリパラメータの組み合わせにて利用されることを想定しており、after単体での利用は想定しておりません。
         required: false
         style: form
         explode: true
@@ -3622,11 +4129,14 @@ paths:
         "200":
           description: TradeModelの配列を取得
           headers:
-            Link:
+            link:
               description: \<https://example.com/api/v1/datatransport?dataTarget=tradeResponse&limit=100&after=(uuid)\>;
-                rel="next
               style: simple
               explode: false
+              schema:
+                type: string
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
               schema:
                 type: string
           content:
@@ -3654,9 +4164,14 @@ paths:
                           requestStatus:
                             cfpResponseStatus: NOT_COMPLETED
                             tradeTreeStatus: TERMINATED
+                            completedCount: 1
+                            completedCountModifiedAt: "2024-05-23T11:22:33Z"
+                            tradesCount: 2
+                            tradesCountModifiedAt: '2024-05-24T22:33:44Z'
                           requestType: "CFP"
                           statusId: "d9a38406-cae2-4679-b052-15a75f553c01"
                           tradeId: "d9a38406-cae2-4679-b052-15a75f5531e6"
+                          responseDueDate: "2024-12-31"
                         partsModel:
                           amountRequired: null
                           amountRequiredUnit: "kilogram"
@@ -3716,13 +4231,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: tradeResponse, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: , method: GET"
+                    detail: "id: , timeStamp: 2023-12-11T23:09:26.850Z, dataTarget: tradeResponse, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -3774,6 +4289,19 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
@@ -3820,6 +4348,11 @@ paths:
       responses:
         "201":
           description: Created
+          headers:
+            x-track:
+              description: REST API呼び出しでエラーなどが発生した時に問い合わせするための識別子
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -3880,13 +4413,13 @@ paths:
                   value:
                     code: "[auth] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: tradeResponse, method: PUT"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: tradeResponse, method: PUT"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -3938,9 +4471,23 @@ paths:
                     code: "[traceability] ServiceUnavailable"
                     message: "Now under system maintenance."
                     detail: "MSGCE000000"
+        "504":
+          description: システムの外部にてエラーが発生している場合
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/common.HTTP504Error'
+              examples:
+                traceabilityError:
+                  summary: トレーサビリティ管理システムでタイムアウトが発生した場合
+                  value:
+                    code: "[traceability] Timeout"
+                    message: ""
+                    detail: "Endpoint request timed out"
       security:
       - ApiKeyAuth: []
       - Authorization: []
+
   /auth/change:
     post:
       tags:
@@ -4237,25 +4784,6 @@ paths:
                     code: "[auth] BadRequest"
                     message: "Validation failed, invalid character ',' looking for beginning of value"
                     detail: "id: d9a38406-cae2-4679-b052-15a75f5531e6, timeStamp: 2023-09-25T14:30:00Z, method: POST"
-        "401":
-          description: 提供された認証情報が無効または問題がある場合の異常ステータスコード
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/common.HTTP401Error'
-              examples:
-                authenticatedError:
-                  summary: アクセストークンがリクエストに含まれない場合
-                  value:
-                    code: "[auth] Unauthorized"
-                    message: Authentication required
-                    detail: "id: d9a38406-cae2-4679-b052-15a75f5531e6, timeStamp: 2023-09-25T14:30:00Z, method: POST"
-                authenticatedUnexpectedError:
-                  summary: アクセストークンが期限切れまたは不正の場合
-                  value:
-                    code: "[auth] Unauthorized"
-                    message: Invalid or expired token
-                    detail: "id: d9a38406-cae2-4679-b052-15a75f5531e6, timeStamp: 2023-09-25T14:30:00Z, method: POST"
         "403":
           description: クライアントがリソースへのアクセスを拒否された場合の異常ステータスコード
           content:
@@ -4372,8 +4900,8 @@ paths:
                   invalidError:
                     summary: Queryパラメータが不正な場合
                     value:
-                      code: "[dataspace] BadRequest"
-                      message: "Invalid request parameters, dataTarget: Unexpected query parameter"
+                      code: "[auth] BadRequest"
+                      message: "Invalid request parameters, operatorIds: Unexpected query parameter"
                       detail: "id: c1367766-27b1-c27f-b2d9-d0f7bd8a5225, timeStamp: 2023-12-04T09:06:20.995Z, dataTarget: operator, method: GET"
         "401":
           description: 提供された認証情報が無効または問題がある場合の異常ステータスコード
@@ -4385,13 +4913,13 @@ paths:
                 authenticatedError:
                   summary: アクセストークンがリクエストに含まれない場合
                   value:
-                    code: "[dataspace] Unauthorized"
+                    code: "[auth] Unauthorized"
                     message: Authentication required
                     detail: "id: , timeStamp: 2023-12-04T08:00:03.952Z, dataTarget: operator, method: GET"
                 authenticatedUnexpectedError:
                   summary: アクセストークンが期限切れまたは不正の場合
                   value:
-                    code: "[dataspace] Unauthorized"
+                    code: "[auth] Unauthorized"
                     message: Invalid or expired token
                     detail: "id: , timeStamp: 2023-12-04T08:00:03.952Z, dataTarget: operator, method: GET"
         "403":
@@ -4406,13 +4934,13 @@ paths:
                   value:
                     code: "[dataspace] AccessDenied"
                     message: You do not have the necessary privileges
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: operator, method: GET"
                 invalidKeyError:
                   summary: APIKeyが一致しない場合
                   value:
                     code: "[auth] AccessDenied"
                     message: Invalid key
-                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: , method: PUT"
+                    detail: "id: , timeStamp: 2023-12-11T22:58:55.308Z, dataTarget: operator, method: GET"
         "404":
           description: 要求されたリソースが存在しない場合の異常ステータスコード
           content:
@@ -4600,6 +5128,21 @@ components:
           type: string
           description: エラーメッセージ
           example: Unexpected error occurred in outer service
+    common.HTTP504Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: エラーステータス
+          example: "[traceability] Timeout"
+        detail:
+          type: string
+          description: 基盤運営事業者向け調査情報
+          example: "Endpoint request timed out"
+        message:
+          type: string
+          description: エラーメッセージ
+          example: ""
     traceability.CfpModel:
       required:
       - cfpId
@@ -4893,17 +5436,18 @@ components:
       - requestType
       - statusId
       - tradeId
+      - responseDueDate
       type: object
       properties:
         message:
-          maxLength: 100
+          maxLength: 1000
           minLength: 0
           type: string
           description: 依頼メッセージ
           example: 回答依頼時のメッセージが入ります
           nullable: true
         replyMessage:
-          maxLength: 100
+          maxLength: 1000
           minLength: 0
           type: string
           description: 差戻メッセージ
@@ -4912,9 +5456,6 @@ components:
         requestStatus:
           type: object
           description: 依頼ステータス
-          required:
-          - cfpResponseStatus
-          - tradeTreeStatus
           properties:
             cfpResponseStatus:
               type: string
@@ -4930,6 +5471,32 @@ components:
               enum:
               - TERMINATED
               - UNTERMINATED
+            completedCount:
+              type: number
+              description: |
+                回答完了数 【v2.0.0 追加項目】
+              example: 1
+              nullable: true
+            completedCountModifiedAt:
+              type: string
+              description: |
+                回答完了数更新日時 【v2.0.0 追加項目】
+              example: '2024-05-23T11:22:33Z'
+              format: date-time
+              nullable: true
+            tradesCount:
+              type: number
+              description: |
+                取引関係数 【v2.0.0 追加項目】
+              example: 2
+              nullable: true
+            tradesCountModifiedAt:
+              type: string
+              description: |
+                取引関係数更新日時 【v2.0.0 追加項目】
+              example: '2024-05-24T22:33:44Z'
+              format: date-time
+              nullable: true
           items:
             type: string
         requestType:
@@ -4953,6 +5520,13 @@ components:
           format: uuid
           nullable: true
           example: d9a38406-cae2-4679-b052-15a75f5531f1
+        responseDueDate:
+          type: string
+          description: |
+            回答希望日 【v2.0.0 追加項目】
+          format: date
+          example: '2024-12-31'
+          nullable: true
     traceability.TradeModel:
       required:
       - downstreamOperatorId

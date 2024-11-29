@@ -42,22 +42,27 @@ type GetTradeRequestsResponseTradeRequest struct {
 // GetTradeRequestsResponseRequest
 // Summary: This is structure which defines GetTradeRequestsResponseRequest.
 type GetTradeRequestsResponseRequest struct {
-	RequestID             string `json:"requestId"`
-	RequestType           string `json:"requestType"`
-	RequestStatus         string `json:"requestStatus"`
-	RequestedToOperatorID string `json:"requestedToOperatorId"`
-	RequestedAt           string `json:"requestedAt"`
-	RequestMessage        string `json:"requestMessage"`
-	ReplyMessage          string `json:"replyMessage"`
+	RequestID                string  `json:"requestId"`
+	RequestType              string  `json:"requestType"`
+	RequestStatus            string  `json:"requestStatus"`
+	RequestedToOperatorID    string  `json:"requestedToOperatorId"`
+	RequestedAt              string  `json:"requestedAt"`
+	RequestMessage           string  `json:"requestMessage"`
+	ReplyMessage             *string `json:"replyMessage"`
+	ResponseDueDate          *string `json:"responseDueDate"`
+	CompletedCount           *int    `json:"completedCount"`
+	CompletedCountModifiedAt *string `json:"completedCountModifiedAt"`
 }
 
 // GetTradeRequestsResponseTrade
 // Summary: This is structure which defines GetTradeRequestsResponseTrade.
 type GetTradeRequestsResponseTrade struct {
-	TradeID       string                                  `json:"tradeId"`
-	TreeStatus    string                                  `json:"treeStatus"`
-	Downstream    GetTradeRequestsResponseTradeDownstream `json:"downstream"`
-	TradeRelation GetTradeRequestsResponseTradeRelation   `json:"tradeRelation"`
+	TradeID               string                                  `json:"tradeId"`
+	TreeStatus            string                                  `json:"treeStatus"`
+	Downstream            GetTradeRequestsResponseTradeDownstream `json:"downstream"`
+	TradeRelation         GetTradeRequestsResponseTradeRelation   `json:"tradeRelation"`
+	TradesCount           *int                                    `json:"tradesCount"`
+	TradesCountModifiedAt *string                                 `json:"tradesCountModifiedAt"`
 }
 
 // GetTradeRequestsResponseTradeDownstream
@@ -247,16 +252,23 @@ func (r GetTradeRequestsResponseTradeRequest) ToStatusModel() (traceability.Stat
 		return traceability.StatusModel{}, err
 	}
 
+	cfpResponseStatus := traceability.CfpResponseStatus(r.Request.RequestStatus)
+	tradeTreeStatus := traceability.TradeTreeStatus(r.Trade.TreeStatus)
 	m := traceability.StatusModel{
 		StatusID: statusID,
 		TradeID:  tradeID,
 		RequestStatus: traceability.RequestStatus{
-			CfpResponseStatus: traceability.CfpResponseStatus(r.Request.RequestStatus),
-			TradeTreeStatus:   traceability.TradeTreeStatus(r.Trade.TreeStatus),
+			CfpResponseStatus:        &cfpResponseStatus,
+			TradeTreeStatus:          &tradeTreeStatus,
+			CompletedCount:           r.Request.CompletedCount,
+			CompletedCountModifiedAt: r.Request.CompletedCountModifiedAt,
+			TradesCount:              r.Trade.TradesCount,
+			TradesCountModifiedAt:    r.Trade.TradesCountModifiedAt,
 		},
-		Message:      &r.Request.RequestMessage,
-		ReplyMessage: &r.Request.ReplyMessage,
-		RequestType:  r.Request.RequestType,
+		Message:         &r.Request.RequestMessage,
+		ReplyMessage:    r.Request.ReplyMessage,
+		RequestType:     r.Request.RequestType,
+		ResponseDueDate: r.Request.ResponseDueDate,
 	}
 
 	return m, nil
@@ -299,16 +311,23 @@ func (r GetTradeRequestsResponseTradeRequest) ToStatusModelForSort() (traceabili
 		return traceability.StatusModelForSort{}, err
 	}
 
+	cfpResponseStatus := traceability.CfpResponseStatus(r.Request.RequestStatus)
+	tradeTreeStatus := traceability.TradeTreeStatus(r.Trade.TreeStatus)
 	m := traceability.StatusModel{
 		StatusID: statusID,
 		TradeID:  tradeID,
 		RequestStatus: traceability.RequestStatus{
-			CfpResponseStatus: traceability.CfpResponseStatus(r.Request.RequestStatus),
-			TradeTreeStatus:   traceability.TradeTreeStatus(r.Trade.TreeStatus),
+			CfpResponseStatus:        &cfpResponseStatus,
+			TradeTreeStatus:          &tradeTreeStatus,
+			CompletedCount:           r.Request.CompletedCount,
+			CompletedCountModifiedAt: r.Request.CompletedCountModifiedAt,
+			TradesCount:              r.Trade.TradesCount,
+			TradesCountModifiedAt:    r.Trade.TradesCountModifiedAt,
 		},
-		Message:      &r.Request.RequestMessage,
-		ReplyMessage: &r.Request.ReplyMessage,
-		RequestType:  r.Request.RequestType,
+		Message:         &r.Request.RequestMessage,
+		ReplyMessage:    r.Request.ReplyMessage,
+		RequestType:     r.Request.RequestType,
+		ResponseDueDate: r.Request.ResponseDueDate,
 	}
 	// convert r.Request.RequestedAt to time.Time
 	requestedAt, err := time.Parse(time.RFC3339, r.Request.RequestedAt)
@@ -443,22 +462,27 @@ type GetTradeRequestsReceivedResponseTradeRequest struct {
 // GetTradeRequestsReceivedResponseTradeRequest
 // Summary: This is structure which defines GetTradeRequestsReceivedResponseTradeRequest.
 type GetTradeRequestsReceivedResponseRequest struct {
-	RequestID               string `json:"requestId"`
-	RequestType             string `json:"requestType"`
-	RequestStatus           string `json:"requestStatus"`
-	RequestedFromOperatorID string `json:"requestedFromOperatorId"`
-	RequestedAt             string `json:"requestedAt"`
-	RequestMessage          string `json:"requestMessage"`
-	ReplyMessage            string `json:"replyMessage"`
+	RequestID                string  `json:"requestId"`
+	RequestType              string  `json:"requestType"`
+	RequestStatus            string  `json:"requestStatus"`
+	RequestedFromOperatorID  string  `json:"requestedFromOperatorId"`
+	RequestedAt              string  `json:"requestedAt"`
+	RequestMessage           string  `json:"requestMessage"`
+	ReplyMessage             *string `json:"replyMessage"`
+	ResponseDueDate          *string `json:"responseDueDate"`
+	CompletedCount           *int    `json:"completedCount"`
+	CompletedCountModifiedAt *string `json:"completedCountModifiedAt"`
 }
 
 // GetTradeRequestsReceivedResponseTrade
 // Summary: This is structure which defines GetTradeRequestsReceivedResponseTrade.
 type GetTradeRequestsReceivedResponseTrade struct {
-	TradeID       string                                          `json:"tradeId"`
-	TradeRelation GetTradeRequestsReceivedResponseTradeRelation   `json:"tradeRelation"`
-	TreeStatus    string                                          `json:"treeStatus"`
-	Downstream    GetTradeRequestsReceivedResponseTradeDownstream `json:"downstream"`
+	TradeID               string                                          `json:"tradeId"`
+	TradeRelation         GetTradeRequestsReceivedResponseTradeRelation   `json:"tradeRelation"`
+	TreeStatus            string                                          `json:"treeStatus"`
+	Downstream            GetTradeRequestsReceivedResponseTradeDownstream `json:"downstream"`
+	TradesCount           *int                                            `json:"tradesCount"`
+	TradesCountModifiedAt *string                                         `json:"tradesCountModifiedAt"`
 }
 
 // GetTradeRequestsReceivedResponseTradeRelation
@@ -659,22 +683,32 @@ func (r GetTradeRequestsReceivedResponseTradeRequest) ToStatusModel() (traceabil
 
 		return traceability.StatusModel{}, nil
 	}
+
+	cfpResponseStatus := traceability.CfpResponseStatus(r.Request.RequestStatus)
+	tradeTreeStatus := traceability.TradeTreeStatus(r.Trade.TreeStatus)
+
 	requestStatus := traceability.RequestStatus{
-		CfpResponseStatus: traceability.CfpResponseStatus(r.Request.RequestStatus),
-		TradeTreeStatus:   traceability.TradeTreeStatus(r.Trade.TreeStatus),
+		CfpResponseStatus:        &cfpResponseStatus,
+		TradeTreeStatus:          &tradeTreeStatus,
+		CompletedCount:           r.Request.CompletedCount,
+		CompletedCountModifiedAt: r.Request.CompletedCountModifiedAt,
+		TradesCount:              r.Trade.TradesCount,
+		TradesCountModifiedAt:    r.Trade.TradesCountModifiedAt,
 	}
 	requestMessage := r.Request.RequestMessage
 	replyMessage := r.Request.ReplyMessage
 	requestType := r.Request.RequestType
+	responseDueDate := r.Request.ResponseDueDate
 
 	// requestStatus
 	m := traceability.StatusModel{
-		StatusID:      statusID,
-		TradeID:       tradeID,
-		RequestStatus: requestStatus,
-		Message:       &requestMessage,
-		ReplyMessage:  &replyMessage,
-		RequestType:   requestType,
+		StatusID:        statusID,
+		TradeID:         tradeID,
+		RequestStatus:   requestStatus,
+		Message:         &requestMessage,
+		ReplyMessage:    replyMessage,
+		RequestType:     requestType,
+		ResponseDueDate: responseDueDate,
 	}
 	return m, nil
 }
@@ -714,12 +748,17 @@ func (r GetTradeRequestsReceivedResponseTradeRequest) ToStatusModelForSort() (tr
 		StatusID: statusID,
 		TradeID:  tradeID,
 		RequestStatus: traceability.RequestStatus{
-			CfpResponseStatus: cfpResponseStatus,
-			TradeTreeStatus:   tradeTreeStatus,
+			CfpResponseStatus:        &cfpResponseStatus,
+			TradeTreeStatus:          &tradeTreeStatus,
+			CompletedCount:           r.Request.CompletedCount,
+			CompletedCountModifiedAt: r.Request.CompletedCountModifiedAt,
+			TradesCount:              r.Trade.TradesCount,
+			TradesCountModifiedAt:    r.Trade.TradesCountModifiedAt,
 		},
-		Message:      &r.Request.RequestMessage,
-		ReplyMessage: &r.Request.ReplyMessage,
-		RequestType:  r.Request.RequestType,
+		Message:         &r.Request.RequestMessage,
+		ReplyMessage:    r.Request.ReplyMessage,
+		RequestType:     r.Request.RequestType,
+		ResponseDueDate: r.Request.ResponseDueDate,
 	}
 
 	requestedAt, err := time.Parse(time.RFC3339, r.Request.RequestedAt)
@@ -843,10 +882,11 @@ type PostTradeRequestsRequest struct {
 // PostTradeRequestsRequestTradeRequest
 // Summary: This is structure which defines PostTradeRequestsRequestTradeRequest.
 type PostTradeRequestsRequestTradeRequest struct {
-	DownstreamTraceID  string `json:"downstreamTraceId"`
-	UpstreamOperatorID string `json:"upstreamOperatorId"`
-	RequestType        string `json:"requestType"`
-	RequestMessage     string `json:"requestMessage"`
+	DownstreamTraceID  string  `json:"downstreamTraceId"`
+	UpstreamOperatorID string  `json:"upstreamOperatorId"`
+	RequestType        string  `json:"requestType"`
+	RequestMessage     *string `json:"requestMessage"`
+	ResponseDueDate    *string `json:"responseDueDate"`
 }
 
 // PostTradeRequestsResponse
@@ -874,7 +914,8 @@ func NewPostTradeRequestRequestFromModel(m traceability.TradeRequestModel) PostT
 			DownstreamTraceID:  m.TradeModel.DownstreamTraceID.String(),
 			UpstreamOperatorID: m.TradeModel.UpstreamOperatorID.String(),
 			RequestType:        m.StatusModel.RequestType,
-			RequestMessage:     *m.StatusModel.Message,
+			RequestMessage:     m.StatusModel.Message,
+			ResponseDueDate:    m.StatusModel.ResponseDueDate,
 		},
 	}
 

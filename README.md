@@ -64,9 +64,9 @@
 ### 動作確認済み実行環境
 |Name                                        |Version |Notes|
 |:-------------------------------------------|:-------|:----|
-|golang                                      |1.19||
-|[golangci-lint](https://golangci-lint.run/welcome/install/)|1.50.1||
-|[mockery](https://vektra.github.io/mockery/)|v2.27.1||
+|golang                                      |1.22||
+|[golangci-lint](https://golangci-lint.run/usage/install/)|1.56.2||
+|[mockery](https://vektra.github.io/mockery/)|v2.42.3||
 |[goreturns](https://github.com/sqs/goreturns)|-|go install|
 |[golang-migrate](https://github.com/golang-migrate/migrate)|-||
 |make                                        |GNU make 3.81||
@@ -115,7 +115,7 @@ make idp-add-local
 ```
 
 [確認]
-- htttp://localhost:4000にアクセスし、Firebaseのブラウザのauthenticationのタブの中身を確認
+- http://localhost:4000 にアクセスし、Firebaseのブラウザのauthenticationのタブの中身を確認
 
 ### 3. データ流通システム
 1. ビルド手順
@@ -174,3 +174,4 @@ Web UIから各種操作を行うことも可能である。
 # 免責事項
 - 本リポジトリの内容は予告なく変更・削除する可能性があります。
 - 本リポジトリの利用により生じた損失及び損害等について、いかなる責任も負わないものとします。
+

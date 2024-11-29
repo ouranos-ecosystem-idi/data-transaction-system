@@ -2,7 +2,6 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"data-spaces-backend/domain/common"
@@ -17,7 +16,7 @@ import (
 // ITradeHandler
 // Summary: This is interface which defines TradeHandler.
 //
-//go:generate mockery --name ITradeHandler --output ../test/mock --case underscore
+//go:generate mockery --name ITradeHandler --output ../../../../test/mock --case underscore
 type ITradeHandler interface {
 	// #10 GetTradeRequestList
 	GetTradeRequest(c echo.Context) error
@@ -142,6 +141,7 @@ func (h *tradeHandler) GetTradeRequest(c echo.Context) error {
 		c.Response().Header().Set("Link", common.CreateAfterLink(h.host, dataTarget, *afterRes, input))
 	}
 
+	common.SetResponseHeader(c, common.ResponseHeaders{})
 	return c.JSON(http.StatusOK, response)
 }
 
@@ -216,6 +216,8 @@ func (h *tradeHandler) GetTradeResponse(c echo.Context) error {
 	if afterRes != nil {
 		c.Response().Header().Set("Link", common.CreateAfterLink(h.host, dataTarget, *afterRes, input))
 	}
+
+	common.SetResponseHeader(c, common.ResponseHeaders{})
 	return c.JSON(http.StatusOK, response)
 }
 
@@ -225,40 +227,34 @@ func (h *tradeHandler) GetTradeResponse(c echo.Context) error {
 // output: (error) error object
 func (h *tradeHandler) PutTradeRequest(c echo.Context) error {
 
-	var PutTradeRequestInput traceability.PutTradeRequestInput
+	var putTradeRequestInput traceability.PutTradeRequestInput
 	dataTarget := c.QueryParam("dataTarget")
 	method := c.Request().Method
 
 	// Obtaining an authentication token
 	operatorID := c.Get("operatorID").(string)
 	// Get request body
-	if err := c.Bind(&PutTradeRequestInput); err != nil {
+	if err := c.Bind(&putTradeRequestInput); err != nil {
 		logger.Set(c).Warnf(err.Error())
 		errDetails := common.FormatBindErrMsg(err)
 
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
 	}
-	fmt.Printf("PutTradeRequestInput: %+v\n", PutTradeRequestInput)
-	fmt.Printf("PutTradeRequestInput.PutTradeInput: %+v\n", PutTradeRequestInput.Trade)
-	fmt.Printf("PutTradeRequestInput.PutStatusInput: %+v\n", PutTradeRequestInput.Status)
 
 	// Validate the obtained RequestBody
-	if err := PutTradeRequestInput.Validate(); err != nil {
+	if err := putTradeRequestInput.Validate(); err != nil {
 		logger.Set(c).Warnf(err.Error())
 		errDetails := err.Error()
 
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
 	}
 	// Error if the business ID specified in TradeModel does not specify its own business ID
-	if PutTradeRequestInput.Trade.DownstreamOperatorID != operatorID {
+	if putTradeRequestInput.Trade.DownstreamOperatorID != operatorID {
 		logger.Set(c).Warnf(common.Err403AccessDenied)
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusForbidden, common.HTTPErrorSourceDataspace, common.Err403AccessDenied, operatorID, dataTarget, method))
 	}
 
-	// Convert to TradeRequestModel
-	tradeRequestModel := PutTradeRequestInput.ToModel()
-
-	response, err := h.tradeUsecase.PutTradeRequest(c, tradeRequestModel)
+	response, headers, err := h.tradeUsecase.PutTradeRequest(c, putTradeRequestInput)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) {
@@ -275,6 +271,7 @@ func (h *tradeHandler) PutTradeRequest(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusInternalServerError, common.HTTPErrorSourceDataspace, common.Err500Unexpected, operatorID, dataTarget, method))
 	}
 
+	common.SetResponseHeader(c, headers)
 	return c.JSON(http.StatusCreated, response)
 }
 
@@ -309,7 +306,6 @@ func (h *tradeHandler) PutTradeResponse(c echo.Context) error {
 
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400InvalidRequest, operatorID, dataTarget, method, errDetails))
 	}
-	fmt.Printf("tradeId: %v, traceId: %v\n", tradeID, traceID)
 
 	putTradeResponseInput := traceability.PutTradeResponseInput{
 		OperatorID: operatorUUID,
@@ -317,7 +313,7 @@ func (h *tradeHandler) PutTradeResponse(c echo.Context) error {
 		TraceID:    traceID,
 	}
 
-	response, err := h.tradeUsecase.PutTradeResponse(c, putTradeResponseInput)
+	response, headers, err := h.tradeUsecase.PutTradeResponse(c, putTradeResponseInput)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) {
@@ -334,5 +330,6 @@ func (h *tradeHandler) PutTradeResponse(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusInternalServerError, common.HTTPErrorSourceDataspace, common.Err500Unexpected, operatorID, dataTarget, method))
 	}
 
+	common.SetResponseHeader(c, headers)
 	return c.JSON(http.StatusCreated, response)
 }

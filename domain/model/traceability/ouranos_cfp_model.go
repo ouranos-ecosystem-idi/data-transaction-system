@@ -213,9 +213,9 @@ func (e DqrType) ToString() string {
 	return string(e)
 }
 
-// GetCfpModel
-// Summary: This is structure which defines GetCfpModel.
-type GetCfpModel struct {
+// GetCfpInput
+// Summary: This is structure which defines GetCfpInput.
+type GetCfpInput struct {
 	OperatorID uuid.UUID
 	TraceIDs   []uuid.UUID
 }
@@ -905,7 +905,7 @@ func (i PutCfpInput) validate() error {
 	}
 
 	var dqrValueErr error
-	if err := i.DqrValue.validate(i.GhgEmission); err != nil {
+	if err := i.DqrValue.validate(); err != nil {
 		dqrValueErr = fmt.Errorf("dqrValue: (%v)", err)
 		errors = append(errors, dqrValueErr)
 	}
@@ -946,9 +946,8 @@ func (i PutCfpInput) isValidCfpTypeAndDqrType() bool {
 
 // validate
 // Summary: This is the function to validate PutDqrValueInput.
-// input: ghgEmission(*float64) GHG emission value
 // output: (error) error object
-func (i PutDqrValueInput) validate(ghgEmission *float64) error {
+func (i PutDqrValueInput) validate() error {
 	return validation.ValidateStruct(&i,
 		validation.Field(
 			&i.TeR,

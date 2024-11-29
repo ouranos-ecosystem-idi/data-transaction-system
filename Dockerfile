@@ -1,4 +1,4 @@
-FROM golang:1.19-buster as builder
+FROM golang:1.22-bookworm as builder
 
 # Create and change to the app directory.
 WORKDIR /app
@@ -15,7 +15,7 @@ COPY . ./
 # Build the binary.
 RUN CGO_ENABLED=0 go build -v -o server .
 
-FROM alpine:3.17.3
+FROM alpine:3.20.3
 
 # Copy the binary to the production image from the builder stage.
 COPY --from=builder /app/server /app/server

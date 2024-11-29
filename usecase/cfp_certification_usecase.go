@@ -11,5 +11,5 @@ import (
 //
 //go:generate mockery --name ICfpCertificationUsecase --output ../test/mock --case underscore
 type ICfpCertificationUsecase interface {
-	GetCfpCertification(c echo.Context, getCfpCertificationModel traceability.GetCfpCertificationModel) (traceability.CfpCertificationModels, error)
+	GetCfpCertification(c echo.Context, getCfpCertificationInput traceability.GetCfpCertificationInput) (traceability.CfpCertificationModels, error)
 }

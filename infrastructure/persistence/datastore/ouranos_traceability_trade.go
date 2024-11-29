@@ -113,6 +113,22 @@ func (r *ouranosRepository) ListTradeByUpstreamTraceID(upstreamTraceID string) (
 	return es, nil
 }
 
+// ListTradeByDownstreamTraceID
+// Summary: This is function which get TradeEntityModels from trades by using downstream_trace_id.
+// input: downstreamTraceID(string) value of downstreamTraceID
+// output: (TradeEntityModels) TradeEntityModels object
+// output: (error) error object
+func (r *ouranosRepository) ListTradeByDownstreamTraceID(downstreamTraceID string) (traceability.TradeEntityModels, error) {
+	var es traceability.TradeEntityModels
+
+	if err := r.db.Table("trades").Where("downstream_trace_id = ?", downstreamTraceID).Find(&es).Error; err != nil {
+		logger.Set(nil).Errorf(err.Error())
+
+		return nil, err
+	}
+	return es, nil
+}
+
 // CountTradeRequest
 // Summary: This is function which get record count from trades by using downstream_operator_id.
 // input: downstreamOperatorID(string) value of downstreamOperatorID
@@ -185,6 +201,11 @@ func (r *ouranosRepository) PutTradeRequest(tradeRequestEntityModel traceability
 						"request_status",
 						"message",
 						"request_type",
+						"response_due_date",
+						"completed_count",
+						"completed_count_modified_at",
+						"trades_count",
+						"trades_count_modified_at",
 						"deleted_at",
 						"updated_at",
 						"updated_user_id",
@@ -227,13 +248,20 @@ func (r *ouranosRepository) PutTradeResponse(putTradeResponseInput traceability.
 			return err
 		}
 
+		updates := traceability.StatusEntityModel{
+			CfpResponseStatus: requestStatus.CfpResponseStatus.ToString(),
+			TradeTreeStatus:   requestStatus.TradeTreeStatus.ToString(),
+			UpdatedAt:         now,
+		}
+
+		if requestStatus.CompletedCount != nil {
+			updates.CompletedCount = requestStatus.CompletedCount
+			updates.CompletedCountModifiedAt = &now
+		}
+
 		if err := tx.Table("request_status").
 			Where("trade_id = ?", putTradeResponseInput.TradeID).
-			Updates(traceability.StatusEntityModel{
-				CfpResponseStatus: requestStatus.CfpResponseStatus.ToString(),
-				TradeTreeStatus:   requestStatus.TradeTreeStatus.ToString(),
-				UpdatedAt:         now,
-			}).
+			Updates(updates).
 			Error; err != nil {
 			logger.Set(nil).Errorf(err.Error())
 			return err
@@ -244,7 +272,7 @@ func (r *ouranosRepository) PutTradeResponse(putTradeResponseInput traceability.
 	if err != nil {
 		logger.Set(nil).Errorf(err.Error())
 
-		return traceability.TradeEntityModel{}, nil
+		return traceability.TradeEntityModel{}, err
 	}
 
 	var e traceability.TradeEntityModel
@@ -252,8 +280,6 @@ func (r *ouranosRepository) PutTradeResponse(putTradeResponseInput traceability.
 		logger.Set(nil).Errorf(err.Error())
 		return traceability.TradeEntityModel{}, err
 	}
-
-	fmt.Printf("PutTradeResponse result: %+v\n", e)
 
 	return e, nil
 }

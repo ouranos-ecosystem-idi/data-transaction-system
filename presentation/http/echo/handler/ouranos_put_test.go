@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
@@ -27,7 +28,7 @@ import (
 // [x] 1-6. 200: 正常系：statusの場合
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectHandler_Put_Normal(tt *testing.T) {
-	var method = "GET"
+	var method = "PUT"
 	var endPoint = "/api/v1"
 
 	tests := []struct {
@@ -123,19 +124,22 @@ func TestProjectHandler_Put(tt *testing.T) {
 		name              string
 		modifyQueryParams func(q url.Values)
 		expectError       string
+		expectStatus      int
 	}{
 		{
 			name: "1-1. 400: バリデーションエラー：dataTargetが含まれない場合",
 			modifyQueryParams: func(q url.Values) {
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, dataTarget: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, dataTarget: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 		{
 			name: "1-2. 400: バリデーションエラー：dataTargetがoperator以外の場合",
 			modifyQueryParams: func(q url.Values) {
 				q.Set("dataTarget", "hoge")
 			},
-			expectError: "code=400, message={[dataspace] BadRequest Invalid request parameters, dataTarget: Unexpected query parameter",
+			expectError:  "code=400, message={[dataspace] BadRequest Invalid request parameters, dataTarget: Unexpected query parameter",
+			expectStatus: http.StatusBadRequest,
 		},
 	}
 
@@ -161,8 +165,10 @@ func TestProjectHandler_Put(tt *testing.T) {
 				h := testhelper.NewMockHandler(host)
 
 				err := h.PutOuranos(c)
+				e.HTTPErrorHandler(err, c)
 				if assert.Error(t, err) {
 					fmt.Println(err)
+					assert.Equal(t, test.expectStatus, rec.Code)
 					assert.ErrorContains(t, err, test.expectError)
 				}
 			},

@@ -112,13 +112,16 @@ func (u *tradeTraceabilityUsecase) GetTradeResponse(c echo.Context, getTradeResp
 // PutTradeRequest
 // Summary: This is function which put trade request with TradeRequestModel.
 // input: c(echo.Context) echo context
-// input: tradeRequestModel(traceability.TradeRequestModel) TradeRequestModel object
+// input: putTradeRequestInput(traceability.PutTradeRequestInput) PutTradeRequestInput object
 // output: (traceability.TradeRequestModel) TradeRequestModel object
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *tradeTraceabilityUsecase) PutTradeRequest(c echo.Context, tradeRequestModel traceability.TradeRequestModel) (traceability.TradeRequestModel, error) {
+func (u *tradeTraceabilityUsecase) PutTradeRequest(c echo.Context, putTradeRequestInput traceability.PutTradeRequestInput) (traceability.TradeRequestModel, common.ResponseHeaders, error) {
+	tradeRequestModel := putTradeRequestInput.ToModel()
+
 	req := traceabilityentity.NewPostTradeRequestRequestFromModel(tradeRequestModel)
 
-	res, err := u.TraceabilityRepository.PostTradeRequests(c, req)
+	res, headers, err := u.TraceabilityRepository.PostTradeRequests(c, req)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -127,15 +130,13 @@ func (u *tradeTraceabilityUsecase) PutTradeRequest(c echo.Context, tradeRequestM
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return traceability.TradeRequestModel{}, err
+		return traceability.TradeRequestModel{}, common.ResponseHeaders{}, err
 	}
-
-	fmt.Printf("PutTradeRequest response: %+v\n", res)
 
 	if len(res) != 1 {
 		logger.Set(c).Errorf(common.UnexpectedResponse("Traceability"))
 
-		return traceability.TradeRequestModel{}, fmt.Errorf(common.UnexpectedResponse("Traceability"))
+		return traceability.TradeRequestModel{}, common.ResponseHeaders{}, fmt.Errorf(common.UnexpectedResponse("Traceability"))
 	}
 	resElem := res[0]
 
@@ -143,7 +144,7 @@ func (u *tradeTraceabilityUsecase) PutTradeRequest(c echo.Context, tradeRequestM
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceability.TradeRequestModel{}, err
+		return traceability.TradeRequestModel{}, common.ResponseHeaders{}, err
 	}
 	tradeRequestModel.StatusModel.StatusID = StatusID
 
@@ -151,12 +152,12 @@ func (u *tradeTraceabilityUsecase) PutTradeRequest(c echo.Context, tradeRequestM
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceability.TradeRequestModel{}, err
+		return traceability.TradeRequestModel{}, common.ResponseHeaders{}, err
 	}
 	tradeRequestModel.TradeModel.TradeID = &tradeID
 	tradeRequestModel.StatusModel.TradeID = tradeID
 
-	return tradeRequestModel, nil
+	return tradeRequestModel, headers, nil
 }
 
 // PutTradeResponse
@@ -164,15 +165,16 @@ func (u *tradeTraceabilityUsecase) PutTradeRequest(c echo.Context, tradeRequestM
 // input: c(echo.Context) echo context
 // input: putTradeResponseInput(traceability.PutTradeResponseInput) PutTradeResponseInput object
 // output: (traceability.TradeModel) TradeModel object
+// output: (common.ResponseHeaders) response headers
 // output: (error) error object
-func (u *tradeTraceabilityUsecase) PutTradeResponse(c echo.Context, putTradeResponseInput traceability.PutTradeResponseInput) (traceability.TradeModel, error) {
+func (u *tradeTraceabilityUsecase) PutTradeResponse(c echo.Context, putTradeResponseInput traceability.PutTradeResponseInput) (traceability.TradeModel, common.ResponseHeaders, error) {
 	tradesRequest := traceabilityentity.PostTradesRequest{
 		OperatorID: putTradeResponseInput.OperatorID.String(),
 		TradeID:    putTradeResponseInput.TradeID.String(),
 		TraceID:    putTradeResponseInput.TraceID.String(),
 	}
 
-	_, err := u.TraceabilityRepository.PostTrades(c, tradesRequest)
+	_, headers, err := u.TraceabilityRepository.PostTrades(c, tradesRequest)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -181,7 +183,7 @@ func (u *tradeTraceabilityUsecase) PutTradeResponse(c echo.Context, putTradeResp
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return traceability.TradeModel{}, err
+		return traceability.TradeModel{}, common.ResponseHeaders{}, err
 	}
 
 	// Obtain the response value using the receipt request information search
@@ -197,20 +199,20 @@ func (u *tradeTraceabilityUsecase) PutTradeResponse(c echo.Context, putTradeResp
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return traceability.TradeModel{}, err
+		return traceability.TradeModel{}, common.ResponseHeaders{}, err
 	}
 
 	tradeModel, err := tradeRequestsReceivedResponse.ExtractModelByTradeID(putTradeResponseInput.TradeID)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceability.TradeModel{}, err
+		return traceability.TradeModel{}, common.ResponseHeaders{}, err
 	}
 
 	if tradeModel == (traceability.TradeModel{}) {
 		logger.Set(c).Errorf(common.NotFoundError("Trade"))
 
-		return traceability.TradeModel{}, fmt.Errorf(common.NotFoundError("Trade"))
+		return traceability.TradeModel{}, common.ResponseHeaders{}, fmt.Errorf(common.NotFoundError("Trade"))
 	}
 
 	// NOTE: Since the response does not include UpstreamOperatorID, set the request information.
@@ -219,5 +221,5 @@ func (u *tradeTraceabilityUsecase) PutTradeResponse(c echo.Context, putTradeResp
 	// NOTE: Due to asynchronous processing, there may be cases where UpstreamTraceID is not set in Get immediately after registration, so set the request information.
 	tradeModel.UpstreamTraceID = &putTradeResponseInput.TraceID
 
-	return tradeModel, nil
+	return tradeModel, headers, nil
 }

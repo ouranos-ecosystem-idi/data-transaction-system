@@ -17,18 +17,23 @@ import (
 // input: c(echo.Context) echo context
 // input: request(traceabilityentity.PostTradeRequestsCancelRequest) PostTradeRequestsCancelRequest object
 // output: (traceabilityentity.PostTradeRequestsCancelResponse) PostTradeRequestsCancelResponse object
+// output: (common.ResponseHeaders) ResponseHeaders object
 // output: (error) error object
-func (r *traceabilityRepository) PostTradeRequestsCancel(c echo.Context, request traceabilityentity.PostTradeRequestsCancelRequest) (traceabilityentity.PostTradeRequestsCancelResponse, error) {
-	token := common.ExtractBearerToken(c)
+func (r *traceabilityRepository) PostTradeRequestsCancel(c echo.Context, request traceabilityentity.PostTradeRequestsCancelRequest) (traceabilityentity.PostTradeRequestsCancelResponse, common.ResponseHeaders, error) {
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
 
 	body, err := json.Marshal(request)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceabilityentity.PostTradeRequestsCancelResponse{}, err
+		return traceabilityentity.PostTradeRequestsCancelResponse{}, common.ResponseHeaders{}, err
 	}
 
-	resString, err := r.cli.Post(client.PathTradeRequestsCancel, token, body)
+	res, err := r.cli.Post(c, client.PathTradeRequestsCancel, headers, body)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -37,16 +42,16 @@ func (r *traceabilityRepository) PostTradeRequestsCancel(c echo.Context, request
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return traceabilityentity.PostTradeRequestsCancelResponse{}, err
+		return traceabilityentity.PostTradeRequestsCancelResponse{}, common.ResponseHeaders{}, err
 	}
-	var res traceabilityentity.PostTradeRequestsCancelResponse
-	if err := json.Unmarshal([]byte(resString), &res); err != nil {
+	var response traceabilityentity.PostTradeRequestsCancelResponse
+	if err := json.Unmarshal([]byte(res.Body), &response); err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceabilityentity.PostTradeRequestsCancelResponse{}, err
+		return traceabilityentity.PostTradeRequestsCancelResponse{}, common.ResponseHeaders{}, err
 	}
 
-	return res, nil
+	return response, res.Headers, nil
 }
 
 // PostTradeRequestsReject
@@ -54,18 +59,23 @@ func (r *traceabilityRepository) PostTradeRequestsCancel(c echo.Context, request
 // input: c(echo.Context) echo context
 // input: request(traceabilityentity.PostTradeRequestsRejectRequest) PostTradeRequestsRejectRequest object
 // output: (traceabilityentity.PostTradeRequestsRejectResponse) PostTradeRequestsRejectResponse object
+// output: (common.ResponseHeaders) ResponseHeaders object
 // output: (error) error object
-func (r *traceabilityRepository) PostTradeRequestsReject(c echo.Context, request traceabilityentity.PostTradeRequestsRejectRequest) (traceabilityentity.PostTradeRequestsRejectResponse, error) {
-	token := common.ExtractBearerToken(c)
+func (r *traceabilityRepository) PostTradeRequestsReject(c echo.Context, request traceabilityentity.PostTradeRequestsRejectRequest) (traceabilityentity.PostTradeRequestsRejectResponse, common.ResponseHeaders, error) {
+	headers := map[string]string{}
+	headers["Authorization"] = common.ExtractBearerToken(c)
+	if lang := common.ExtractAcceptLanguage(c); lang != "" {
+		headers["accept-language"] = lang
+	}
 
 	body, err := json.Marshal(request)
 	if err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceabilityentity.PostTradeRequestsRejectResponse{}, err
+		return traceabilityentity.PostTradeRequestsRejectResponse{}, common.ResponseHeaders{}, err
 	}
 
-	resString, err := r.cli.Post(client.PathTradeRequestsReject, token, body)
+	res, err := r.cli.Post(c, client.PathTradeRequestsReject, headers, body)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) && customErr.IsWarn() {
@@ -74,14 +84,14 @@ func (r *traceabilityRepository) PostTradeRequestsReject(c echo.Context, request
 			logger.Set(c).Errorf(err.Error())
 		}
 
-		return traceabilityentity.PostTradeRequestsRejectResponse{}, err
+		return traceabilityentity.PostTradeRequestsRejectResponse{}, common.ResponseHeaders{}, err
 	}
-	var res traceabilityentity.PostTradeRequestsRejectResponse
-	if err := json.Unmarshal([]byte(resString), &res); err != nil {
+	var response traceabilityentity.PostTradeRequestsRejectResponse
+	if err := json.Unmarshal([]byte(res.Body), &response); err != nil {
 		logger.Set(c).Errorf(err.Error())
 
-		return traceabilityentity.PostTradeRequestsRejectResponse{}, err
+		return traceabilityentity.PostTradeRequestsRejectResponse{}, common.ResponseHeaders{}, err
 	}
 
-	return res, nil
+	return response, res.Headers, nil
 }

@@ -33,9 +33,13 @@ func SetRouter(e *echo.Echo, h handler.AppHandler, config *config.Config, conn *
 
 	e.HTTPErrorHandler = handler.CustomHTTPErrorHandler
 
-	e.Use(custom_middleware.VerifyAPIKey(h))
-	e.Use(custom_middleware.VerifyToken(h))
+	e.GET("/api/v1/datatransport/health", func(c echo.Context) error { return h.HealthCheck(c) })
 
-	e.GET("/api/v1/datatransport", func(c echo.Context) error { return h.GetOuranos(c) })
-	e.PUT("/api/v1/datatransport", func(c echo.Context) error { return h.PutOuranos(c) })
+	authGroup := e.Group("")
+	authGroup.Use(custom_middleware.VerifyAPIKey(h))
+	authGroup.Use(custom_middleware.VerifyToken(h))
+
+	authGroup.GET("/api/v1/datatransport", func(c echo.Context) error { return h.GetOuranos(c) })
+	authGroup.PUT("/api/v1/datatransport", func(c echo.Context) error { return h.PutOuranos(c) })
+	authGroup.DELETE("/api/v1/datatransport", func(c echo.Context) error { return h.DeleteOuranos(c) })
 }

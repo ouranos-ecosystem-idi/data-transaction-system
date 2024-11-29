@@ -29,13 +29,13 @@ func NewCfpCertificationTraceabilityUsecase(r repository.TraceabilityRepository)
 // GetCfpCertification
 // Summary: This function gets cfp certification.
 // input: c(echo.Context) echo context
-// input: getCfpCertificationModel(traceability.GetCfpCertificationModel) GetCfpCertificationModel object
+// input: getCfpCertificationInput(traceability.GetCfpCertificationInput) GetCfpCertificationInput object
 // output: (traceability.CfpCertificationModels) CfpCertificationModels object
 // output: (error) error object
-func (u *cfpCertificationTraceabilityUsecase) GetCfpCertification(c echo.Context, getCfpCertificationModel traceability.GetCfpCertificationModel) (traceability.CfpCertificationModels, error) {
+func (u *cfpCertificationTraceabilityUsecase) GetCfpCertification(c echo.Context, getCfpCertificationInput traceability.GetCfpCertificationInput) (traceability.CfpCertificationModels, error) {
 	getCfpCertificationsRequest := traceabilityentity.GetCfpCertificationsRequest{
-		OperatorID: getCfpCertificationModel.OperatorID.String(),
-		TraceID:    getCfpCertificationModel.TraceID.String(),
+		OperatorID: getCfpCertificationInput.OperatorID.String(),
+		TraceID:    getCfpCertificationInput.TraceID.String(),
 	}
 
 	getCfpCertificationsResponse, err := u.TraceabilityRepository.GetCfpCertifications(c, getCfpCertificationsRequest)
@@ -54,8 +54,8 @@ func (u *cfpCertificationTraceabilityUsecase) GetCfpCertification(c echo.Context
 	}
 
 	getTradeRequestsForCfpCertificationsRequest := traceabilityentity.GetTradeRequestsRequest{
-		OperatorID: getCfpCertificationModel.OperatorID.String(),
-		TraceID:    common.StringPtr(getCfpCertificationModel.TraceID.String()),
+		OperatorID: getCfpCertificationInput.OperatorID.String(),
+		TraceID:    common.StringPtr(getCfpCertificationInput.TraceID.String()),
 	}
 
 	getTradeRequestsResponse, err := u.TraceabilityRepository.GetTradeRequests(c, getTradeRequestsForCfpCertificationsRequest)

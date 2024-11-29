@@ -2,7 +2,6 @@ package handler
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"data-spaces-backend/domain/common"
@@ -16,6 +15,8 @@ import (
 
 // IPartsStructureHandler
 // Summary: This is interface which defines PartsStructureHandler.
+//
+//go:generate mockery --name IPartsStructureHandler --output ../../../../test/mock --case underscore
 type IPartsStructureHandler interface {
 	// #9 GetPartsStructureItem.
 	GetPartsStructureModel(c echo.Context) error
@@ -60,14 +61,12 @@ func (h *partsStructureHandler) GetPartsStructureModel(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400InvalidRequest, operatorID, dataTarget, method, errDetails))
 	}
 
-	fmt.Printf("traceId: %v\n", traceID)
-
-	getPartsStructureModel := traceability.GetPartsStructureModel{
+	getPartsStructureInput := traceability.GetPartsStructureInput{
 		TraceID:    traceID,
 		OperatorID: operatorID,
 	}
 
-	getPartsStructure, err := h.partsStructureUsecase.GetPartsStructure(c, getPartsStructureModel)
+	getPartsStructure, err := h.partsStructureUsecase.GetPartsStructure(c, getPartsStructureInput)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) {
@@ -84,8 +83,8 @@ func (h *partsStructureHandler) GetPartsStructureModel(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusInternalServerError, common.HTTPErrorSourceDataspace, common.Err500Unexpected, operatorID, dataTarget, method))
 	}
 
+	common.SetResponseHeader(c, common.ResponseHeaders{})
 	return c.JSON(http.StatusOK, getPartsStructure)
-
 }
 
 // PutPartsStructureModel
@@ -105,7 +104,6 @@ func (h *partsStructureHandler) PutPartsStructureModel(c echo.Context) error {
 
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
 	}
-	fmt.Printf("PutPartsStructure RequestBody: %+v\n", putPartsStructureInput)
 
 	if err := putPartsStructureInput.Validate(); err != nil {
 		logger.Set(c).Warnf(err.Error())
@@ -130,26 +128,7 @@ func (h *partsStructureHandler) PutPartsStructureModel(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusForbidden, common.HTTPErrorSourceDataspace, common.Err403AccessDenied, operatorID, dataTarget, method))
 	}
 
-	parentPartsModel, err := putPartsStructureInput.ParentPartsInput.ToModel()
-	if err != nil {
-		logger.Set(c).Warnf(err.Error())
-		errDetails := err.Error()
-
-		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
-	}
-	childrenPartsModel, err := putPartsStructureInput.ChildrenPartsInput.ToModels()
-	if err != nil {
-		logger.Set(c).Warnf(err.Error())
-		errDetails := err.Error()
-
-		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusBadRequest, common.HTTPErrorSourceDataspace, common.Err400Validation, operatorID, dataTarget, method, errDetails))
-	}
-	partsStructureModel := traceability.PartsStructureModel{
-		ParentPartsModel:   &parentPartsModel,
-		ChildrenPartsModel: childrenPartsModel,
-	}
-
-	res, err := h.partsStructureUsecase.PutPartsStructure(c, partsStructureModel)
+	res, headers, err := h.partsStructureUsecase.PutPartsStructure(c, putPartsStructureInput)
 	if err != nil {
 		var customErr *common.CustomError
 		if errors.As(err, &customErr) {
@@ -166,5 +145,6 @@ func (h *partsStructureHandler) PutPartsStructureModel(c echo.Context) error {
 		return echo.NewHTTPError(common.HTTPErrorGenerate(http.StatusInternalServerError, common.HTTPErrorSourceDataspace, common.Err500Unexpected, operatorID, dataTarget, method))
 	}
 
+	common.SetResponseHeader(c, headers)
 	return c.JSON(http.StatusCreated, res)
 }
