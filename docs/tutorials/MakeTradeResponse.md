@@ -80,7 +80,11 @@ curl --location --request PUT 'http://localhost:8080/api/v1/datatransport?dataTa
   "plantId": "544a5a35-dab3-469f-8ff5-116a4fe483e8",
   "supportPartsName": "modelB",
   "terminatedFlag": true,
-  "traceId": null
+  "traceId": null,
+  "partsLabelName": "PartsB",
+  "partsAddInfo1": "Ver3.0",
+  "partsAddInfo2": "2024-12-01-2024-12-31",
+  "partsAddInfo3": "任意の情報が入ります"
 }'
 ```
 
@@ -93,7 +97,11 @@ curl --location --request PUT 'http://localhost:8080/api/v1/datatransport?dataTa
     "supportPartsName": "modelB",
     "terminatedFlag": true,
     "amountRequired": null,
-    "amountRequiredUnit": "kilogram"
+    "amountRequiredUnit": "kilogram",
+    "partsLabelName": "PartsB",
+    "partsAddInfo1": "Ver3.0",
+    "partsAddInfo2": "2024-12-01-2024-12-31",
+    "partsAddInfo3": "任意の情報が入ります"
 }
 ```
 
@@ -142,7 +150,11 @@ curl --location --request GET 'http://localhost:8080/api/v1/datatransport?dataTa
             "supportPartsName": "modelA-1",
             "terminatedFlag": false,
             "amountRequired": null,
-            "amountRequiredUnit": "kilogram"
+            "amountRequiredUnit": "kilogram",
+            "partsLabelName": "PartsA1",
+            "partsAddInfo1": "Ver3.0",
+            "partsAddInfo2": "2024-12-01-2024-12-31",
+            "partsAddInfo3": "任意の情報が入ります"
         }
     }
 ]

@@ -193,7 +193,7 @@ func TestProjectHandler_GetPartsStructure(tt *testing.T) {
 // [x] 2-5. 201: 正常系(親を指定、子は空配列を指定)
 // /////////////////////////////////////////////////////////////////////////////////
 
-func TestProjectHandler_PutPartsStructure_Normal(tt *testing.T) {
+func TestProjectHandler_PutPartsStructure_ParentChild_Normal(tt *testing.T) {
 	var method = "PUT"
 	var endPoint = "/api/v1/datatransport"
 	var dataTarget = "partsStructure"
@@ -302,6 +302,140 @@ func TestProjectHandler_PutPartsStructure_Normal(tt *testing.T) {
 // /////////////////////////////////////////////////////////////////////////////////
 // Put /api/v1/datatransport/partsStructure テストケース
 // /////////////////////////////////////////////////////////////////////////////////
+// [x] 3-1. 201: 正常系(入力値が最小値または最小桁数)
+// [x] 3-2. 201: 正常系(入力値が最大値または最大桁数)
+// [x] 3-3. 201: 正常系(nil許容項目がnil)
+// [x] 3-4. 201: 正常系(任意項目が未定義)
+// /////////////////////////////////////////////////////////////////////////////////
+func TestProjectHandler_PutPartsStructure_Normal(tt *testing.T) {
+	var method = "PUT"
+	var endPoint = "/api/v1/datatransport"
+	var dataTarget = "partsStructure"
+
+	tests := []struct {
+		name         string
+		inputFunc    func() traceability.PutPartsStructureInput
+		expectStatus int
+	}{
+		{
+			name: "3-1. 201: 正常系(入力値が最小値または最小桁数)",
+			inputFunc: func() traceability.PutPartsStructureInput {
+				input := f.NewPutPartsStructureInput()
+				input.ParentPartsInput.PartsName = "A"
+				input.ParentPartsInput.SupportPartsName = common.StringPtr("")
+				input.ParentPartsInput.PartsLabelName = common.StringPtr("")
+				input.ParentPartsInput.PartsAddInfo1 = common.StringPtr("")
+				input.ParentPartsInput.PartsAddInfo2 = common.StringPtr("")
+				input.ParentPartsInput.PartsAddInfo3 = common.StringPtr("")
+				(*input.ChildrenPartsInput)[0].PartsName = "A"
+				(*input.ChildrenPartsInput)[0].SupportPartsName = common.StringPtr("")
+				(*input.ChildrenPartsInput)[0].AmountRequired = common.Float64Ptr(0)
+				(*input.ChildrenPartsInput)[0].PartsLabelName = common.StringPtr("")
+				(*input.ChildrenPartsInput)[0].PartsAddInfo1 = common.StringPtr("")
+				(*input.ChildrenPartsInput)[0].PartsAddInfo2 = common.StringPtr("")
+				(*input.ChildrenPartsInput)[0].PartsAddInfo3 = common.StringPtr("")
+				return input
+			},
+			expectStatus: http.StatusCreated,
+		},
+		{
+			name: "3-2. 201: 正常系(入力値が最大値または最大桁数)",
+			inputFunc: func() traceability.PutPartsStructureInput {
+				input := f.NewPutPartsStructureInput()
+				input.ParentPartsInput.PartsName = "12345678901234567890123456789012345678901234567890"
+				input.ParentPartsInput.SupportPartsName = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				input.ParentPartsInput.PartsLabelName = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				input.ParentPartsInput.PartsAddInfo1 = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				input.ParentPartsInput.PartsAddInfo2 = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				input.ParentPartsInput.PartsAddInfo3 = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				(*input.ChildrenPartsInput)[0].PartsName = "12345678901234567890123456789012345678901234567890"
+				(*input.ChildrenPartsInput)[0].SupportPartsName = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				(*input.ChildrenPartsInput)[0].AmountRequired = common.Float64Ptr(99999.99999)
+				(*input.ChildrenPartsInput)[0].PartsLabelName = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				(*input.ChildrenPartsInput)[0].PartsAddInfo1 = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				(*input.ChildrenPartsInput)[0].PartsAddInfo2 = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				(*input.ChildrenPartsInput)[0].PartsAddInfo3 = common.StringPtr("12345678901234567890123456789012345678901234567890")
+				return input
+			},
+			expectStatus: http.StatusCreated,
+		},
+		{
+			name: "3-3. 201: 正常系(nil許容項目がnil)",
+			inputFunc: func() traceability.PutPartsStructureInput {
+				input := f.NewPutPartsStructureInput()
+				input.ParentPartsInput.PartsLabelName = nil
+				input.ParentPartsInput.PartsAddInfo1 = nil
+				input.ParentPartsInput.PartsAddInfo2 = nil
+				input.ParentPartsInput.PartsAddInfo3 = nil
+				(*input.ChildrenPartsInput)[0].PartsLabelName = nil
+				(*input.ChildrenPartsInput)[0].PartsAddInfo1 = nil
+				(*input.ChildrenPartsInput)[0].PartsAddInfo2 = nil
+				(*input.ChildrenPartsInput)[0].PartsAddInfo3 = nil
+				return input
+			},
+			expectStatus: http.StatusCreated,
+		},
+		{
+			name: "3-4. 201: 正常系(任意項目が未定義)",
+			inputFunc: func() traceability.PutPartsStructureInput {
+				input := f.NewPutPartsStructureInput_RequiredOnlyWithUndefined()
+				return input
+			},
+			expectStatus: http.StatusCreated,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		tt.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			input := test.inputFunc()
+			inputJSON, _ := json.Marshal(input)
+
+			q := make(url.Values)
+			q.Set("dataTarget", dataTarget)
+
+			e := echo.New()
+			rec := httptest.NewRecorder()
+			req := httptest.NewRequest(method, endPoint+"?"+q.Encode(), bytes.NewBuffer(inputJSON))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			c := e.NewContext(req, rec)
+			c.SetPath(endPoint)
+			c.Set("operatorID", f.OperatorId)
+
+			parentPartsModel, _ := input.ParentPartsInput.ToModel()
+
+			childrenPartsModel, _ := input.ChildrenPartsInput.ToModels()
+
+			partsStructureModel := traceability.PartsStructureModel{
+				ParentPartsModel:   &parentPartsModel,
+				ChildrenPartsModel: childrenPartsModel,
+			}
+
+			partsStructureUsecase := new(mocks.IPartsStructureUsecase)
+			partsHandler := handler.NewPartsStructureHandler(partsStructureUsecase)
+			partsStructureUsecase.On("PutPartsStructure", c, test.inputFunc()).Return(partsStructureModel, common.ResponseHeaders{}, nil)
+
+			err := partsHandler.PutPartsStructureModel(c)
+			// エラーが発生しないことを確認
+			if assert.NoError(t, err) {
+				// ステータスコードが期待通りであることを確認
+				assert.Equal(t, test.expectStatus, rec.Code)
+				// モックの呼び出しが期待通りであることを確認
+				partsStructureUsecase.AssertExpectations(t)
+			}
+
+			// レスポンスヘッダにX-Trackが含まれているかチェック
+			_, ok := rec.Header()["X-Track"]
+			assert.True(t, ok, "Header should have 'X-Track' key")
+		})
+	}
+}
+
+// /////////////////////////////////////////////////////////////////////////////////
+// Put /api/v1/datatransport/partsStructure テストケース
+// /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1.  400: バリデーションエラー：parentPartsModelが未指定の場合
 // [x] 1-2.  400: バリデーションエラー：parentPartsModelのamountRequiredの値がマイナスの場合
 // [x] 1-3.  400: バリデーションエラー：parentPartsModelのamountRequiredの値が値が桁数オーバーの場合
@@ -309,10 +443,10 @@ func TestProjectHandler_PutPartsStructure_Normal(tt *testing.T) {
 // [x] 1-5.  400: バリデーションエラー：parentPartsModelのoperatorIdの値が未指定の場合
 // [x] 1-6.  400: バリデーションエラー：parentPartsModelのoperatorIdの値がUUID以外の場合
 // [x] 1-7.  400: バリデーションエラー：parentPartsModelのpartsNameの値が未指定の場合
-// [x] 1-8.  400: バリデーションエラー：parentPartsModelのpartsNameの値が21文字以上の場合
+// [x] 1-8.  400: バリデーションエラー：parentPartsModelのpartsNameの値が51文字以上の場合
 // [x] 1-9.  400: バリデーションエラー：parentPartsModelのplantIdの値が未指定の場合
 // [x] 1-10. 400: バリデーションエラー：parentPartsModelのplantIdの値がUUID以外の場合
-// [x] 1-11. 400: バリデーションエラー：parentPartsModelのsupportPartsNameの値が11文字以上の場合
+// [x] 1-11. 400: バリデーションエラー：parentPartsModelのsupportPartsNameの値が51文字以上の場合
 // [x] 1-12. 400: バリデーションエラー：parentPartsModelのterminatedFlagの値が未指定の場合
 // [x] 1-13. 400: バリデーションエラー：parentPartsModelのtraceIdの値がUUID以外の場合
 // [x] 1-14. 400: バリデーションエラー：childPartsModelが未指定の場合
@@ -323,10 +457,10 @@ func TestProjectHandler_PutPartsStructure_Normal(tt *testing.T) {
 // [x] 1-19. 400: バリデーションエラー：childPartsModelのoperatorIdの値が未指定の場合
 // [x] 1-20. 400: バリデーションエラー：childPartsModelのoperatorIdの値がUUID以外の場合
 // [x] 1-21. 400: バリデーションエラー：childPartsModelのpartsNameの値が未指定の場合
-// [x] 1-22. 400: バリデーションエラー：childPartsModelのpartsNameの値が21文字以上の場合
+// [x] 1-22. 400: バリデーションエラー：childPartsModelのpartsNameの値が51文字以上の場合
 // [x] 1-23. 400: バリデーションエラー：childPartsModelのplantIdの値が未指定の場合
 // [x] 1-24. 400: バリデーションエラー：childPartsModelのplantIdの値がUUID以外の場合
-// [x] 1-25. 400: バリデーションエラー：childPartsModelのsupportPartsNameの値が11文字以上の場合
+// [x] 1-25. 400: バリデーションエラー：childPartsModelのsupportPartsNameの値が51文字以上の場合
 // [x] 1-26. 400: バリデーションエラー：childPartsModelのterminatedFlagの値が未指定の場合
 // [x] 1-27. 400: バリデーションエラー：childPartsModelのtraceIdの値がUUID以外の場合
 // [x] 1-28. 400: バリデーションエラー：childPartsModelのamountRequiredの値が少数点以下6桁以上の場合
@@ -347,6 +481,22 @@ func TestProjectHandler_PutPartsStructure_Normal(tt *testing.T) {
 // [x] 1-43. 400: バリデーションエラー：parentPartsModelの1-3と1-5が同時に発生する場合
 // [x] 1-44. 400: バリデーションエラー：childPartsModelの1-19と1-21が同時に発生する場合
 // [x] 1-45. 400: バリデーションエラー：1-5と1-9と1-19と1-21が同時に発生する場合
+// [x] 1-46. 400: バリデーションエラー：parentPartsModelのpartsLabelNameの値が51文字以上の場合
+// [x] 1-47. 400: バリデーションエラー：parentPartsModelのpartsAddInfo1の値が51文字以上の場合
+// [x] 1-48. 400: バリデーションエラー：parentPartsModelのpartsAddInfo2の値が51文字以上の場合
+// [x] 1-49. 400: バリデーションエラー：parentPartsModelのpartsAddInfo3の値が51文字以上の場合
+// [x] 1-50. 400: バリデーションエラー：childPartsModelのpartsLabelNameの値が51文字以上の場合
+// [x] 1-51. 400: バリデーションエラー：childPartsModelのpartsAddInfo1の値が51文字以上の場合
+// [x] 1-52. 400: バリデーションエラー：childPartsModelのpartsAddInfo2の値が51文字以上の場合
+// [x] 1-53. 400: バリデーションエラー：childPartsModelのpartsAddInfo3の値が51文字以上の場合
+// [x] 1-54. 400: バリデーションエラー：parentPartsModelのpartsLabelNameがstring形式でない
+// [x] 1-55. 400: バリデーションエラー：parentPartsModelのpartsAddInfo1がstring形式でない
+// [x] 1-56. 400: バリデーションエラー：parentPartsModelのpartsAddInfo2がstring形式でない
+// [x] 1-57. 400: バリデーションエラー：parentPartsModelのpartsAddInfo3がstring形式でない
+// [x] 1-58. 400: バリデーションエラー：childPartsModelのpartsLabelNameがstring形式でない
+// [x] 1-59. 400: バリデーションエラー：childPartsModelのpartsAddInfo1がstring形式でない
+// [x] 1-60. 400: バリデーションエラー：childPartsModelのpartsAddInfo2がstring形式でない
+// [x] 1-61. 400: バリデーションエラー：childPartsModelのpartsAddInfo3がstring形式でない
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectHandler_PutPartsStructure(tt *testing.T) {
 	var method = "PUT"
@@ -431,13 +581,13 @@ func TestProjectHandler_PutPartsStructure(tt *testing.T) {
 			expectStatus: http.StatusBadRequest,
 		},
 		{
-			name: "1-8. 400: バリデーションエラー：parentPartsModelのpartsNameの値が21文字以上の場合",
+			name: "1-8. 400: バリデーションエラー：parentPartsModelのpartsNameの値が51文字以上の場合",
 			inputFunc: func() traceability.PutPartsStructureInput {
 				input := f.NewPutPartsStructureInput()
-				input.ParentPartsInput.PartsName = "123456789012345678901"
+				input.ParentPartsInput.PartsName = "123456789012345678901234567890123456789012345678901"
 				return input
 			},
-			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel: (partsName: the length must be between 1 and 20.)",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel: (partsName: the length must be between 1 and 50.)",
 			expectStatus: http.StatusBadRequest,
 		},
 		{
@@ -461,13 +611,13 @@ func TestProjectHandler_PutPartsStructure(tt *testing.T) {
 			expectStatus: http.StatusBadRequest,
 		},
 		{
-			name: "1-11. 400: バリデーションエラー：parentPartsModelのsupportPartsNameの値が11文字以上の場合",
+			name: "1-11. 400: バリデーションエラー：parentPartsModelのsupportPartsNameの値が51文字以上の場合",
 			inputFunc: func() traceability.PutPartsStructureInput {
 				input := f.NewPutPartsStructureInput()
-				input.ParentPartsInput.SupportPartsName = common.StringPtr("12345678901")
+				input.ParentPartsInput.SupportPartsName = common.StringPtr("123456789012345678901234567890123456789012345678901")
 				return input
 			},
-			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel: (supportPartsName: the length must be no more than 10.)",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel: (supportPartsName: the length must be no more than 50.)",
 			expectStatus: http.StatusBadRequest,
 		},
 		{
@@ -507,7 +657,7 @@ func TestProjectHandler_PutPartsStructure(tt *testing.T) {
 				(*input.ChildrenPartsInput)[0].AmountRequired = nil
 				return input
 			},
-			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (amountRequired: cannot be blank.)",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (amountRequired: is required.)",
 			expectStatus: http.StatusBadRequest,
 		},
 		{
@@ -561,13 +711,13 @@ func TestProjectHandler_PutPartsStructure(tt *testing.T) {
 			expectStatus: http.StatusBadRequest,
 		},
 		{
-			name: "1-22. 400: バリデーションエラー：childPartsModelのpartsNameの値が21文字以上の場合",
+			name: "1-22. 400: バリデーションエラー：childPartsModelのpartsNameの値が51文字以上の場合",
 			inputFunc: func() traceability.PutPartsStructureInput {
 				input := f.NewPutPartsStructureInput()
-				(*input.ChildrenPartsInput)[0].PartsName = "123456789012345678901"
+				(*input.ChildrenPartsInput)[0].PartsName = "123456789012345678901234567890123456789012345678901"
 				return input
 			},
-			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (partsName: the length must be between 1 and 20.)",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (partsName: the length must be between 1 and 50.)",
 			expectStatus: http.StatusBadRequest,
 		},
 		{
@@ -591,13 +741,13 @@ func TestProjectHandler_PutPartsStructure(tt *testing.T) {
 			expectStatus: http.StatusBadRequest,
 		},
 		{
-			name: "1-25. 400: バリデーションエラー：childPartsModelのsupportPartsNameの値が11文字以上の場合",
+			name: "1-25. 400: バリデーションエラー：childPartsModelのsupportPartsNameの値が51文字以上の場合",
 			inputFunc: func() traceability.PutPartsStructureInput {
 				input := f.NewPutPartsStructureInput()
-				(*input.ChildrenPartsInput)[0].SupportPartsName = common.StringPtr("12345678901")
+				(*input.ChildrenPartsInput)[0].SupportPartsName = common.StringPtr("123456789012345678901234567890123456789012345678901")
 				return input
 			},
-			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (supportPartsName: the length must be no more than 10.)",
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (supportPartsName: the length must be no more than 50.)",
 			expectStatus: http.StatusBadRequest,
 		},
 		{
@@ -803,6 +953,166 @@ func TestProjectHandler_PutPartsStructure(tt *testing.T) {
 				return input
 			},
 			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel: (operatorId: cannot be blank; partsName: cannot be blank.); childrenPartsModel[0]: (operatorId: cannot be blank; partsName: cannot be blank.)",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-46. 400: バリデーションエラー：parentPartsModelのpartsLabelNameの値が51文字以上の場合",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["parentPartsModel"].(map[string]interface{})["partsLabelName"] = common.StringPtr("123456789012345678901234567890123456789012345678901")
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel: (partsLabelName: the length must be no more than 50.)",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-47. 400: バリデーションエラー：parentPartsModelのpartsAddInfo1の値が51文字以上の場合",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["parentPartsModel"].(map[string]interface{})["partsAddInfo1"] = common.StringPtr("123456789012345678901234567890123456789012345678901")
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel: (partsAddInfo1: the length must be no more than 50.)",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-48. 400: バリデーションエラー：parentPartsModelのpartsAddInfo2の値が51文字以上の場合",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["parentPartsModel"].(map[string]interface{})["partsAddInfo2"] = common.StringPtr("123456789012345678901234567890123456789012345678901")
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel: (partsAddInfo2: the length must be no more than 50.)",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-49. 400: バリデーションエラー：parentPartsModelのpartsAddInfo3の値が51文字以上の場合",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["parentPartsModel"].(map[string]interface{})["partsAddInfo3"] = common.StringPtr("123456789012345678901234567890123456789012345678901")
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel: (partsAddInfo3: the length must be no more than 50.)",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-50. 400: バリデーションエラー：childPartsModelのpartsLabelNameの値が51文字以上の場合",
+			inputFunc: func() traceability.PutPartsStructureInput {
+				input := f.NewPutPartsStructureInput()
+				(*input.ChildrenPartsInput)[0].PartsLabelName = common.StringPtr("123456789012345678901234567890123456789012345678901")
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (partsLabelName: the length must be no more than 50.)",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-51. 400: バリデーションエラー：childPartsModelのpartsAddInfo1の値が51文字以上の場合",
+			inputFunc: func() traceability.PutPartsStructureInput {
+				input := f.NewPutPartsStructureInput()
+				(*input.ChildrenPartsInput)[0].PartsAddInfo1 = common.StringPtr("123456789012345678901234567890123456789012345678901")
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (partsAddInfo1: the length must be no more than 50.)",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-52. 400: バリデーションエラー：childPartsModelのpartsAddInfo2の値が51文字以上の場合",
+			inputFunc: func() traceability.PutPartsStructureInput {
+				input := f.NewPutPartsStructureInput()
+				(*input.ChildrenPartsInput)[0].PartsAddInfo2 = common.StringPtr("123456789012345678901234567890123456789012345678901")
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (partsAddInfo2: the length must be no more than 50.)",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-53. 400: バリデーションエラー：childPartsModelのpartsAddInfo3の値が51文字以上の場合",
+			inputFunc: func() traceability.PutPartsStructureInput {
+				input := f.NewPutPartsStructureInput()
+				(*input.ChildrenPartsInput)[0].PartsAddInfo3 = common.StringPtr("123456789012345678901234567890123456789012345678901")
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel[0]: (partsAddInfo3: the length must be no more than 50.)",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-54. 400: バリデーションエラー：parentPartsModelのpartsLabelNameがstring形式でない",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["parentPartsModel"].(map[string]interface{})["partsLabelName"] = 1
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel.partsLabelName: Unmarshal type error: expected=string, got=number.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-55. 400: バリデーションエラー：parentPartsModelのpartsAddInfo1がstring形式でない",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["parentPartsModel"].(map[string]interface{})["partsAddInfo1"] = 1
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel.partsAddInfo1: Unmarshal type error: expected=string, got=number.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-56. 400: バリデーションエラー：parentPartsModelのpartsAddInfo2がstring形式でない",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["parentPartsModel"].(map[string]interface{})["partsAddInfo2"] = 1
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel.partsAddInfo2: Unmarshal type error: expected=string, got=number.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-57. 400: バリデーションエラー：parentPartsModelのpartsAddInfo3がstring形式でない",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["parentPartsModel"].(map[string]interface{})["partsAddInfo3"] = 1
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, parentPartsModel.partsAddInfo3: Unmarshal type error: expected=string, got=number.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-58. 400: バリデーションエラー：childPartsModelのpartsLabelNameがstring形式でない",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["childrenPartsModel"].([]interface{})[0].(map[string]interface{})["partsLabelName"] = 1
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel.partsLabelName: Unmarshal type error: expected=string, got=number.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-59. 400: バリデーションエラー：childPartsModelのpartsAddInfo1がstring形式でない",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["childrenPartsModel"].([]interface{})[0].(map[string]interface{})["partsAddInfo1"] = 1
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel.partsAddInfo1: Unmarshal type error: expected=string, got=number.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-60. 400: バリデーションエラー：childPartsModelのpartsAddInfo2がstring形式でない",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["childrenPartsModel"].([]interface{})[0].(map[string]interface{})["partsAddInfo2"] = 1
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel.partsAddInfo2: Unmarshal type error: expected=string, got=number.",
+			expectStatus: http.StatusBadRequest,
+		},
+		{
+			name: "1-61. 400: バリデーションエラー：childPartsModelのpartsAddInfo3がstring形式でない",
+			invalidInputFunc: func() interface{} {
+				input := f.NewPutPartsStructureInterface()
+				input.(map[string]interface{})["childrenPartsModel"].([]interface{})[0].(map[string]interface{})["partsAddInfo3"] = 1
+				return input
+			},
+			expectError:  "code=400, message={[dataspace] BadRequest Validation failed, childrenPartsModel.partsAddInfo3: Unmarshal type error: expected=string, got=number.",
 			expectStatus: http.StatusBadRequest,
 		},
 	}

@@ -55,6 +55,10 @@ func TestProjectRepository_Traceability_GetParts(tt *testing.T) {
 						AmountUnitName:   common.StringPtr("kilogram"),
 						EndFlag:          false,
 						ParentFlag:       parentFlag,
+						PartsLabelName:   common.StringPtr("PartsB"),
+						PartsAddInfo1:    common.StringPtr("Ver3.0"),
+						PartsAddInfo2:    common.StringPtr("2024-12-01-2024-12-31"),
+						PartsAddInfo3:    common.StringPtr("任意の情報が入ります"),
 					},
 				},
 				Next: "2680ed32-19a3-435b-a094-23ff43aaa612",
@@ -110,7 +114,7 @@ func TestProjectRepository_Traceability_GetParts(tt *testing.T) {
 }
 
 // /////////////////////////////////////////////////////////////////////////////////
-// Traceability GetCfpCertifications テストケース
+// Traceability GetParts テストケース
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 2-1. 異常系：503の場合
 // /////////////////////////////////////////////////////////////////////////////////

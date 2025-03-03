@@ -1,7 +1,6 @@
 package datastore_test
 
 import (
-	"data-spaces-backend/domain/common"
 	"data-spaces-backend/domain/model/traceability"
 	"data-spaces-backend/infrastructure/persistence/datastore"
 	f "data-spaces-backend/test/fixtures"
@@ -25,23 +24,10 @@ func TestProjectRepository_CFPCertification_GetCFPCertifications(tt *testing.T) 
 		expect     traceability.CfpCertificationModels
 	}{
 		{
-			name:       "1-1: 正常系：1件以上の場合",
+			name:       "1-1: 正常系：取得成功の場合",
 			operatorID: f.OperatorID,
 			traceID:    f.TraceID,
-			expect: traceability.CfpCertificationModels{
-				{
-					CfpCertificationID:          "d9a38406-cae2-4679-b052-15a75f5531c5",
-					TraceID:                     f.TraceID,
-					CfpCertificationDescription: common.StringPtr("証明書の説明"),
-					CfpCertificationFileInfo: &[]traceability.CfpCertificationFileInfo{
-						{
-							OperatorID: f.OperatorID,
-							FileID:     "5c07e3e9-c0e5-4a1f-b6a5-78145f7d1855",
-							FileName:   "ダミーファイル.pdf",
-						},
-					},
-				},
-			},
+			expect:     f.CfpCertificationsData,
 		},
 	}
 

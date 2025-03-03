@@ -26,9 +26,10 @@ import (
 // Get /api/v1/datatransport/partsStructure テストケース
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 200: 全項目応答
-// [x] 1-2. 200: 必須項目のみ
-// [x] 1-3. 200: 構成部品なし
-// [x] 1-4. 200: 検索結果なし
+// [x] 1-2. 200: nil許容項目がnil
+// [x] 1-3. 200: 任意項目が未定義
+// [x] 1-4. 200: 構成部品なし
+// [x] 1-5. 200: 検索結果なし
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 
@@ -46,6 +47,10 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			TerminatedFlag:     false,
 			AmountRequired:     nil,
 			AmountRequiredUnit: common.StringPtr("kilogram"),
+			PartsLabelName:     common.StringPtr("PartsA"),
+			PartsAddInfo1:      common.StringPtr("Ver2.0"),
+			PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+			PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 			DeletedAt:          gorm.DeletedAt{Time: time.Now()},
 			CreatedAt:          time.Now(),
 			CreatedUserId:      "seed",
@@ -62,6 +67,10 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 				TerminatedFlag:     false,
 				AmountRequired:     common.Float64Ptr(2.1),
 				AmountRequiredUnit: common.StringPtr("kilogram"),
+				PartsLabelName:     common.StringPtr("PartsB"),
+				PartsAddInfo1:      common.StringPtr("Ver2.0"),
+				PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+				PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 				DeletedAt:          gorm.DeletedAt{Time: time.Now()},
 				CreatedAt:          time.Now(),
 				CreatedUserId:      "seed",
@@ -81,6 +90,10 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			TerminatedFlag:     false,
 			AmountRequired:     nil,
 			AmountRequiredUnit: nil,
+			PartsLabelName:     nil,
+			PartsAddInfo1:      nil,
+			PartsAddInfo2:      nil,
+			PartsAddInfo3:      nil,
 			DeletedAt:          gorm.DeletedAt{Time: time.Now()},
 			CreatedAt:          time.Now(),
 			CreatedUserId:      "seed",
@@ -96,7 +109,44 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 				SupportPartsName:   nil,
 				TerminatedFlag:     false,
 				AmountRequired:     nil,
-				AmountRequiredUnit: common.StringPtr(""),
+				AmountRequiredUnit: nil,
+				PartsLabelName:     nil,
+				PartsAddInfo1:      nil,
+				PartsAddInfo2:      nil,
+				PartsAddInfo3:      nil,
+				DeletedAt:          gorm.DeletedAt{Time: time.Now()},
+				CreatedAt:          time.Now(),
+				CreatedUserId:      "seed",
+				UpdatedAt:          time.Now(),
+				UpdatedUserId:      "seed",
+			},
+		},
+	}
+
+	dsResRequireOnlyWithUndefined := traceability.PartsStructureEntity{
+		ParentPartsEntity: &traceability.PartsModelEntity{
+			TraceID:            uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+			PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
+			PartsName:          "B01",
+			TerminatedFlag:     false,
+			AmountRequired:     nil,
+			AmountRequiredUnit: nil,
+			DeletedAt:          gorm.DeletedAt{Time: time.Now()},
+			CreatedAt:          time.Now(),
+			CreatedUserId:      "seed",
+			UpdatedAt:          time.Now(),
+			UpdatedUserId:      "seed",
+		},
+		ChildrenPartsEntity: traceability.PartsModelEntities{
+			{
+				TraceID:            uuid.MustParse("1c2f37f5-25b9-dea5-346a-7b88035f2553"),
+				OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+				PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
+				PartsName:          "B01001",
+				TerminatedFlag:     false,
+				AmountRequired:     nil,
+				AmountRequiredUnit: nil,
 				DeletedAt:          gorm.DeletedAt{Time: time.Now()},
 				CreatedAt:          time.Now(),
 				CreatedUserId:      "seed",
@@ -116,6 +166,10 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			TerminatedFlag:     false,
 			AmountRequired:     nil,
 			AmountRequiredUnit: nil,
+			PartsLabelName:     common.StringPtr("PartsA"),
+			PartsAddInfo1:      common.StringPtr("Ver2.0"),
+			PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+			PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 			DeletedAt:          gorm.DeletedAt{Time: time.Now()},
 			CreatedAt:          time.Now(),
 			CreatedUserId:      "seed",
@@ -138,7 +192,11 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": "kilogram",
-			"terminatedFlag": false
+			"terminatedFlag": false,
+			"partsLabelName": "PartsA",
+			"partsAddInfo1": "Ver2.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		},
 		"childrenPartsModel": [
 			{
@@ -149,7 +207,11 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
 				"terminatedFlag": false,
-				"amountRequired": 2.1
+				"amountRequired": 2.1,
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver2.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		]
 	}`
@@ -163,7 +225,11 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
 			"terminatedFlag": false,
-			"amountRequired": null
+			"amountRequired": null,
+			"partsLabelName": null,
+			"partsAddInfo1": null,
+			"partsAddInfo2": null,
+			"partsAddInfo3": null
 		},
 		"childrenPartsModel": [
 			{
@@ -173,9 +239,13 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 				"supportPartsName": null,
 				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
-				"amountRequiredUnit": "",
+				"amountRequiredUnit": null,
 				"terminatedFlag": false,
-				"amountRequired": null
+				"amountRequired": null,
+				"partsLabelName": null,
+				"partsAddInfo1": null,
+				"partsAddInfo2": null,
+				"partsAddInfo3": null
 			}
 		]
 	}`
@@ -189,7 +259,11 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
 			"terminatedFlag": false,
-			"amountRequired": null
+			"amountRequired": null,
+			"partsLabelName": "PartsA",
+			"partsAddInfo1": "Ver2.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		},
 		"childrenPartsModel": []
 	}`
@@ -212,19 +286,25 @@ func TestProjectUsecaseDatastore_GetPartsStructure(tt *testing.T) {
 			expect:  dsExpectedResAll,
 		},
 		{
-			name:    "1-2. 200: 必須項目のみ",
+			name:    "1-2. 200: nil許容項目がnil",
 			input:   f.NewGetPartsStructureInput(),
 			receive: dsResRequireOnly,
 			expect:  dsExpectedResRequireOnly,
 		},
 		{
-			name:    "1-3. 200: 構成部品なし",
+			name:    "1-3. 200: 任意項目が未定義",
+			input:   f.NewGetPartsStructureInput(),
+			receive: dsResRequireOnlyWithUndefined,
+			expect:  dsExpectedResRequireOnly,
+		},
+		{
+			name:    "1-4. 200: 構成部品なし",
 			input:   f.NewGetPartsStructureInput(),
 			receive: dsResNoComponent,
 			expect:  dsExpectedResNoComponent,
 		},
 		{
-			name:    "1-4. 200: 検索結果なし",
+			name:    "1-5. 200: 検索結果なし",
 			input:   f.NewGetPartsStructureInput(),
 			receive: dsResNoData,
 			expect:  dsExpectedResNoData,
@@ -334,12 +414,13 @@ func TestProjectUsecasedatastore_GetPartsStructure_Abnormal(tt *testing.T) {
 }
 
 // /////////////////////////////////////////////////////////////////////////////////
-// Get /api/v1/datatransport/partsStructure テストケース
+// PUT /api/v1/datatransport/partsStructure テストケース
 // /////////////////////////////////////////////////////////////////////////////////
-// [x] 1-1. 200: 全項目応答
-// [x] 1-1. 200: 必須項目のみ
-// [x] 1-1. 200: 構成部品なし
-// [x] 1-1. 200: 検索結果なし
+// [x] 1-1. 200: 全項目応答(新規)
+// [x] 1-2. 200: 全項目応答(更新)
+// [x] 1-3. 200: nil許容項目がnil
+// [x] 1-4. 200: 任意項目が未定義
+// [x] 1-5. 200: 構成部品なし
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectUsecaseDatastore_PutPartsStructure(tt *testing.T) {
 
@@ -355,7 +436,11 @@ func TestProjectUsecaseDatastore_PutPartsStructure(tt *testing.T) {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": "kilogram",
-			"terminatedFlag": false
+			"terminatedFlag": false,
+			"partsLabelName": "PartsB",
+			"partsAddInfo1": "Ver3.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		},
 		"childrenPartsModel": [
 			{
@@ -366,9 +451,65 @@ func TestProjectUsecaseDatastore_PutPartsStructure(tt *testing.T) {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
 				"terminatedFlag": false,
-				"amountRequired": 2.1
+				"amountRequired": 2.1,
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		]
+	}`
+
+	dsExpectedResRequireOnly := `{
+		"parentPartsModel": {
+			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
+			"partsName": "B01",
+			"supportPartsName": null,
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+			"amountRequiredUnit": null,
+			"terminatedFlag": false,
+			"amountRequired": null,
+			"partsLabelName": null,
+			"partsAddInfo1": null,
+			"partsAddInfo2": null,
+			"partsAddInfo3": null
+		},
+		"childrenPartsModel": [
+			{
+				"partsStructureId": "2680ed32-19a3-435b-a094-23ff43aaa611_1c2f37f5-25b9-dea5-346a-7b88035f2553",
+				"traceId": "1c2f37f5-25b9-dea5-346a-7b88035f2553",
+				"partsName": "B01001",
+				"supportPartsName": null,
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+				"amountRequiredUnit": null,
+				"terminatedFlag": false,
+				"amountRequired": null,
+				"partsLabelName": null,
+				"partsAddInfo1": null,
+				"partsAddInfo2": null,
+				"partsAddInfo3": null
+			}
+		]
+	}`
+
+	dsExpectedResNoComponent := `{
+		"parentPartsModel": {
+			"traceId": "2680ed32-19a3-435b-a094-23ff43aaa611",
+			"partsName": "B01",
+			"supportPartsName": null,
+			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+			"amountRequiredUnit": "liter",
+			"terminatedFlag": false,
+			"amountRequired": null,
+			"partsLabelName": "PartsB",
+			"partsAddInfo1": "Ver3.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
+		},
+		"childrenPartsModel": []
 	}`
 
 	tests := []struct {
@@ -378,10 +519,34 @@ func TestProjectUsecaseDatastore_PutPartsStructure(tt *testing.T) {
 		expect  string
 	}{
 		{
-			name:    "1-1. 200: 全項目応答",
+			name:    "1-1. 200: 全項目応答(新規)",
+			input:   f.NewPutPartsStructureInput_Insert(),
+			receive: f.NewPutPartsStructureEntityModel(),
+			expect:  dsExpectedResAll,
+		},
+		{
+			name:    "1-2. 200: 全項目応答(更新)",
 			input:   f.NewPutPartsStructureInput(),
 			receive: f.NewPutPartsStructureEntityModel(),
 			expect:  dsExpectedResAll,
+		},
+		{
+			name:    "1-3. 200: nil許容項目がnil",
+			input:   f.NewPutPartsStructureInput_RequiredOnly(),
+			receive: f.NewPutPartsStructureEntityModel_RequiredOnly(),
+			expect:  dsExpectedResRequireOnly,
+		},
+		{
+			name:    "1-4. 200: 任意項目が未定義",
+			input:   f.NewPutPartsStructureInput_RequiredOnlyWithUndefined(),
+			receive: f.NewPutPartsStructureEntityModel_RequiredOnly(),
+			expect:  dsExpectedResRequireOnly,
+		},
+		{
+			name:    "1-5. 200: 構成部品なし",
+			input:   f.NewPutPartsStructureInput_NoComponent(),
+			receive: f.NewPutPartsStructureEntityModel_NoComponent(),
+			expect:  dsExpectedResNoComponent,
 		},
 	}
 

@@ -24,8 +24,8 @@ import (
 // Get /api/v1/datatransport/parts テストケース
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 200: 全項目応答
-// [x] 1-2. 200: 必須項目のみ
-// [x] 1-3. 200: 必須項目のみ(キーなし)
+// [x] 1-2. 200: nil許容項目がnil
+// [x] 1-3. 200: 任意項目が未定義
 // [x] 1-4. 200: 検索結果なし
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectUsecaseTraceability_GetParts(tt *testing.T) {
@@ -42,7 +42,11 @@ func TestProjectUsecaseTraceability_GetParts(tt *testing.T) {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": "kilogram",
-			"terminatedFlag": false
+			"terminatedFlag": false,
+			"partsLabelName": "PartsB",
+			"partsAddInfo1": "Ver3.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		}
 	]`
 
@@ -54,7 +58,11 @@ func TestProjectUsecaseTraceability_GetParts(tt *testing.T) {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
-			"terminatedFlag": false
+			"terminatedFlag": false,
+			"partsLabelName": null,
+			"partsAddInfo1": null,
+			"partsAddInfo2": null,
+			"partsAddInfo3": null
 		}
 	]`
 
@@ -75,14 +83,14 @@ func TestProjectUsecaseTraceability_GetParts(tt *testing.T) {
 			expectAfter: common.StringPtr("2680ed32-19a3-435b-a094-23ff43aaa612"),
 		},
 		{
-			name:        "1-2. 200: 必須項目のみ",
+			name:        "1-2. 200: nil許容項目がnil",
 			input:       f.NewGetPartsInput(),
 			receive:     f.GetParts_RequireItemOnly(),
 			expectData:  dsExpectedResRequireOnly,
 			expectAfter: nil,
 		},
 		{
-			name:        "1-3. 200: 必須項目のみ(キーなし)",
+			name:        "1-3. 200: 任意項目が未定義",
 			input:       f.NewGetPartsInput(),
 			receive:     f.GetParts_RequireItemOnlyWithUndefined(),
 			expectData:  dsExpectedResRequireOnly,

@@ -496,10 +496,14 @@ type GetTradeRequestsReceivedResponseTradeRelation struct {
 // GetTradeRequestsReceivedResponseTradeDownstream
 // Summary: This is structure which defines GetTradeRequestsReceivedResponseTradeDownstream.
 type GetTradeRequestsReceivedResponseTradeDownstream struct {
-	DownstreamPartsItem        string `json:"downstreamPartsItem"`
-	DownstreamSupportPartsItem string `json:"downstreamSupportPartsItem"`
-	DownstreamPlantID          string `json:"downstreamPlantId"`
-	DownstreamAmountUnitName   string `json:"downstreamAmountUnitName"`
+	DownstreamPartsItem        string  `json:"downstreamPartsItem"`
+	DownstreamSupportPartsItem string  `json:"downstreamSupportPartsItem"`
+	DownstreamPlantID          string  `json:"downstreamPlantId"`
+	DownstreamAmountUnitName   string  `json:"downstreamAmountUnitName"`
+	DownstreamPartsLabelName   *string `json:"downstreamPartsLabelName"`
+	DownstreamPartsAddInfo1    *string `json:"downstreamPartsAddInfo1"`
+	DownstreamPartsAddInfo2    *string `json:"downstreamPartsAddInfo2"`
+	DownstreamPartsAddInfo3    *string `json:"downstreamPartsAddInfo3"`
 }
 
 // GetNextPtr
@@ -808,6 +812,10 @@ func (r GetTradeRequestsReceivedResponseTradeRequest) ToPartsModel() (traceabili
 
 		return traceability.PartsModel{}, err
 	}
+	partsLabelName := r.Trade.Downstream.DownstreamPartsLabelName
+	partsAddInfo1 := r.Trade.Downstream.DownstreamPartsAddInfo1
+	partsAddInfo2 := r.Trade.Downstream.DownstreamPartsAddInfo2
+	partsAddInfo3 := r.Trade.Downstream.DownstreamPartsAddInfo3
 
 	m := traceability.PartsModel{
 		TraceID:            traceID,
@@ -818,6 +826,10 @@ func (r GetTradeRequestsReceivedResponseTradeRequest) ToPartsModel() (traceabili
 		TerminatedFlag:     terminatedFlag,
 		AmountRequired:     nil,
 		AmountRequiredUnit: &amountRequiredUnit,
+		PartsLabelName:     partsLabelName,
+		PartsAddInfo1:      partsAddInfo1,
+		PartsAddInfo2:      partsAddInfo2,
+		PartsAddInfo3:      partsAddInfo3,
 	}
 	return m, nil
 

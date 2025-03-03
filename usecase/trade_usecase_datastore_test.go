@@ -498,8 +498,9 @@ func TestProjectUsecaseDatastore_PutTradeRequest_Abnormal(tt *testing.T) {
 // Target: trade_usecase_datastore_impl.go
 // TestPattern:
 // [x] 1-1. 200: 全項目応答
-// [x] 1-2. 200: 必須項目のみ
-// [x] 1-3. 200: 検索結果なし
+// [x] 1-2. 200: nil許容項目がnil
+// [x] 1-3. 200: 任意項目が未定義
+// [x] 1-4. 200: 検索結果なし
 func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 
 	var method = "GET"
@@ -556,6 +557,10 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 		TerminatedFlag:     true,
 		AmountRequired:     common.Float64Ptr(1),
 		AmountRequiredUnit: common.StringPtr(amountRequiredUnit.ToString()),
+		PartsLabelName:     common.StringPtr("PartsA"),
+		PartsAddInfo1:      common.StringPtr("Ver2.0"),
+		PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+		PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 		DeletedAt:          gorm.DeletedAt{Time: time.Now()},
 		CreatedAt:          time.Now(),
 		CreatedUserId:      "seed",
@@ -604,8 +609,27 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 		PartsName:          "B01",
 		SupportPartsName:   nil,
 		TerminatedFlag:     true,
-		AmountRequired:     common.Float64Ptr(1),
-		AmountRequiredUnit: common.StringPtr(amountRequiredUnit.ToString()),
+		AmountRequired:     nil,
+		AmountRequiredUnit: nil,
+		PartsLabelName:     nil,
+		PartsAddInfo1:      nil,
+		PartsAddInfo2:      nil,
+		PartsAddInfo3:      nil,
+		DeletedAt:          gorm.DeletedAt{Time: time.Now()},
+		CreatedAt:          time.Now(),
+		CreatedUserId:      "seed",
+		UpdatedAt:          time.Now(),
+		UpdatedUserId:      "seed",
+	}
+	dsResRequireOnlyPartsWithUndefined := traceability.PartsModelEntity{
+		TraceID:            uuid.MustParse("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
+		OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+		PlantID:            uuid.MustParse("eedf264e-cace-4414-8bd3-e10ce1c090e0"),
+		PartsName:          "B01",
+		SupportPartsName:   nil,
+		TerminatedFlag:     true,
+		AmountRequired:     nil,
+		AmountRequiredUnit: nil,
 		DeletedAt:          gorm.DeletedAt{Time: time.Now()},
 		CreatedAt:          time.Now(),
 		CreatedUserId:      "seed",
@@ -654,6 +678,10 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 				TerminatedFlag:     true,
 				AmountRequired:     nil,
 				AmountRequiredUnit: &amountRequiredUnit,
+				PartsLabelName:     common.StringPtr("PartsA"),
+				PartsAddInfo1:      common.StringPtr("Ver2.0"),
+				PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+				PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 			},
 		},
 	}
@@ -691,7 +719,11 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 				SupportPartsName:   nil,
 				TerminatedFlag:     true,
 				AmountRequired:     nil,
-				AmountRequiredUnit: &amountRequiredUnit,
+				AmountRequiredUnit: nil,
+				PartsLabelName:     nil,
+				PartsAddInfo1:      nil,
+				PartsAddInfo2:      nil,
+				PartsAddInfo3:      nil,
 			},
 		},
 	}
@@ -717,7 +749,7 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 			expectAfter:   nil,
 		},
 		{
-			name:          "1-2. 200: 必須項目のみ",
+			name:          "1-2. 200: nil許容項目がnil",
 			input:         f.NewGetTradeResponseInput(),
 			receiveTrade:  dsResRequireOnlyTrade,
 			receiveStatus: dsResRequireOnlyStatus,
@@ -726,7 +758,16 @@ func TestProjectUsecaseDatastore_GetTradeResponse(tt *testing.T) {
 			expectAfter:   nil,
 		},
 		{
-			name:          "1-3. 200: 検索結果なし",
+			name:          "1-3. 200: 任意項目が未定義",
+			input:         f.NewGetTradeResponseInput(),
+			receiveTrade:  dsResRequireOnlyTrade,
+			receiveStatus: dsResRequireOnlyStatus,
+			receiveParts:  dsResRequireOnlyPartsWithUndefined,
+			expectData:    dsExpectedRequireOnly,
+			expectAfter:   nil,
+		},
+		{
+			name:          "1-4. 200: 検索結果なし",
 			input:         f.NewGetTradeResponseInput(),
 			receiveTrade:  dsResNoDataTrade,
 			receiveStatus: dsResNoDataStatus,

@@ -17,6 +17,7 @@ import (
 // PartsStructure GetPartsStructure テストケース
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 正常系：取得成功の場合
+// [x] 1-2. 正常系：nil許容項目がnilの場合
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectRepository_Parts_GetPartsStructure(tt *testing.T) {
 
@@ -41,6 +42,10 @@ func TestProjectRepository_Parts_GetPartsStructure(tt *testing.T) {
 					TerminatedFlag:     false,
 					AmountRequired:     nil,
 					AmountRequiredUnit: common.StringPtr("kilogram"),
+					PartsLabelName:     common.StringPtr("PartsB"),
+					PartsAddInfo1:      common.StringPtr("Ver2.0"),
+					PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+					PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 				},
 				ChildrenPartsEntity: traceability.PartsModelEntities{
 					{
@@ -52,6 +57,49 @@ func TestProjectRepository_Parts_GetPartsStructure(tt *testing.T) {
 						TerminatedFlag:     false,
 						AmountRequired:     nil,
 						AmountRequiredUnit: common.StringPtr("kilogram"),
+						PartsLabelName:     common.StringPtr("PartsB"),
+						PartsAddInfo1:      common.StringPtr("Ver2.0"),
+						PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+						PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
+					},
+				},
+			},
+		},
+		{
+			name: "1-2: 正常系 nil許容項目がnilの場合",
+			input: traceability.GetPartsStructureInput{
+				TraceID:    uuid.MustParse(f.TraceID7),
+				OperatorID: f.OperatorID,
+			},
+			expect: traceability.PartsStructureEntity{
+				ParentPartsEntity: &traceability.PartsModelEntity{
+					TraceID:            uuid.MustParse(f.TraceID7),
+					OperatorID:         uuid.MustParse(f.OperatorID),
+					PlantID:            uuid.MustParse(f.PlantId),
+					PartsName:          "製品A7",
+					SupportPartsName:   nil,
+					TerminatedFlag:     false,
+					AmountRequired:     nil,
+					AmountRequiredUnit: nil,
+					PartsLabelName:     nil,
+					PartsAddInfo1:      nil,
+					PartsAddInfo2:      nil,
+					PartsAddInfo3:      nil,
+				},
+				ChildrenPartsEntity: traceability.PartsModelEntities{
+					{
+						TraceID:            uuid.MustParse(f.TraceID8),
+						OperatorID:         uuid.MustParse(f.OperatorID),
+						PlantID:            uuid.MustParse(f.PlantId),
+						PartsName:          "製品A8",
+						SupportPartsName:   nil,
+						TerminatedFlag:     false,
+						AmountRequired:     nil,
+						AmountRequiredUnit: nil,
+						PartsLabelName:     nil,
+						PartsAddInfo1:      nil,
+						PartsAddInfo2:      nil,
+						PartsAddInfo3:      nil,
 					},
 				},
 			},
@@ -131,6 +179,8 @@ func TestProjectRepository_Parts_GetPartsStructure_Abnormal(tt *testing.T) {
 // PartsStructure PutPartsStructure テストケース
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 正常系：更新成功の場合
+// [x] 1-2. 正常系：nil許容項目がnilの場合
+// [x] 1-3. 正常系：任意項目が未定義の場合
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectRepository_Parts_PutPartsStructure(tt *testing.T) {
 
@@ -143,6 +193,16 @@ func TestProjectRepository_Parts_PutPartsStructure(tt *testing.T) {
 			name:   "1-1: 正常系 更新成功の場合",
 			input:  f.NewPartsStructureModel(),
 			expect: f.NewPartsStructureEntity(),
+		},
+		{
+			name:   "1-2: 正常系 nil許容項目がnilの場合",
+			input:  f.NewPartsStructureModel_RequiredOnly(),
+			expect: f.NewPartsStructureEntity_RequiredOnly(),
+		},
+		{
+			name:   "1-3: 正常系 任意項目が未定義の場合",
+			input:  f.NewPartsStructureModel_RequiredOnlyWithUndefined(),
+			expect: f.NewPartsStructureEntity_RequiredOnly(),
 		},
 	}
 
