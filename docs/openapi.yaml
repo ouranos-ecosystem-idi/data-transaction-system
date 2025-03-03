@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: データ連携基盤 API
-  version: 1.1.0
+  version: 2.0.0
 paths:
   /api/v1/authInfo?dataTarget=operator:
     get:
