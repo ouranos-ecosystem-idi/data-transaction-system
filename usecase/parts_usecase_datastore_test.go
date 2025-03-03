@@ -24,8 +24,9 @@ import (
 // Get /api/v1/datatransport/parts テストケース
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 200: 全項目応答
-// [x] 1-2. 200: 必須項目のみ
-// [x] 1-3. 200: 検索結果なし
+// [x] 1-2. 200: nil許容項目がnil
+// [x] 1-3. 200: 任意項目が未定義
+// [x] 1-4. 200: 検索結果なし
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectUsecaseDatastore_GetParts(tt *testing.T) {
 
@@ -45,10 +46,31 @@ func TestProjectUsecaseDatastore_GetParts(tt *testing.T) {
 			TerminatedFlag:     false,
 			AmountRequired:     nil,
 			AmountRequiredUnit: common.StringPtr(amountRequiredUnit.ToString()),
+			PartsLabelName:     common.StringPtr("PartsA"),
+			PartsAddInfo1:      common.StringPtr("Ver2.0"),
+			PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+			PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 		},
 	}
 
 	dsResRequireOnly := traceability.PartsModelEntities{
+		{
+			TraceID:            uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
+			OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
+			PlantID:            plantId,
+			PartsName:          "B01",
+			SupportPartsName:   nil,
+			TerminatedFlag:     false,
+			AmountRequired:     nil,
+			AmountRequiredUnit: nil,
+			PartsLabelName:     nil,
+			PartsAddInfo1:      nil,
+			PartsAddInfo2:      nil,
+			PartsAddInfo3:      nil,
+		},
+	}
+
+	dsResRequireOnlyWithUndefined := traceability.PartsModelEntities{
 		{
 			TraceID:            uuid.MustParse("2680ed32-19a3-435b-a094-23ff43aaa611"),
 			OperatorID:         uuid.MustParse("f99c9546-e76e-9f15-35b2-abb9c9b21698"),
@@ -71,7 +93,11 @@ func TestProjectUsecaseDatastore_GetParts(tt *testing.T) {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": "kilogram",
-			"terminatedFlag": false
+			"terminatedFlag": false,
+			"partsLabelName": "PartsA",
+			"partsAddInfo1": "Ver2.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		}
 	]`
 
@@ -83,7 +109,11 @@ func TestProjectUsecaseDatastore_GetParts(tt *testing.T) {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
-			"terminatedFlag": false
+			"terminatedFlag": false,
+			"partsLabelName": null,
+			"partsAddInfo1": null,
+			"partsAddInfo2": null,
+			"partsAddInfo3": null
 		}
 	]`
 
@@ -104,14 +134,21 @@ func TestProjectUsecaseDatastore_GetParts(tt *testing.T) {
 			expectAfter: nil,
 		},
 		{
-			name:        "1-2. 200: 必須項目のみ",
+			name:        "1-2. 200: nil許容項目がnil",
 			input:       f.NewGetPartsInput(),
 			receive:     dsResRequireOnly,
 			expectData:  dsExpectedResRequireOnly,
 			expectAfter: nil,
 		},
 		{
-			name:        "1-3. 200: 検索結果なし",
+			name:        "1-3. 200: 任意項目が未定義",
+			input:       f.NewGetPartsInput(),
+			receive:     dsResRequireOnlyWithUndefined,
+			expectData:  dsExpectedResRequireOnly,
+			expectAfter: nil,
+		},
+		{
+			name:        "1-4. 200: 検索結果なし",
 			input:       f.NewGetPartsInput(),
 			receive:     dsResNoData,
 			expectData:  expectedResNoData,

@@ -63,6 +63,8 @@ var (
 	TraceID4     = "81259b24-e47e-449c-b68d-4f575f1fe7e6"
 	TraceID5     = "49218d36-8903-4c16-8580-36dbb3c0bca6"
 	TraceID6     = "7fa0df76-5efe-4769-96af-8b9aad7d1f66"
+	TraceID7     = "b739b34b-c0ea-4fd6-a3f9-3c31ca0fec8f"
+	TraceID8     = "c74b0977-5745-4843-84a1-08de6eb2d1e4"
 	TraceIDChild = "1c2f37f5-25b9-dea5-346a-7b88035f2553"
 	// TraceIDUpstream = "82223e60-0c65-142c-78b7-143c29272ecc" // 独自定義
 	TraceIDDownstream = "087aaa4b-8974-4a0a-9c11-b2e66ed468c5"
@@ -81,6 +83,10 @@ var (
 	CompletedCountModifiedAt      = "2024-05-23T11:22:33Z"
 	TradesCount                   = 0
 	TradesCountModifiedAt         = "2024-05-24T22:33:44Z"
+	PartsLabelName                = "PartsB"
+	PartsAddInfo1                 = "Ver3.0"
+	PartsAddInfo2                 = "2024-12-01-2024-12-31"
+	PartsAddInfo3                 = "任意の情報が入ります"
 	NotExistID                    = "00000000-0000-0000-0000-000000000000"
 	UID                           = "uid"
 	DummyTime, _                  = time.Parse("2006-01-02T15:04:05Z", "2024-05-01T00:00:00Z")
@@ -125,6 +131,23 @@ func NewPutPartsInput() traceability.PutPartsInput {
 		TerminatedFlag:     &TerminatedFlag,
 		AmountRequired:     nil,
 		AmountRequiredUnit: &AmountRequiredUnit,
+		PartsLabelName:     &PartsLabelName,
+		PartsAddInfo1:      &PartsAddInfo1,
+		PartsAddInfo2:      &PartsAddInfo2,
+		PartsAddInfo3:      &PartsAddInfo3,
+	}
+}
+
+func NewPutPartsInput_RequiredOnly() traceability.PutPartsInput {
+	return traceability.PutPartsInput{
+		OperatorID:         OperatorID,
+		TraceID:            &TraceID,
+		PlantID:            PlantId,
+		PartsName:          PartsName,
+		SupportPartsName:   &SupportPartsName,
+		TerminatedFlag:     &TerminatedFlag,
+		AmountRequired:     nil,
+		AmountRequiredUnit: &AmountRequiredUnit,
 	}
 }
 
@@ -136,8 +159,12 @@ func NewPutPartsInterface() interface{} {
 		"partsName":          PartsName,
 		"supportPartsName":   &SupportPartsName,
 		"terminatedFlag":     &TerminatedFlag,
-		"amountRequired":     nil,
+		"amountRequired":     &AmountRequired,
 		"amountRequiredUnit": &AmountRequiredUnit,
+		"PartsLabelName":     &PartsLabelName,
+		"PartsAddInfo1":      &PartsAddInfo1,
+		"PartsAddInfo2":      &PartsAddInfo2,
+		"PartsAddInfo3":      &PartsAddInfo3,
 	}
 
 }
@@ -153,6 +180,10 @@ func NewPutPartsStructureInterface() interface{} {
 			"terminatedFlag":     &TerminatedFlag,
 			"amountRequired":     nil,
 			"amountRequiredUnit": &AmountRequiredUnit,
+			"partsLabelName":     &PartsLabelName,
+			"partsAddInfo1":      &PartsAddInfo1,
+			"partsAddInfo2":      &PartsAddInfo2,
+			"partsAddInfo3":      &PartsAddInfo3,
 		},
 		"childrenPartsModel": []interface{}{
 			map[string]interface{}{
@@ -164,6 +195,10 @@ func NewPutPartsStructureInterface() interface{} {
 				"terminatedFlag":     &TerminatedFlag,
 				"amountRequired":     &AmountRequired,
 				"amountRequiredUnit": &AmountRequiredUnit,
+				"partsLabelName":     &PartsLabelName,
+				"partsAddInfo1":      &PartsAddInfo1,
+				"partsAddInfo2":      &PartsAddInfo2,
+				"partsAddInfo3":      &PartsAddInfo3,
 			},
 		},
 	}
@@ -179,6 +214,10 @@ func NewPutPartsStructureInput() traceability.PutPartsStructureInput {
 		TerminatedFlag:     &TerminatedFlag,
 		AmountRequired:     nil,
 		AmountRequiredUnit: &AmountRequiredUnit,
+		PartsLabelName:     &PartsLabelName,
+		PartsAddInfo1:      &PartsAddInfo1,
+		PartsAddInfo2:      &PartsAddInfo2,
+		PartsAddInfo3:      &PartsAddInfo3,
 	}
 	childrenPartsModel := traceability.PutPartsInputs{
 		traceability.PutPartsInput{
@@ -190,6 +229,10 @@ func NewPutPartsStructureInput() traceability.PutPartsStructureInput {
 			TerminatedFlag:     &TerminatedFlag,
 			AmountRequired:     &AmountRequired,
 			AmountRequiredUnit: &AmountRequiredUnit,
+			PartsLabelName:     &PartsLabelName,
+			PartsAddInfo1:      &PartsAddInfo1,
+			PartsAddInfo2:      &PartsAddInfo2,
+			PartsAddInfo3:      &PartsAddInfo3,
 		},
 	}
 	return traceability.PutPartsStructureInput{
@@ -197,6 +240,128 @@ func NewPutPartsStructureInput() traceability.PutPartsStructureInput {
 		ChildrenPartsInput: &childrenPartsModel,
 	}
 }
+func NewPutPartsStructureInput_Insert() traceability.PutPartsStructureInput {
+	parentPartsModel := traceability.PutPartsInput{
+		OperatorID:         OperatorId,
+		TraceID:            nil,
+		PlantID:            PlantId,
+		PartsName:          PartsName,
+		SupportPartsName:   &SupportPartsName,
+		TerminatedFlag:     &TerminatedFlag,
+		AmountRequired:     nil,
+		AmountRequiredUnit: &AmountRequiredUnit,
+		PartsLabelName:     &PartsLabelName,
+		PartsAddInfo1:      &PartsAddInfo1,
+		PartsAddInfo2:      &PartsAddInfo2,
+		PartsAddInfo3:      &PartsAddInfo3,
+	}
+	childrenPartsModel := traceability.PutPartsInputs{
+		traceability.PutPartsInput{
+			OperatorID:         OperatorId,
+			TraceID:            nil,
+			PlantID:            PlantId,
+			PartsName:          PartsName,
+			SupportPartsName:   &SupportPartsName,
+			TerminatedFlag:     &TerminatedFlag,
+			AmountRequired:     &AmountRequired,
+			AmountRequiredUnit: &AmountRequiredUnit,
+			PartsLabelName:     &PartsLabelName,
+			PartsAddInfo1:      &PartsAddInfo1,
+			PartsAddInfo2:      &PartsAddInfo2,
+			PartsAddInfo3:      &PartsAddInfo3,
+		},
+	}
+	return traceability.PutPartsStructureInput{
+		ParentPartsInput:   &parentPartsModel,
+		ChildrenPartsInput: &childrenPartsModel,
+	}
+}
+func NewPutPartsStructureInput_RequiredOnly() traceability.PutPartsStructureInput {
+	parentPartsModel := traceability.PutPartsInput{
+		OperatorID:         OperatorId,
+		TraceID:            &TraceId,
+		PlantID:            PlantId,
+		PartsName:          PartsName,
+		SupportPartsName:   nil,
+		TerminatedFlag:     &TerminatedFlag,
+		AmountRequired:     nil,
+		AmountRequiredUnit: nil,
+		PartsLabelName:     nil,
+		PartsAddInfo1:      nil,
+		PartsAddInfo2:      nil,
+		PartsAddInfo3:      nil,
+	}
+	childrenPartsModel := traceability.PutPartsInputs{
+		traceability.PutPartsInput{
+			OperatorID:         OperatorId,
+			TraceID:            &TraceId,
+			PlantID:            PlantId,
+			PartsName:          PartsName,
+			SupportPartsName:   nil,
+			TerminatedFlag:     &TerminatedFlag,
+			AmountRequired:     nil,
+			AmountRequiredUnit: nil,
+			PartsLabelName:     nil,
+			PartsAddInfo1:      nil,
+			PartsAddInfo2:      nil,
+			PartsAddInfo3:      nil,
+		},
+	}
+	return traceability.PutPartsStructureInput{
+		ParentPartsInput:   &parentPartsModel,
+		ChildrenPartsInput: &childrenPartsModel,
+	}
+}
+func NewPutPartsStructureInput_RequiredOnlyWithUndefined() traceability.PutPartsStructureInput {
+	parentPartsModel := traceability.PutPartsInput{
+		OperatorID:         OperatorId,
+		TraceID:            &TraceId,
+		PlantID:            PlantId,
+		PartsName:          PartsName,
+		SupportPartsName:   nil,
+		TerminatedFlag:     &TerminatedFlag,
+		AmountRequired:     nil,
+		AmountRequiredUnit: &AmountRequiredUnit,
+	}
+	childrenPartsModel := traceability.PutPartsInputs{
+		traceability.PutPartsInput{
+			OperatorID:         OperatorId,
+			TraceID:            &TraceId,
+			PlantID:            PlantId,
+			PartsName:          PartsName,
+			SupportPartsName:   nil,
+			TerminatedFlag:     &TerminatedFlag,
+			AmountRequired:     &AmountRequired,
+			AmountRequiredUnit: &AmountRequiredUnit,
+		},
+	}
+	return traceability.PutPartsStructureInput{
+		ParentPartsInput:   &parentPartsModel,
+		ChildrenPartsInput: &childrenPartsModel,
+	}
+}
+func NewPutPartsStructureInput_NoComponent() traceability.PutPartsStructureInput {
+	parentPartsModel := traceability.PutPartsInput{
+		OperatorID:         OperatorId,
+		TraceID:            &TraceId,
+		PlantID:            PlantId,
+		PartsName:          PartsName,
+		SupportPartsName:   nil,
+		TerminatedFlag:     &TerminatedFlag,
+		AmountRequired:     nil,
+		AmountRequiredUnit: &AmountRequiredUnit,
+		PartsLabelName:     &PartsLabelName,
+		PartsAddInfo1:      &PartsAddInfo1,
+		PartsAddInfo2:      &PartsAddInfo2,
+		PartsAddInfo3:      &PartsAddInfo3,
+	}
+	childrenPartsModel := traceability.PutPartsInputs{}
+	return traceability.PutPartsStructureInput{
+		ParentPartsInput:   &parentPartsModel,
+		ChildrenPartsInput: &childrenPartsModel,
+	}
+}
+
 func NewPutCfpInterface() []interface{} {
 	return []interface{}{
 		map[string]interface{}{
@@ -456,6 +621,20 @@ func NewGetPartsInput() traceability.GetPartsInput {
 	}
 }
 
+func NewGetPartsInput_RequiredOnly() traceability.GetPartsInput {
+	parentFlag := true
+	after := uuid.MustParse(TraceId)
+	return traceability.GetPartsInput{
+		TraceID:    &TraceID7,
+		OperatorID: OperatorId,
+		PartsName:  common.StringPtr("製品A7"),
+		PlantID:    &PlantId,
+		ParentFlag: &parentFlag,
+		Limit:      100,
+		After:      &after,
+	}
+}
+
 func NewDeletePartsInput(traceId string) traceability.DeletePartsInput {
 	return traceability.DeletePartsInput{
 		TraceID: traceId,
@@ -477,6 +656,15 @@ func NewPutPartsStructureEntityModel() traceability.PartsStructureEntity {
 			TerminatedFlag:     false,
 			AmountRequired:     nil,
 			AmountRequiredUnit: common.StringPtr(AmountRequiredUnit.ToString()),
+			PartsLabelName:     &PartsLabelName,
+			PartsAddInfo1:      &PartsAddInfo1,
+			PartsAddInfo2:      &PartsAddInfo2,
+			PartsAddInfo3:      &PartsAddInfo3,
+			DeletedAt:          gorm.DeletedAt{Time: time.Now()},
+			CreatedAt:          time.Now(),
+			CreatedUserId:      "seed",
+			UpdatedAt:          time.Now(),
+			UpdatedUserId:      "seed",
 		},
 		ChildrenPartsEntity: traceability.PartsModelEntities{
 			{
@@ -488,8 +676,90 @@ func NewPutPartsStructureEntityModel() traceability.PartsStructureEntity {
 				TerminatedFlag:     false,
 				AmountRequired:     common.Float64Ptr(2.1),
 				AmountRequiredUnit: common.StringPtr(AmountRequiredUnit.ToString()),
+				PartsLabelName:     &PartsLabelName,
+				PartsAddInfo1:      &PartsAddInfo1,
+				PartsAddInfo2:      &PartsAddInfo2,
+				PartsAddInfo3:      &PartsAddInfo3,
+				DeletedAt:          gorm.DeletedAt{Time: time.Now()},
+				CreatedAt:          time.Now(),
+				CreatedUserId:      "seed",
+				UpdatedAt:          time.Now(),
+				UpdatedUserId:      "seed",
 			},
 		},
+	}
+	return partsModel
+}
+func NewPutPartsStructureEntityModel_RequiredOnly() traceability.PartsStructureEntity {
+	plantId := uuid.MustParse(PlantID)
+	partsModel := traceability.PartsStructureEntity{
+		ParentPartsEntity: &traceability.PartsModelEntity{
+			OperatorID:         uuid.MustParse(OperatorID),
+			TraceID:            uuid.MustParse(TraceID3),
+			PlantID:            plantId,
+			PartsName:          "B01",
+			SupportPartsName:   nil,
+			TerminatedFlag:     false,
+			AmountRequired:     nil,
+			AmountRequiredUnit: nil,
+			PartsLabelName:     nil,
+			PartsAddInfo1:      nil,
+			PartsAddInfo2:      nil,
+			PartsAddInfo3:      nil,
+			DeletedAt:          gorm.DeletedAt{Time: time.Now()},
+			CreatedAt:          time.Now(),
+			CreatedUserId:      "seed",
+			UpdatedAt:          time.Now(),
+			UpdatedUserId:      "seed",
+		},
+		ChildrenPartsEntity: traceability.PartsModelEntities{
+			{
+				OperatorID:         uuid.MustParse(OperatorID),
+				TraceID:            uuid.MustParse(TraceIDChild),
+				PlantID:            plantId,
+				PartsName:          "B01001",
+				SupportPartsName:   nil,
+				TerminatedFlag:     false,
+				AmountRequired:     nil,
+				AmountRequiredUnit: nil,
+				PartsLabelName:     nil,
+				PartsAddInfo1:      nil,
+				PartsAddInfo2:      nil,
+				PartsAddInfo3:      nil,
+				DeletedAt:          gorm.DeletedAt{Time: time.Now()},
+				CreatedAt:          time.Now(),
+				CreatedUserId:      "seed",
+				UpdatedAt:          time.Now(),
+				UpdatedUserId:      "seed",
+			},
+		},
+	}
+	return partsModel
+}
+func NewPutPartsStructureEntityModel_NoComponent() traceability.PartsStructureEntity {
+	plantId := uuid.MustParse(PlantID)
+	AmountRequiredUnit := traceability.AmountRequiredUnitLiter
+	partsModel := traceability.PartsStructureEntity{
+		ParentPartsEntity: &traceability.PartsModelEntity{
+			OperatorID:         uuid.MustParse(OperatorID),
+			TraceID:            uuid.MustParse(TraceID3),
+			PlantID:            plantId,
+			PartsName:          "B01",
+			SupportPartsName:   nil,
+			TerminatedFlag:     false,
+			AmountRequired:     nil,
+			AmountRequiredUnit: common.StringPtr(AmountRequiredUnit.ToString()),
+			PartsLabelName:     &PartsLabelName,
+			PartsAddInfo1:      &PartsAddInfo1,
+			PartsAddInfo2:      &PartsAddInfo2,
+			PartsAddInfo3:      &PartsAddInfo3,
+			DeletedAt:          gorm.DeletedAt{Time: time.Now()},
+			CreatedAt:          time.Now(),
+			CreatedUserId:      "seed",
+			UpdatedAt:          time.Now(),
+			UpdatedUserId:      "seed",
+		},
+		ChildrenPartsEntity: traceability.PartsModelEntities{},
 	}
 	return partsModel
 }
@@ -893,6 +1163,10 @@ func NewPartsStructureModel() traceability.PartsStructureModel {
 			TerminatedFlag:     false,
 			AmountRequired:     nil,
 			AmountRequiredUnit: &AmountRequiredUnit2,
+			PartsLabelName:     common.StringPtr("PartsA3"),
+			PartsAddInfo1:      common.StringPtr("Ver3.0"),
+			PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+			PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 		},
 		ChildrenPartsModel: []traceability.PartsModel{
 			{
@@ -901,6 +1175,74 @@ func NewPartsStructureModel() traceability.PartsStructureModel {
 				PlantID:            common.UUIDPtr(uuid.MustParse(PlantId)),
 				PartsName:          "製品A5",
 				SupportPartsName:   common.StringPtr("品番A5"),
+				TerminatedFlag:     false,
+				AmountRequired:     nil,
+				AmountRequiredUnit: &AmountRequiredUnit2,
+				PartsLabelName:     common.StringPtr("PartsA5"),
+				PartsAddInfo1:      common.StringPtr("Ver3.0"),
+				PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+				PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
+			},
+		},
+	}
+}
+
+func NewPartsStructureModel_RequiredOnly() traceability.PartsStructureModel {
+
+	return traceability.PartsStructureModel{
+		ParentPartsModel: &traceability.PartsModel{
+			TraceID:            uuid.MustParse(TraceID7),
+			OperatorID:         uuid.MustParse(OperatorID),
+			PlantID:            common.UUIDPtr(uuid.MustParse(PlantId)),
+			PartsName:          "製品A7",
+			SupportPartsName:   nil,
+			TerminatedFlag:     false,
+			AmountRequired:     nil,
+			AmountRequiredUnit: &AmountRequiredUnit2,
+			PartsLabelName:     nil,
+			PartsAddInfo1:      nil,
+			PartsAddInfo2:      nil,
+			PartsAddInfo3:      nil,
+		},
+		ChildrenPartsModel: []traceability.PartsModel{
+			{
+				TraceID:            uuid.MustParse(TraceID8),
+				OperatorID:         uuid.MustParse(OperatorID),
+				PlantID:            common.UUIDPtr(uuid.MustParse(PlantId)),
+				PartsName:          "製品A8",
+				SupportPartsName:   nil,
+				TerminatedFlag:     false,
+				AmountRequired:     nil,
+				AmountRequiredUnit: &AmountRequiredUnit2,
+				PartsLabelName:     nil,
+				PartsAddInfo1:      nil,
+				PartsAddInfo2:      nil,
+				PartsAddInfo3:      nil,
+			},
+		},
+	}
+}
+
+func NewPartsStructureModel_RequiredOnlyWithUndefined() traceability.PartsStructureModel {
+
+	return traceability.PartsStructureModel{
+		ParentPartsModel: &traceability.PartsModel{
+			TraceID:            uuid.MustParse(TraceID7),
+			OperatorID:         uuid.MustParse(OperatorID),
+			PlantID:            common.UUIDPtr(uuid.MustParse(PlantId)),
+			PartsName:          "製品A7",
+			SupportPartsName:   nil,
+			TerminatedFlag:     false,
+			AmountRequired:     nil,
+			AmountRequiredUnit: &AmountRequiredUnit2,
+		},
+		ChildrenPartsModel: []traceability.PartsModel{
+			{
+				TraceID:            uuid.MustParse(TraceID8),
+				OperatorID:         uuid.MustParse(OperatorID),
+				PlantID:            common.UUIDPtr(uuid.MustParse(PlantId)),
+				PartsName:          "製品A8",
+				SupportPartsName:   nil,
 				TerminatedFlag:     false,
 				AmountRequired:     nil,
 				AmountRequiredUnit: &AmountRequiredUnit2,
@@ -920,6 +1262,10 @@ func NewPartsStructureEntity() traceability.PartsStructureEntity {
 			TerminatedFlag:     false,
 			AmountRequired:     nil,
 			AmountRequiredUnit: common.StringPtr("kilogram"),
+			PartsLabelName:     common.StringPtr("PartsA3"),
+			PartsAddInfo1:      common.StringPtr("Ver3.0"),
+			PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+			PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 		},
 		ChildrenPartsEntity: traceability.PartsModelEntities{
 			{
@@ -931,6 +1277,45 @@ func NewPartsStructureEntity() traceability.PartsStructureEntity {
 				TerminatedFlag:     false,
 				AmountRequired:     nil,
 				AmountRequiredUnit: common.StringPtr("kilogram"),
+				PartsLabelName:     common.StringPtr("PartsA5"),
+				PartsAddInfo1:      common.StringPtr("Ver3.0"),
+				PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+				PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
+			},
+		},
+	}
+}
+
+func NewPartsStructureEntity_RequiredOnly() traceability.PartsStructureEntity {
+	return traceability.PartsStructureEntity{
+		ParentPartsEntity: &traceability.PartsModelEntity{
+			TraceID:            uuid.MustParse(TraceID7),
+			OperatorID:         uuid.MustParse(OperatorID),
+			PlantID:            uuid.MustParse(PlantId),
+			PartsName:          "製品A7",
+			SupportPartsName:   nil,
+			TerminatedFlag:     false,
+			AmountRequired:     nil,
+			AmountRequiredUnit: common.StringPtr("kilogram"),
+			PartsLabelName:     nil,
+			PartsAddInfo1:      nil,
+			PartsAddInfo2:      nil,
+			PartsAddInfo3:      nil,
+		},
+		ChildrenPartsEntity: traceability.PartsModelEntities{
+			{
+				TraceID:            uuid.MustParse(TraceID8),
+				OperatorID:         uuid.MustParse(OperatorID),
+				PlantID:            uuid.MustParse(PlantId),
+				PartsName:          "製品A8",
+				SupportPartsName:   nil,
+				TerminatedFlag:     false,
+				AmountRequired:     nil,
+				AmountRequiredUnit: common.StringPtr("kilogram"),
+				PartsLabelName:     nil,
+				PartsAddInfo1:      nil,
+				PartsAddInfo2:      nil,
+				PartsAddInfo3:      nil,
 			},
 		},
 	}

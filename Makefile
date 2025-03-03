@@ -12,7 +12,6 @@ MOCK_SRC_USECASE = $(wildcard usecase/*usecase.go)
 MOCK_SRC_HANDLER = $(wildcard presentation/http/echo/handler/*.go)
 MOCK_FILES = $(wildcard test/mock/*.go)
 
-
 .PHONY: test
 
 all:

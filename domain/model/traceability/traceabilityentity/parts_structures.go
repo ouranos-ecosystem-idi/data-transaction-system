@@ -40,6 +40,10 @@ type GetPartsStructuresResponseParent struct {
 	OperatorID       string  `json:"operatorId"`
 	AmountUnitName   *string `json:"amountUnitName"`
 	EndFlag          bool    `json:"endFlag"`
+	PartsLabelName   *string `json:"partsLabelName"`
+	PartsAddInfo1    *string `json:"partsAddInfo1"`
+	PartsAddInfo2    *string `json:"partsAddInfo2"`
+	PartsAddInfo3    *string `json:"partsAddInfo3"`
 }
 
 // GetPartsStructuresResponseChildren
@@ -55,6 +59,10 @@ type GetPartsStructuresResponseChildren struct {
 	EndFlag          bool     `json:"endFlag"`
 	Amount           *float64 `json:"amount"`
 	Revision         int      `json:"revision"`
+	PartsLabelName   *string  `json:"partsLabelName"`
+	PartsAddInfo1    *string  `json:"partsAddInfo1"`
+	PartsAddInfo2    *string  `json:"partsAddInfo2"`
+	PartsAddInfo3    *string  `json:"partsAddInfo3"`
 }
 
 // ToModel
@@ -116,6 +124,10 @@ func (r GetPartsStructuresResponseParent) ToModel() (traceability.PartsModel, er
 		PlantID:          &plantID,
 		OperatorID:       operatorID,
 		TerminatedFlag:   r.EndFlag,
+		PartsLabelName:   r.PartsLabelName,
+		PartsAddInfo1:    r.PartsAddInfo1,
+		PartsAddInfo2:    r.PartsAddInfo2,
+		PartsAddInfo3:    r.PartsAddInfo3,
 	}
 
 	var amountRequiredUnit traceability.AmountRequiredUnit
@@ -171,6 +183,10 @@ func (r GetPartsStructuresResponseChildren) ToModel() (traceability.PartsModel, 
 		TerminatedFlag:     r.EndFlag,
 		AmountRequired:     r.Amount,
 		AmountRequiredUnit: &amountUnitName,
+		PartsLabelName:     r.PartsLabelName,
+		PartsAddInfo1:      r.PartsAddInfo1,
+		PartsAddInfo2:      r.PartsAddInfo2,
+		PartsAddInfo3:      r.PartsAddInfo3,
 	}, nil
 }
 
@@ -194,6 +210,10 @@ type PostPartsStructuresRequestParent struct {
 	OperatorID       string  `json:"operatorId"`
 	AmountUnitName   *string `json:"amountUnitName"`
 	EndFlag          bool    `json:"endFlag"`
+	PartsLabelName   *string `json:"partsLabelName"`
+	PartsAddInfo1    *string `json:"partsAddInfo1"`
+	PartsAddInfo2    *string `json:"partsAddInfo2"`
+	PartsAddInfo3    *string `json:"partsAddInfo3"`
 }
 
 // PostPartsStructuresRequestChild
@@ -206,6 +226,10 @@ type PostPartsStructuresRequestChild struct {
 	AmountUnitName   *string  `json:"amountUnitName"`
 	EndFlag          bool     `json:"endFlag"`
 	Amount           *float64 `json:"amount"`
+	PartsLabelName   *string  `json:"partsLabelName"`
+	PartsAddInfo1    *string  `json:"partsAddInfo1"`
+	PartsAddInfo2    *string  `json:"partsAddInfo2"`
+	PartsAddInfo3    *string  `json:"partsAddInfo3"`
 }
 
 // PostPartsStructuresResponse
@@ -224,6 +248,10 @@ type PostPartsStructuresResponseParent struct {
 	TraceID          string  `json:"traceId"`
 	PartsItem        string  `json:"partsItem"`
 	SupportPartsItem *string `json:"supportPartsItem"`
+	PartsLabelName   *string `json:"partsLabelName"`
+	PartsAddInfo1    *string `json:"partsAddInfo1"`
+	PartsAddInfo2    *string `json:"partsAddInfo2"`
+	PartsAddInfo3    *string `json:"partsAddInfo3"`
 }
 
 // PostPartsStructuresResponseChild
@@ -234,6 +262,10 @@ type PostPartsStructuresResponseChild struct {
 	PartsItem        string  `json:"partsItem"`
 	PlantID          string  `json:"plantId"`
 	SupportPartsItem *string `json:"supportPartsItem"`
+	PartsLabelName   *string `json:"partsLabelName"`
+	PartsAddInfo1    *string `json:"partsAddInfo1"`
+	PartsAddInfo2    *string `json:"partsAddInfo2"`
+	PartsAddInfo3    *string `json:"partsAddInfo3"`
 }
 
 // ParentTraceID
@@ -297,6 +329,10 @@ func NewPostPartsStructureRequestFromModel(m traceability.PartsStructureModel) P
 		PlantID:          m.ParentPartsModel.PlantID.String(),
 		OperatorID:       m.ParentPartsModel.OperatorID.String(),
 		EndFlag:          m.ParentPartsModel.TerminatedFlag,
+		PartsLabelName:   m.ParentPartsModel.PartsLabelName,
+		PartsAddInfo1:    m.ParentPartsModel.PartsAddInfo1,
+		PartsAddInfo2:    m.ParentPartsModel.PartsAddInfo2,
+		PartsAddInfo3:    m.ParentPartsModel.PartsAddInfo3,
 	}
 
 	var amountUnitName string
@@ -320,6 +356,10 @@ func NewPostPartsStructureRequestFromModel(m traceability.PartsStructureModel) P
 			AmountUnitName:   &amountUnitNameChild,
 			EndFlag:          child.TerminatedFlag,
 			Amount:           child.AmountRequired,
+			PartsLabelName:   child.PartsLabelName,
+			PartsAddInfo1:    child.PartsAddInfo1,
+			PartsAddInfo2:    child.PartsAddInfo2,
+			PartsAddInfo3:    child.PartsAddInfo3,
 		}
 		reqChildren[i] = reqChild
 	}

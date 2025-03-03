@@ -32,7 +32,11 @@ func (r *ouranosRepository) GetPartsStructure(getPartsStructureInput traceabilit
 				parts.support_parts_name,
 				parts.terminated_flag,
 				parts.amount_required,
-				parts.amount_required_unit
+				parts.amount_required_unit,
+				parts.parts_label_name,
+				parts.parts_add_info1,
+				parts.parts_add_info2,
+				parts.parts_add_info3
 			`).
 		Where(`
 				parts.deleted_at IS NULL
@@ -58,7 +62,11 @@ func (r *ouranosRepository) GetPartsStructure(getPartsStructureInput traceabilit
 				parts.support_parts_name,
 				parts.terminated_flag,
 				parts.amount_required,
-				parts.amount_required_unit
+				parts.amount_required_unit,
+				parts.parts_label_name,
+				parts.parts_add_info1,
+				parts.parts_add_info2,
+				parts.parts_add_info3
 			`).
 		Where(`
 				parts.deleted_at IS NULL
@@ -119,6 +127,10 @@ func (r *ouranosRepository) PutPartsStructure(
 			TerminatedFlag:     partsStructure.ParentPartsModel.TerminatedFlag,
 			AmountRequired:     partsStructure.ParentPartsModel.AmountRequired,
 			AmountRequiredUnit: amountRequiredUnit,
+			PartsLabelName:     partsStructure.ParentPartsModel.PartsLabelName,
+			PartsAddInfo1:      partsStructure.ParentPartsModel.PartsAddInfo1,
+			PartsAddInfo2:      partsStructure.ParentPartsModel.PartsAddInfo2,
+			PartsAddInfo3:      partsStructure.ParentPartsModel.PartsAddInfo3,
 		}
 		res1 := tx.Table("parts").Clauses(
 			clause.OnConflict{
@@ -135,6 +147,10 @@ func (r *ouranosRepository) PutPartsStructure(
 						"terminated_flag",
 						"amount_required",
 						"amount_required_unit",
+						"parts_label_name",
+						"parts_add_info1",
+						"parts_add_info2",
+						"parts_add_info3",
 					}),
 			},
 		).Create(&partsEntity)
@@ -190,6 +206,10 @@ func (r *ouranosRepository) PutPartsStructure(
 				TerminatedFlag:     v.TerminatedFlag,
 				AmountRequired:     v.AmountRequired,
 				AmountRequiredUnit: &amountRequiredUnit,
+				PartsLabelName:     v.PartsLabelName,
+				PartsAddInfo1:      v.PartsAddInfo1,
+				PartsAddInfo2:      v.PartsAddInfo2,
+				PartsAddInfo3:      v.PartsAddInfo3,
 			}
 
 			response.ChildrenPartsEntity = append(response.ChildrenPartsEntity, childPartsEntity)
@@ -208,6 +228,10 @@ func (r *ouranosRepository) PutPartsStructure(
 							"terminated_flag",
 							"amount_required",
 							"amount_required_unit",
+							"parts_label_name",
+							"parts_add_info1",
+							"parts_add_info2",
+							"parts_add_info3",
 						}),
 				}).Create(&childPartsEntity)
 			if res3.Error != nil {

@@ -43,6 +43,10 @@ type GetPartsResponseParts struct {
 	AmountUnitName   *string `json:"amountUnitName"`
 	EndFlag          bool    `json:"endFlag"`
 	ParentFlag       bool    `json:"parentFlag"`
+	PartsLabelName   *string `json:"partsLabelName"`
+	PartsAddInfo1    *string `json:"partsAddInfo1"`
+	PartsAddInfo2    *string `json:"partsAddInfo2"`
+	PartsAddInfo3    *string `json:"partsAddInfo3"`
 }
 
 // DeletePartsRequest
@@ -106,6 +110,10 @@ func (r GetPartsResponseParts) ToModel() (traceability.PartsModel, error) {
 		PartsName:        r.PartsItem,
 		SupportPartsName: r.SupportPartsItem,
 		TerminatedFlag:   r.EndFlag,
+		PartsLabelName:   r.PartsLabelName,
+		PartsAddInfo1:    r.PartsAddInfo1,
+		PartsAddInfo2:    r.PartsAddInfo2,
+		PartsAddInfo3:    r.PartsAddInfo3,
 	}
 
 	var amountRequiredUnit traceability.AmountRequiredUnit

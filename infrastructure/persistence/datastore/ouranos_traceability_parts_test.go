@@ -18,6 +18,8 @@ import (
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 正常系：1件以上の場合
 // [x] 1-2. 正常系：0件の場合
+// [x] 1-3. 正常系：nil許容項目がnilの場合
+// [x] 1-4. 正常系：任意項目が未定義の場合
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectRepository_Parts_ListParts(tt *testing.T) {
 
@@ -42,6 +44,10 @@ func TestProjectRepository_Parts_ListParts(tt *testing.T) {
 					TerminatedFlag:     true,
 					AmountRequired:     nil,
 					AmountRequiredUnit: common.StringPtr("kilogram"),
+					PartsLabelName:     common.StringPtr("PartsB"),
+					PartsAddInfo1:      common.StringPtr("Ver2.0"),
+					PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+					PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 				},
 			},
 		},
@@ -53,6 +59,29 @@ func TestProjectRepository_Parts_ListParts(tt *testing.T) {
 				return i
 			},
 			expect: traceability.PartsModelEntities{},
+		},
+		{
+			name: "1-3: nil許容項目がnilの場合",
+			input: func() traceability.GetPartsInput {
+				i := f.NewGetPartsInput_RequiredOnly()
+				return i
+			},
+			expect: traceability.PartsModelEntities{
+				traceability.PartsModelEntity{
+					TraceID:            uuid.MustParse(f.TraceID7),
+					OperatorID:         uuid.MustParse(f.OperatorID),
+					PlantID:            uuid.MustParse(f.PlantId),
+					PartsName:          "製品A7",
+					SupportPartsName:   nil,
+					TerminatedFlag:     false,
+					AmountRequired:     nil,
+					AmountRequiredUnit: nil,
+					PartsLabelName:     nil,
+					PartsAddInfo1:      nil,
+					PartsAddInfo2:      nil,
+					PartsAddInfo3:      nil,
+				},
+			},
 		},
 	}
 
@@ -153,6 +182,10 @@ func TestProjectRepository_Parts_GetPartByTraceID(tt *testing.T) {
 				TerminatedFlag:     false,
 				AmountRequired:     nil,
 				AmountRequiredUnit: common.StringPtr("kilogram"),
+				PartsLabelName:     common.StringPtr("PartsB"),
+				PartsAddInfo1:      common.StringPtr("Ver2.0"),
+				PartsAddInfo2:      common.StringPtr("2024-12-01-2024-12-31"),
+				PartsAddInfo3:      common.StringPtr("任意の情報が入ります"),
 				CreatedAt:          f.DummyTime,
 				CreatedUserId:      "seed",
 				UpdatedAt:          f.DummyTime,
@@ -251,7 +284,7 @@ func TestProjectRepository_Parts_CountPartsList(tt *testing.T) {
 			input: traceability.GetPartsInput{
 				OperatorID: f.OperatorID,
 			},
-			expect: 5,
+			expect: 7,
 		},
 		{
 			name: "1-2: 正常系：0件の場合",

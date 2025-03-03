@@ -27,11 +27,11 @@ import (
 // TestPattern:
 // [x] 1-1. 200: 全項目応答
 // [x] 1-2. 200: 全項目応答(トレサビレスポンスにnullを含む)
-// [x] 1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)
+// [x] 1-3. 200: 全項目応答(トレサビレスポンスに未定義項目を含む)
 // [x] 1-4. 200: 回答済(必須項目のみ)
-// [x] 1-5. 200: 回答済(必須項目のみ)(キーなし)
+// [x] 1-5. 200: 回答済(任意項目が未定義)
 // [x] 1-6. 200: 未回答(必須項目のみ)
-// [x] 1-7. 200: 未回答(必須項目のみ)(キーなし)
+// [x] 1-7. 200: 未回答(任意項目が未定義)
 // [x] 1-8. 200: 検索結果なし
 func TestProjectUsecaseTraceability_GetTradeRequest(tt *testing.T) {
 
@@ -93,7 +93,7 @@ func TestProjectUsecaseTraceability_GetTradeRequest(tt *testing.T) {
 			expectAfter: common.StringPtr("026ad6a0-a689-4b8c-8a14-7304b817096d"),
 		},
 		{
-			name:        "1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)",
+			name:        "1-3. 200: 全項目応答(トレサビレスポンスに未定義項目を含む)",
 			input:       f.NewGetTradeRequestInput(),
 			receive:     f.GetTradeRequests_AllItem_WithUndefined(),
 			expectData:  dsExpectedResAll,
@@ -107,7 +107,7 @@ func TestProjectUsecaseTraceability_GetTradeRequest(tt *testing.T) {
 			expectAfter: nil,
 		},
 		{
-			name:        "1-5. 200: 回答済(必須項目のみ)(キーなし)",
+			name:        "1-5. 200: 回答済(任意項目が未定義)",
 			input:       f.NewGetTradeRequestInput(),
 			receive:     f.GetTradeRequests_RequireItemOnlyAnsweredWithUndefined(),
 			expectData:  dsExpectedResAnsweredRequireOnly,
@@ -121,7 +121,7 @@ func TestProjectUsecaseTraceability_GetTradeRequest(tt *testing.T) {
 			expectAfter: nil,
 		},
 		{
-			name:        "1-7. 200: 未回答(必須項目のみ)(キーなし)",
+			name:        "1-7. 200: 未回答(任意項目が未定義)",
 			input:       f.NewGetTradeRequestInput(),
 			receive:     f.GetTradeRequests_RequireItemOnlyAnsweringWithUndefined(),
 			expectData:  dsExpectedResAnsweringRequireOnly,
@@ -257,10 +257,11 @@ func TestProjectUsecaseTraceability_GetTradeRequest_Abnormal(tt *testing.T) {
 // TestPattern:
 // [x] 1-1. 200: 全項目応答
 // [x] 1-2. 200: 全項目応答(トレサビレスポンスにnullを含む)
-// [x] 1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)
+// [x] 1-3. 200: 全項目応答(トレサビレスポンスに未定義項目を含む)
 // [x] 1-4. 200: 必須項目のみ
-// [x] 1-5. 200: 必須項目のみ(キーなし)
+// [x] 1-5. 200: 任意項目が未定義
 // [x] 1-6. 200: 検索結果なし
+// [x] 1-7. 200: 項目長最大値
 func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 
 	var method = "GET"
@@ -299,7 +300,11 @@ func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
-				"terminatedFlag": false
+				"terminatedFlag": false,
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		}
 	]`
@@ -336,7 +341,11 @@ func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
-				"terminatedFlag": false
+				"terminatedFlag": false,
+				"partsLabelName": null,
+				"partsAddInfo1": null,
+				"partsAddInfo2": null,
+				"partsAddInfo3": null
 			}
 		}
 	]`
@@ -373,7 +382,52 @@ func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
-				"terminatedFlag": false	
+				"terminatedFlag": false,
+				"partsLabelName": null,
+				"partsAddInfo1": null,
+				"partsAddInfo2": null,
+				"partsAddInfo3": null
+			}
+		}
+	]`
+
+	dsExpectedResAllWithMaxLength := `[
+		{
+			"statusModel": {
+				"statusId": "5185a435-c039-4196-bb34-0ee0c2395478",
+				"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
+				"requestStatus": {
+					"cfpResponseStatus": "COMPLETED",
+					"tradeTreeStatus": "UNTERMINATED",
+					"completedCount": 0,
+					"completedCountModifiedAt": "2024-05-23T11:22:33Z",
+					"tradesCount": 0,
+					"tradesCountModifiedAt": "2024-05-24T22:33:44Z"
+				},
+				"message": "１０００文字ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+				"replyMessage": "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
+				"requestType": "CFP",
+				"responseDueDate": "2024-12-31"
+			},
+			"tradeModel": {
+				"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
+				"upstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+				"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
+				"upstreamTraceId": "38bdd8a5-76a7-a53d-de12-725707b04a1b",
+				"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698"
+			},
+			"partsModel": {
+				"traceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
+				"partsName": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+				"supportPartsName": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+				"amountRequiredUnit": "kilogram",
+				"terminatedFlag": false,
+				"partsLabelName": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+				"partsAddInfo1": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+				"partsAddInfo2": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+				"partsAddInfo3": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ"
 			}
 		}
 	]`
@@ -402,7 +456,7 @@ func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 			expectAfter: common.StringPtr("026ad6a0-a689-4b8c-8a14-7304b817096d"),
 		},
 		{
-			name:        "1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)",
+			name:        "1-3. 200: 全項目応答(トレサビレスポンスに未定義項目を含む)",
 			input:       f.NewGetTradeResponseInput(),
 			receive:     f.GetTradeRequestsReceived_AllItem_WithUndefined(),
 			expectData:  dsExpectedResAllWithNull,
@@ -416,7 +470,7 @@ func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 			expectAfter: nil,
 		},
 		{
-			name:        "1-5. 200: 必須項目のみ(キーなし)",
+			name:        "1-5. 200: 任意項目が未定義",
 			input:       f.NewGetTradeResponseInput(),
 			receive:     f.GetTradeRequestsReceived_RequireItemOnlyWithUndefined(),
 			expectData:  dsExpectedResRequireOnly,
@@ -428,6 +482,13 @@ func TestProjectUsecaseTraceability_GetTradeResponse(tt *testing.T) {
 			receive:     f.GetTradeRequestsReceived_NoData(),
 			expectData:  dsExpectedResNoData,
 			expectAfter: nil,
+		},
+		{
+			name:        "1-7. 200: 項目長最大値",
+			input:       f.NewGetTradeResponseInput(),
+			receive:     f.GetTradeRequestsReceived_AllItem_MaxLength(),
+			expectData:  dsExpectedResAllWithMaxLength,
+			expectAfter: common.StringPtr("026ad6a0-a689-4b8c-8a14-7304b817096d"),
 		},
 	}
 
@@ -688,7 +749,7 @@ func TestProjectUsecaseTraceability_PutTradeRequest_Abnormal(tt *testing.T) {
 // TestPattern:
 // [x] 1-1. 200: 全項目応答
 // [x] 1-2. 200: 全項目応答(トレサビレスポンスにnullを含む)
-// [x] 1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)
+// [x] 1-3. 200: 全項目応答(トレサビレスポンスに未定義項目を含む)
 func TestProjectUsecaseTraceability_PutTradeResponse(tt *testing.T) {
 
 	var method = "PUT"
@@ -726,7 +787,7 @@ func TestProjectUsecaseTraceability_PutTradeResponse(tt *testing.T) {
 			expect:       res,
 		},
 		{
-			name:  "1-3. 200: 全項目応答(トレサビレスポンスにnullを含まない)",
+			name:  "1-3. 200: 全項目応答(トレサビレスポンスに未定義項目を含む)",
 			input: f.NewPutTradeResponseInput(),
 			inputFunc: func() traceability.PutTradeResponseInput {
 				return f.NewPutTradeResponseInput()

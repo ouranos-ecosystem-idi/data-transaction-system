@@ -30,7 +30,11 @@ func (r *ouranosRepository) ListParts(getPartsInput traceability.GetPartsInput) 
 			parts.support_parts_name,
 			parts.terminated_flag,
 			parts.amount_required,
-			parts.amount_required_unit
+			parts.amount_required_unit,
+			parts.parts_label_name,
+			parts.parts_add_info1,
+			parts.parts_add_info2,
+			parts.parts_add_info3
 		`).
 		Where(`parts.deleted_at IS NULL AND parts.operator_id = ?`, getPartsInput.OperatorID)
 

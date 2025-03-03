@@ -22,7 +22,7 @@ import (
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 正常系：正常返却の場合
 // [x] 1-2: 正常系：正常返却の場合(トレサビレスポンスがnullのフィールドを含む場合)
-// [x] 1-3: 正常系：正常返却の場合(トレサビレスポンスがnullのフィールドを含まない場合)
+// [x] 1-3: 正常系：正常返却の場合(トレサビレスポンスが未定義項目を含む場合)
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectRepository_Traceability_GetTradeRequests(tt *testing.T) {
 
@@ -164,7 +164,7 @@ func TestProjectRepository_Traceability_GetTradeRequests(tt *testing.T) {
 			},
 		},
 		{
-			name: "1-3: 正常系：正常返却の場合(トレサビレスポンスがnullのフィールドを含まない場合)",
+			name: "1-3: 正常系：正常返却の場合(トレサビレスポンスが未定義項目を含む場合)",
 			input: traceabilityentity.GetTradeRequestsRequest{
 				OperatorID: "b1234567-1234-1234-1234-123456789012",
 				TraceID:    common.StringPtr("087aaa4b-8974-4a0a-9c11-b2e66ed468c5"),
@@ -352,7 +352,7 @@ func TestProjectRepository_Traceability_GetTradeRequests_Abnormal(tt *testing.T)
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 正常系：正常返却の場合
 // [x] 1-2: 正常系：正常返却の場合(トレサビレスポンスにnullを含む)
-// [x] 1-3: 正常系：正常返却の場合(トレサビレスポンスにnullを含まない)
+// [x] 1-3: 正常系：正常返却の場合(トレサビレスポンスに未定義項目を含む)
 // /////////////////////////////////////////////////////////////////////////////////
 func TestProjectRepository_Traceability_GetTradeRequestsReceived(tt *testing.T) {
 
@@ -397,6 +397,10 @@ func TestProjectRepository_Traceability_GetTradeRequestsReceived(tt *testing.T) 
 								DownstreamSupportPartsItem: "B0100",
 								DownstreamPlantID:          "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 								DownstreamAmountUnitName:   "kilogram",
+								DownstreamPartsLabelName:   &fixtures.PartsLabelName,
+								DownstreamPartsAddInfo1:    &fixtures.PartsAddInfo1,
+								DownstreamPartsAddInfo2:    &fixtures.PartsAddInfo2,
+								DownstreamPartsAddInfo3:    &fixtures.PartsAddInfo3,
 							},
 							TradeRelation: traceabilityentity.GetTradeRequestsReceivedResponseTradeRelation{
 								DownstreamOperatorID: "f99c9546-e76e-9f15-35b2-abb9c9b21698",
@@ -445,6 +449,10 @@ func TestProjectRepository_Traceability_GetTradeRequestsReceived(tt *testing.T) 
 								DownstreamSupportPartsItem: "B0100",
 								DownstreamPlantID:          "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 								DownstreamAmountUnitName:   "kilogram",
+								DownstreamPartsLabelName:   nil,
+								DownstreamPartsAddInfo1:    nil,
+								DownstreamPartsAddInfo2:    nil,
+								DownstreamPartsAddInfo3:    nil,
 							},
 							TradeRelation: traceabilityentity.GetTradeRequestsReceivedResponseTradeRelation{
 								DownstreamOperatorID: "f99c9546-e76e-9f15-35b2-abb9c9b21698",
@@ -460,7 +468,7 @@ func TestProjectRepository_Traceability_GetTradeRequestsReceived(tt *testing.T) 
 			},
 		},
 		{
-			name: "1-3: 正常系：正常返却の場合(トレサビレスポンスにnullを含まない)",
+			name: "1-3: 正常系：正常返却の場合(トレサビレスポンスに未定義項目を含む)",
 			input: traceabilityentity.GetTradeRequestsReceivedRequest{
 				OperatorID:        "b1234567-1234-1234-1234-123456789012",
 				RequestID:         common.StringPtr("5185a435-c039-4196-bb34-0ee0c2395478"),
@@ -493,6 +501,10 @@ func TestProjectRepository_Traceability_GetTradeRequestsReceived(tt *testing.T) 
 								DownstreamSupportPartsItem: "B0100",
 								DownstreamPlantID:          "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 								DownstreamAmountUnitName:   "kilogram",
+								DownstreamPartsLabelName:   nil,
+								DownstreamPartsAddInfo1:    nil,
+								DownstreamPartsAddInfo2:    nil,
+								DownstreamPartsAddInfo3:    nil,
 							},
 							TradeRelation: traceabilityentity.GetTradeRequestsReceivedResponseTradeRelation{
 								DownstreamOperatorID: "f99c9546-e76e-9f15-35b2-abb9c9b21698",

@@ -11,7 +11,11 @@ func GetPartsStructure_AllItem() string {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountUnitName": "kilogram",
-			"endFlag": false
+			"endFlag": false,
+			"partsLabelName": "PartsB",
+			"partsAddInfo1": "Ver3.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		},
 		"children": [
 			{
@@ -23,7 +27,11 @@ func GetPartsStructure_AllItem() string {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountUnitName": "kilogram",
 				"endFlag": false,
-				"amount": 2.1
+				"amount": 2.1,
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		]
 	}`
@@ -38,7 +46,11 @@ func GetPartsStructure_RequireItemOnly() string {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountUnitName": null,
-			"endFlag": false
+			"endFlag": false,
+			"partsLabelName": null,
+			"partsAddInfo1": null,
+			"partsAddInfo2": null,
+			"partsAddInfo3": null
 		},
 		"children": [
 			{
@@ -50,7 +62,11 @@ func GetPartsStructure_RequireItemOnly() string {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountUnitName": null,
 				"endFlag": false,
-				"amount": null
+				"amount": null,
+				"partsLabelName": null,
+				"partsAddInfo1": null,
+				"partsAddInfo2": null,
+				"partsAddInfo3": null
 			}
 		]
 	}`
@@ -87,7 +103,11 @@ func GetPartsStructure_NoComponent() string {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountUnitName": null,
-			"endFlag": false
+			"endFlag": false,
+			"partsLabelName": null,
+			"partsAddInfo1": null,
+			"partsAddInfo2": null,
+			"partsAddInfo3": null
 		},
 		"children": []
 	}`
@@ -109,7 +129,11 @@ func GetPartsStructure_InvalidTypeError() string {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountUnitName": "kg",
-			"endFlag": false
+			"endFlag": false,
+			"partsLabelName": "PartsB",
+			"partsAddInfo1": "Ver3.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		},
 		"children": [
 			{
@@ -121,7 +145,11 @@ func GetPartsStructure_InvalidTypeError() string {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountUnitName": "kg",
 				"endFlag": false,
-				"amount": 2.1
+				"amount": 2.1,
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		]
 	}`
@@ -132,7 +160,11 @@ func PutPartsStructure() string {
 		"parent": {
 			"traceId": "d17833fe-22b7-4a4a-b097-bc3f2150c9a6",
 			"partsItem": "PartsA-002123",
-			"supportPartsItem": "modelA"
+			"supportPartsItem": "modelA",
+			"partsLabelName": "PartsB",
+			"partsAddInfo1": "Ver3.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		},
 		"children": [
 			{
@@ -140,7 +172,11 @@ func PutPartsStructure() string {
 				"traceId": "06c9b015-4225-ba30-1ed3-6faf02cb3fe6",
 				"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 				"partsItem": "PartsA-002123",
-				"supportPartsItem": "modelA"
+				"supportPartsItem": "modelA",
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		]
 	}`
@@ -161,7 +197,12 @@ func GetParts_AllItem(inputTraceId *string) string {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountUnitName": "kilogram",
 				"endFlag": false,
-				"parentFlag": true
+				"parentFlag": true,
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
+
 			}
 		],
 		"next": "2680ed32-19a3-435b-a094-23ff43aaa612"
@@ -184,6 +225,10 @@ func GetParts_TradeRequestParts(inputTraceId *string) string {
 				"amountUnitName": "kilogram",
 				"endFlag": false,
 				"parentFlag": false
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		],
 		"next": "2680ed32-19a3-435b-a094-23ff43aaa612"
@@ -201,7 +246,11 @@ func GetParts_RequireItemOnly() string {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountUnitName": null,
 				"endFlag": false,
-				"parentFlag": true
+				"parentFlag": true,
+				"partsLabelName": null,
+				"partsAddInfo1": null,
+				"partsAddInfo2": null,
+				"partsAddInfo3": null
 			}
 		],
 		"next": null
@@ -241,7 +290,11 @@ func GetParts_InvalidTypeError() string {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountUnitName": "kg",
 				"endFlag": false,
-				"parentFlag": false
+				"parentFlag": false,
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		],
 		"next": "2680ed32-19a3-435b-a094-23ff43aaa612"
@@ -683,7 +736,11 @@ func GetTradeRequestsReceived_AllItem() string {
 						"downstreamPartsItem": "B01",
 						"downstreamSupportPartsItem": "B0100",
 						"downstreamPlantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
-						"downstreamAmountUnitName": "kilogram"
+						"downstreamAmountUnitName": "kilogram",
+						"downstreamPartsLabelName": "PartsB",
+						"downstreamPartsAddInfo1": "Ver3.0",
+						"downstreamPartsAddInfo2": "2024-12-01-2024-12-31",
+						"downstreamPartsAddInfo3": "任意の情報が入ります"
 					},
 					"tradesCount": 0,
 					"tradesCountModifiedAt": "2024-05-24T22:33:44Z"
@@ -722,7 +779,11 @@ func GetTradeRequestsReceived_AllItem_WithNull() string {
 						"downstreamPartsItem": "B01",
 						"downstreamSupportPartsItem": "B0100",
 						"downstreamPlantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
-						"downstreamAmountUnitName": "kilogram"
+						"downstreamAmountUnitName": "kilogram",
+						"downstreamPartsLabelName": null,
+						"downstreamPartsAddInfo1": null,
+						"downstreamPartsAddInfo2": null,
+						"downstreamPartsAddInfo3": null
 					},
 					"tradesCount": null,
 					"tradesCountModifiedAt": null
@@ -775,7 +836,7 @@ func GetTradeRequestsReceived_AllItem_NoNext() string {
 					"requestId": "5185a435-c039-4196-bb34-0ee0c2395478",
 					"requestType": "CFP",
 					"requestStatus": "COMPLETED",
-					"requestedToOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+					"requestedFromOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 					"requestedAt": "2024-02-14T15:25:35Z",
 					"requestMessage": "A01のCFP値を回答ください",
 					"replyMessage": "A01のCFP値を回答しました",
@@ -795,7 +856,11 @@ func GetTradeRequestsReceived_AllItem_NoNext() string {
 						"downstreamPartsItem": "B01",
 						"downstreamSupportPartsItem": "B0100",
 						"downstreamPlantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
-						"downstreamAmountUnitName": "kilogram"
+						"downstreamAmountUnitName": "kilogram",
+						"downstreamPartsLabelName": "PartsB",
+						"downstreamPartsAddInfo1": "Ver3.0",
+						"downstreamPartsAddInfo2": "2024-12-01-2024-12-31",
+						"downstreamPartsAddInfo3": "任意の情報が入ります"
 					},
 					"tradesCount": 0,
 					"tradesCountModifiedAt": "2024-05-24T22:33:44Z"
@@ -803,6 +868,49 @@ func GetTradeRequestsReceived_AllItem_NoNext() string {
 			}
 		],
 		"next": null
+	}`
+}
+
+func GetTradeRequestsReceived_AllItem_MaxLength() string {
+	return `{
+		"tradeRequests": [
+			{
+				"request": {
+					"requestId": "5185a435-c039-4196-bb34-0ee0c2395478",
+					"requestType": "CFP",
+					"requestStatus": "COMPLETED",
+					"requestedFromOperatorId": "b1234567-1234-1234-1234-123456789012",
+					"requestedAt": "2024-02-14T15:25:35Z",
+					"requestMessage": "１０００文字ああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+					"replyMessage": "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
+					"responseDueDate": "2024-12-31",
+					"completedCount": 0,
+					"completedCountModifiedAt": "2024-05-23T11:22:33Z"
+				},
+				"trade": {
+					"tradeId": "a84012cc-73fb-4f9b-9130-59ae546f7092",
+					"tradeRelation": {
+						"downstreamOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+						"downstreamTraceId": "087aaa4b-8974-4a0a-9c11-b2e66ed468c5",
+						"upstreamTraceId": "38bdd8a5-76a7-a53d-de12-725707b04a1b"
+					},
+					"treeStatus": "UNTERMINATED",
+					"downstream": {
+						"downstreamPartsItem": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+						"downstreamSupportPartsItem": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+						"downstreamPlantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
+						"downstreamAmountUnitName": "kilogram",
+						"downstreamPartsLabelName": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+						"downstreamPartsAddInfo1": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+						"downstreamPartsAddInfo2": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ",
+						"downstreamPartsAddInfo3": "５０文字ああああああああああああああああああああああああああああああああああああああああああああああ"
+					},
+					"tradesCount": 0,
+					"tradesCountModifiedAt": "2024-05-24T22:33:44Z"
+				}
+			}
+		],
+		"next": "026ad6a0-a689-4b8c-8a14-7304b817096d"
 	}`
 }
 
@@ -814,7 +922,7 @@ func GetTradeRequestsReceived_RequireItemOnly() string {
 					"requestId": "5185a435-c039-4196-bb34-0ee0c2395478",
 					"requestType": "CFP",
 					"requestStatus": "COMPLETED",
-					"requestedToOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+					"requestedFromOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 					"requestedAt": "2024-02-14T15:25:35Z",
 					"requestMessage": null,
 					"replyMessage": null,
@@ -834,7 +942,11 @@ func GetTradeRequestsReceived_RequireItemOnly() string {
 						"downstreamPartsItem": "B01",
 						"downstreamSupportPartsItem": null,
 						"downstreamPlantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
-						"downstreamAmountUnitName": "kilogram"
+						"downstreamAmountUnitName": "kilogram",
+						"downstreamPartsLabelName": null,
+						"downstreamPartsAddInfo1": null,
+						"downstreamPartsAddInfo2": null,
+						"downstreamPartsAddInfo3": null
 					},
 					"tradesCount": 0,
 					"tradesCountModifiedAt": "2024-05-24T22:33:44Z"
@@ -853,7 +965,7 @@ func GetTradeRequestsReceived_RequireItemOnlyWithUndefined() string {
 					"requestId": "5185a435-c039-4196-bb34-0ee0c2395478",
 					"requestType": "CFP",
 					"requestStatus": "COMPLETED",
-					"requestedToOperatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
+					"requestedFromOperatorId": "b1234567-1234-1234-1234-123456789012",
 					"requestedAt": "2024-02-14T15:25:35Z",
 					"responseDueDate": "2024-12-31",
 					"completedCount": 0,

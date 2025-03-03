@@ -24,8 +24,8 @@ import (
 // Get /api/v1/datatransport/partsStructure テストケース
 // /////////////////////////////////////////////////////////////////////////////////
 // [x] 1-1. 200: 全項目応答
-// [x] 1-2. 200: 必須項目のみ
-// [x] 1-3. 200: 必須項目のみ(キーなし)
+// [x] 1-2. 200: nil許容項目がnil
+// [x] 1-3. 200: 任意項目が未定義
 // [x] 1-4. 200: 構成部品なし
 // [x] 1-5. 200: 検索結果なし
 // /////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,11 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": "kilogram",
-			"terminatedFlag": false
+			"terminatedFlag": false,
+			"partsLabelName": "PartsB",
+			"partsAddInfo1": "Ver3.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		},
 		"childrenPartsModel": [
 			{
@@ -54,7 +58,11 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "kilogram",
 				"terminatedFlag": false,
-				"amountRequired": 2.1
+				"amountRequired": 2.1,
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		]
 	}`
@@ -68,7 +76,11 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
 			"terminatedFlag": false,
-			"amountRequired": null
+			"amountRequired": null,
+			"partsLabelName": null,
+			"partsAddInfo1": null,
+			"partsAddInfo2": null,
+			"partsAddInfo3": null
 		},
 		"childrenPartsModel": [
 			{
@@ -80,7 +92,11 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "",
 				"terminatedFlag": false,
-				"amountRequired": null
+				"amountRequired": null,
+				"partsLabelName": null,
+				"partsAddInfo1": null,
+				"partsAddInfo2": null,
+				"partsAddInfo3": null
 			}
 		]
 	}`
@@ -94,7 +110,11 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": null,
 			"terminatedFlag": false,
-			"amountRequired": null
+			"amountRequired": null,
+			"partsLabelName": null,
+			"partsAddInfo1": null,
+			"partsAddInfo2": null,
+			"partsAddInfo3": null
 		},
 		"childrenPartsModel": []
 	}`
@@ -117,13 +137,13 @@ func TestProjectUsecaseTraceability_GetPartsStructure(tt *testing.T) {
 			expect:  dsExpectedResAll,
 		},
 		{
-			name:    "1-2. 200: 必須項目のみ",
+			name:    "1-2. 200: nil許容項目がnil",
 			input:   f.NewGetPartsStructureInput(),
 			receive: f.GetPartsStructure_RequireItemOnly(),
 			expect:  dsExpectedResRequireOnly,
 		},
 		{
-			name:    "1-3. 200: 必須項目のみ(キーなし)",
+			name:    "1-3. 200: 任意項目が未定義",
 			input:   f.NewGetPartsStructureInput(),
 			receive: f.GetPartsStructure_RequireItemOnlyWithUndefined(),
 			expect:  dsExpectedResRequireOnly,
@@ -295,7 +315,11 @@ func TestProjectUsecaseTraceability_PutPartsStructure(tt *testing.T) {
 			"plantId": "eedf264e-cace-4414-8bd3-e10ce1c090e0",
 			"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 			"amountRequiredUnit": "liter",
-			"terminatedFlag": false
+			"terminatedFlag": false,
+			"partsLabelName": "PartsB",
+			"partsAddInfo1": "Ver3.0",
+			"partsAddInfo2": "2024-12-01-2024-12-31",
+			"partsAddInfo3": "任意の情報が入ります"
 		},
 		"childrenPartsModel": [
 			{
@@ -306,7 +330,11 @@ func TestProjectUsecaseTraceability_PutPartsStructure(tt *testing.T) {
 				"operatorId": "f99c9546-e76e-9f15-35b2-abb9c9b21698",
 				"amountRequiredUnit": "liter",
 				"terminatedFlag": false,
-				"amountRequired": 1
+				"amountRequired": 1,
+				"partsLabelName": "PartsB",
+				"partsAddInfo1": "Ver3.0",
+				"partsAddInfo2": "2024-12-01-2024-12-31",
+				"partsAddInfo3": "任意の情報が入ります"
 			}
 		]
 	}`

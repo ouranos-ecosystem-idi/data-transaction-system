@@ -26,6 +26,10 @@ type PartsModel struct {
 	TerminatedFlag     bool                `json:"terminatedFlag"`
 	AmountRequired     *float64            `json:"amountRequired"`
 	AmountRequiredUnit *AmountRequiredUnit `json:"amountRequiredUnit"`
+	PartsLabelName     *string             `json:"partsLabelName"`
+	PartsAddInfo1      *string             `json:"partsAddInfo1"`
+	PartsAddInfo2      *string             `json:"partsAddInfo2"`
+	PartsAddInfo3      *string             `json:"partsAddInfo3"`
 }
 
 // PartsModels
@@ -112,6 +116,10 @@ type PartsModelEntity struct {
 	CreatedUserId      string         `json:"createdUserId" gorm:"type:varchar(256);not null; <-:create"`
 	UpdatedAt          time.Time      `json:"updatedAt"`
 	UpdatedUserId      string         `json:"updatedUserId" gorm:"type:varchar(256);not null"`
+	PartsLabelName     *string        `json:"partsLabelName" gorm:"type:string"`
+	PartsAddInfo1      *string        `json:"partsAddInfo1" gorm:"type:string"`
+	PartsAddInfo2      *string        `json:"partsAddInfo2" gorm:"type:string"`
+	PartsAddInfo3      *string        `json:"partsAddInfo3" gorm:"type:string"`
 }
 
 // PartsModelEntities
@@ -144,6 +152,10 @@ type PutPartsInput struct {
 	TerminatedFlag     *bool    `json:"terminatedFlag"`
 	AmountRequired     *float64 `json:"amountRequired"`
 	AmountRequiredUnit *string  `json:"amountRequiredUnit"`
+	PartsLabelName     *string  `json:"partsLabelName"`
+	PartsAddInfo1      *string  `json:"partsAddInfo1"`
+	PartsAddInfo2      *string  `json:"partsAddInfo2"`
+	PartsAddInfo3      *string  `json:"partsAddInfo3"`
 }
 
 // PutPartsInputs
@@ -180,11 +192,11 @@ func (i PutPartsInput) validate() error {
 		validation.Field(
 			&i.PartsName,
 			validation.Required,
-			validation.RuneLength(1, 20),
+			validation.RuneLength(1, 50),
 		),
 		validation.Field(
 			&i.SupportPartsName,
-			validation.RuneLength(0, 10),
+			validation.RuneLength(0, 50),
 		),
 		validation.Field(
 			&i.TerminatedFlag,
@@ -197,6 +209,22 @@ func (i PutPartsInput) validate() error {
 		validation.Field(
 			&i.AmountRequiredUnit,
 			validation.By(EnumAmountRequiredUnitValidOrNil),
+		),
+		validation.Field(
+			&i.PartsLabelName,
+			validation.RuneLength(0, 50),
+		),
+		validation.Field(
+			&i.PartsAddInfo1,
+			validation.RuneLength(0, 50),
+		),
+		validation.Field(
+			&i.PartsAddInfo2,
+			validation.RuneLength(0, 50),
+		),
+		validation.Field(
+			&i.PartsAddInfo3,
+			validation.RuneLength(0, 50),
 		),
 	)
 }
@@ -221,11 +249,11 @@ func (i PutPartsInput) validateForChild() error {
 		validation.Field(
 			&i.PartsName,
 			validation.Required,
-			validation.RuneLength(1, 20),
+			validation.RuneLength(1, 50),
 		),
 		validation.Field(
 			&i.SupportPartsName,
-			validation.RuneLength(0, 10),
+			validation.RuneLength(0, 50),
 		),
 		validation.Field(
 			&i.TerminatedFlag,
@@ -233,7 +261,7 @@ func (i PutPartsInput) validateForChild() error {
 		),
 		validation.Field(
 			&i.AmountRequired,
-			validation.Required,
+			validation.NotNil,
 			validation.Min(0.00000),
 			validation.Max(99999.99999),
 			validation.By(common.FloatPtr5thDecimal),
@@ -242,6 +270,22 @@ func (i PutPartsInput) validateForChild() error {
 			&i.AmountRequiredUnit,
 			validation.NotNil,
 			validation.By(EnumAmountRequiredUnitValidOrNil),
+		),
+		validation.Field(
+			&i.PartsLabelName,
+			validation.RuneLength(0, 50),
+		),
+		validation.Field(
+			&i.PartsAddInfo1,
+			validation.RuneLength(0, 50),
+		),
+		validation.Field(
+			&i.PartsAddInfo2,
+			validation.RuneLength(0, 50),
+		),
+		validation.Field(
+			&i.PartsAddInfo3,
+			validation.RuneLength(0, 50),
 		),
 	)
 }
@@ -261,6 +305,10 @@ func (e PartsModelEntity) ToModel() (PartsModel, error) {
 		SupportPartsName: e.SupportPartsName,
 		TerminatedFlag:   e.TerminatedFlag,
 		AmountRequired:   e.AmountRequired,
+		PartsLabelName:   e.PartsLabelName,
+		PartsAddInfo1:    e.PartsAddInfo1,
+		PartsAddInfo2:    e.PartsAddInfo2,
+		PartsAddInfo3:    e.PartsAddInfo3,
 	}
 
 	var amountRequiredUnit AmountRequiredUnit
@@ -356,6 +404,10 @@ func (i PutPartsInput) ToModel() (PartsModel, error) {
 	model.SupportPartsName = i.SupportPartsName
 	model.TerminatedFlag = *i.TerminatedFlag
 	model.AmountRequired = i.AmountRequired
+	model.PartsLabelName = i.PartsLabelName
+	model.PartsAddInfo1 = i.PartsAddInfo1
+	model.PartsAddInfo2 = i.PartsAddInfo2
+	model.PartsAddInfo3 = i.PartsAddInfo3
 
 	return model, nil
 }
